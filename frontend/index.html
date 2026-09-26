@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1a090d" />
+    <meta
+      name="description"
+      content="Copa 5 - Complejo Deportivo. Reserva tu cancha y seguí los torneos de tu comunidad."
+    />
+    <title>Copa 5 - Complejo Deportivo</title>
+    <script>
+      try {
+        var t = localStorage.getItem('canchas.theme');
+        var dark = t !== 'light';
+        document.documentElement.classList.toggle('dark', dark);
+        document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+      } catch (e) {
+        document.documentElement.classList.add('dark');
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

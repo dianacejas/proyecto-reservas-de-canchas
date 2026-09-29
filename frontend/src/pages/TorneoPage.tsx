@@ -8,6 +8,7 @@ import ErrorState from '../components/common/ErrorState'
 import Loading from '../components/common/Loading'
 import TableSkeleton from '../components/common/TableSkeleton'
 import FixtureList from '../components/tournament/FixtureList'
+import { PlayoffBracketPanel } from '../components/tournament/PlayoffBracket'
 import StandingsTable from '../components/tournament/StandingsTable'
 import AdminPanel from '../components/tournament/AdminPanel'
 import type { GroupStandings, TournamentStatus } from '../types'
@@ -89,6 +90,7 @@ export default function TorneoPage(): React.JSX.Element {
         <Tabs.List>
           <Tabs.Tab id="posiciones">Posiciones</Tabs.Tab>
           <Tabs.Tab id="fixture">Fixture</Tabs.Tab>
+          <Tabs.Tab id="playoffs">Fase Final</Tabs.Tab>
         </Tabs.List>
 
         <Tabs.Panel id="posiciones">
@@ -119,6 +121,10 @@ export default function TorneoPage(): React.JSX.Element {
           ) : (
             <FixtureList matchdays={matchdaysQuery.data ?? []} />
           )}
+        </Tabs.Panel>
+
+        <Tabs.Panel id="playoffs">
+          {id !== undefined && <PlayoffBracketPanel tournamentId={id} isAdmin={isAdmin} />}
         </Tabs.Panel>
       </Tabs.Root>
 

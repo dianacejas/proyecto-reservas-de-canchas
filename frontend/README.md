@@ -35,12 +35,12 @@ src/
     layout/         Navbar, Footer (leyenda de estados)
     courts/         CourtGallery (fotos de canchas de fútbol 5 en `public/images/canchas/`)
     booking/        FieldPicker, DateNav, BookingModal
-    tournament/     StandingsTable, FixtureList, AdminPanel
+    tournament/     StandingsTable, FixtureList, PlayoffBracket, TeamCrest, AdminPanel
     common/         Loading, ErrorState, AuthGuards
   hooks/            useDarkMode (oscuro por defecto)
   auth/             contexto de autenticación (JWT en localStorage `canchas.auth`)
   api/              cliente HTTP + hooks de TanStack Query
-  utils/            helpers de fecha/hora
+  utils/            helpers de fecha/hora y paleta de escudos (crest)
   types/            modelos compartidos
 ```
 

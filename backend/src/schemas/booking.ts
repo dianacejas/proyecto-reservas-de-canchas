@@ -2,12 +2,40 @@ import { z } from 'zod'
 import { objectIdSchema, timeSchema } from './common.js'
 
 export const bookingStatusSchema = z.enum(['pendiente', 'confirmada', 'cancelada'])
-export const bookingTypeSchema = z.enum(['amistoso', 'torneo'])
+export const bookingTypeSchema = z.enum(['amistoso', 'torneo', 'mantenimiento'])
 
 export const clientInfoSchema = z.object({
   name: z.string().trim().min(1, 'El nombre es requerido'),
   phone: z.string().trim().min(6, 'El teléfono es inválido'),
 })
+
+export const createAdminBookingSchema = z
+  .object({
+    fieldId: objectIdSchema,
+    date: z.coerce.date(),
+    startTime: timeSchema,
+    endTime: timeSchema,
+    kind: z.enum(['reserva', 'bloqueo']),
+    clientInfo: clientInfoSchema.optional(),
+  })
+  .superRefine((b, ctx) => {
+    if (b.kind === 'reserva' && b.clientInfo === undefined) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Debe indicar los datos del cliente para la reserva de mostrador',
+        path: ['clientInfo'],
+      })
+    }
+    if (b.endTime <= b.startTime) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'La hora de fin debe ser posterior a la de inicio',
+        path: ['endTime'],
+      })
+    }
+  })
+
+export type CreateAdminBookingInput = z.infer<typeof createAdminBookingSchema>
 
 const bookingFields = {
   fieldId: objectIdSchema,

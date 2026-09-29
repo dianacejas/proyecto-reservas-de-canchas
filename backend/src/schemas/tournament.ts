@@ -9,6 +9,12 @@ export const createTournamentSchema = z.object({
 
 export const updateTournamentSchema = createTournamentSchema.partial()
 
+export const generatePlayoffsSchema = z.object({
+  teamsPerGroup: z.number().int().min(1).max(4).optional(),
+})
+
+export type GeneratePlayoffsInput = z.infer<typeof generatePlayoffsSchema>
+
 export type CreateTournamentInput = z.infer<typeof createTournamentSchema>
 export type UpdateTournamentInput = z.infer<typeof updateTournamentSchema>
 

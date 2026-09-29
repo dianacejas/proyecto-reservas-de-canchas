@@ -31,6 +31,7 @@ interface Notice {
 }
 
 const TORNEO_LABEL = 'Bloqueada (torneo)'
+const BLOQUEO_LABEL = 'Bloqueada (mantenimiento)'
 
 export default function ReservasPage(): React.JSX.Element {
   const queryClient = useQueryClient()
@@ -267,14 +268,17 @@ export default function ReservasPage(): React.JSX.Element {
                   const chipMeta =
                     slot.kind === 'torneo'
                       ? { label: TORNEO_LABEL, color: 'accent' as const }
-                      : slot.kind === 'confirmada'
-                        ? { label: 'Confirmada', color: 'success' as const }
-                        : slot.kind === 'pendiente'
-                          ? { label: 'Pendiente', color: 'warning' as const }
-                          : null
+                      : slot.kind === 'mantenimiento'
+                        ? { label: BLOQUEO_LABEL, color: 'warning' as const }
+                        : slot.kind === 'confirmada'
+                          ? { label: 'Confirmada', color: 'success' as const }
+                          : slot.kind === 'pendiente'
+                            ? { label: 'Pendiente', color: 'warning' as const }
+                            : null
                   const ocupado = slot.kind !== 'libre'
                   const booking = slot.booking
-                  const isAlertChip = slot.kind === 'torneo' || slot.kind === 'pendiente'
+                  const isAlertChip =
+                    slot.kind === 'torneo' || slot.kind === 'mantenimiento' || slot.kind === 'pendiente'
                   return (
                     <FadeUp key={slot.start} delayMs={Math.min(index, 8) * 40}>
                       <div

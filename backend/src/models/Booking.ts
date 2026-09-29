@@ -11,7 +11,7 @@ const bookingSchema = new Schema(
       phone: { type: String, required: true, trim: true },
     },
     status: { type: String, enum: ['pendiente', 'confirmada', 'cancelada'], default: 'pendiente' },
-    type: { type: String, enum: ['amistoso', 'torneo'], default: 'amistoso' },
+    type: { type: String, enum: ['amistoso', 'torneo', 'mantenimiento'], default: 'amistoso' },
   },
   {
     timestamps: true,

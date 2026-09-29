@@ -7,6 +7,7 @@ import type {
   UpdateTournamentInput,
 } from '../schemas/index.js'
 import { getGroupStandings } from '../services/standings.service.js'
+import { generatePlayoffs, getPlayoffBracket } from '../services/playoffs.service.js'
 import { assertFound } from '../utils/assertFound.js'
 import { asyncHandler } from '../utils/asyncHandler.js'
 
@@ -57,7 +58,7 @@ export const listTournamentTeams = asyncHandler(async (req, res) => {
 export const listTournamentMatches = asyncHandler(async (req, res) => {
   const { id } = req.validData.params as IdParams
   const query = (req.validData.query ?? {}) as ListMatchesQuery
-  const filter: Record<string, unknown> = { tournamentId: id }
+  const filter: Record<string, unknown> = { tournamentId: id, fase: 'grupos' }
   if (query.group) filter.group = query.group
   if (query.matchday) filter.matchday = query.matchday
 
@@ -88,4 +89,16 @@ export const getTournamentStandings = asyncHandler(async (req, res) => {
   groups.sort((a, b) => a.localeCompare(b, 'es'))
   const standings = await Promise.all(groups.map((group) => getGroupStandings(id, group)))
   res.json({ data: standings })
+})
+
+export const generatePlayoffsController = asyncHandler(async (req, res) => {
+  const { id } = req.validData.params as IdParams
+  const body = (req.validData.body ?? {}) as { teamsPerGroup?: number }
+  const data = await generatePlayoffs(id, body.teamsPerGroup ?? 2)
+  res.status(201).json({ data })
+})
+
+export const getPlayoffBracketController = asyncHandler(async (req, res) => {
+  const { id } = req.validData.params as IdParams
+  res.json({ data: await getPlayoffBracket(id) })
 })

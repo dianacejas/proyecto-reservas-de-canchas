@@ -1,3 +1,4 @@
+import { Types } from 'mongoose'
 import { Booking, Match, Team, Tournament, type MatchDoc } from '../models/index.js'
 import type { MatchSchedule, UpdateMatchInput } from '../schemas/index.js'
 import { hasSchedule } from '../schemas/index.js'
@@ -10,14 +11,61 @@ export interface CreateMatchServiceInput {
   tournamentId: string
   group: string
   matchday: number
-  homeTeamId: string
-  awayTeamId: string
+  homeTeamId: string | null
+  awayTeamId: string | null
   homeGoals?: number | null
   awayGoals?: number | null
   fieldId?: string
   date?: Date
   startTime?: string
   endTime?: string
+}
+
+export interface TeamDocLike {
+  _id: { toString(): string }
+  name: string
+}
+
+export interface MatchForScore {
+  homeTeamId?: Types.ObjectId | TeamDocLike | null
+  awayTeamId?: Types.ObjectId | TeamDocLike | null
+  homeGoals?: number | null
+  awayGoals?: number | null
+  homePenalties?: number | null
+  awayPenalties?: number | null
+}
+
+export function computeMatchWinner(match: MatchForScore): { teamId: string; name?: string } | null {
+  const home = match.homeTeamId
+  const away = match.awayTeamId
+  if (home === null || home === undefined || away === null || away === undefined) return null
+  const homeId = home.toString()
+  const awayId = away.toString()
+
+  const homeGoals = match.homeGoals ?? 0
+  const awayGoals = match.awayGoals ?? 0
+  let teamId: string | null = null
+  if (homeGoals > awayGoals) {
+    teamId = homeId
+  } else if (awayGoals > homeGoals) {
+    teamId = awayId
+  } else {
+    const homePen = match.homePenalties ?? -1
+    const awayPen = match.awayPenalties ?? -1
+    if (homePen > awayPen) teamId = homeId
+    else if (awayPen > homePen) teamId = awayId
+    else teamId = null
+  }
+
+  if (teamId === null) return null
+  if (typeof home === 'object' && 'name' in home && home.toString() === teamId) {
+    const named = home.toString() === teamId ? home : null
+    if (named !== null && 'name' in named) return { teamId, name: named.name }
+  }
+  if (typeof away === 'object' && 'name' in away && away.toString() === teamId) {
+    return { teamId, name: (away as TeamDocLike).name }
+  }
+  return { teamId }
 }
 
 export async function getTournamentName(tournamentId: string): Promise<string> {
@@ -42,6 +90,9 @@ export async function assertMatchTeams(
 }
 
 export async function createMatch(body: CreateMatchServiceInput): Promise<MatchDoc> {
+  if (body.homeTeamId === null || body.homeTeamId === undefined || body.awayTeamId === null || body.awayTeamId === undefined) {
+    throw new AppError(400, 'Debe indicar los dos equipos del partido')
+  }
   await assertMatchTeams(body.tournamentId, body.group, body.homeTeamId, body.awayTeamId)
 
   let bookingId: string | null = null
@@ -90,13 +141,14 @@ export async function updateMatchById(id: string, body: UpdateMatchInput): Promi
     await assertMatchTeams(
       body.tournamentId ?? match.tournamentId.toString(),
       body.group ?? match.group,
-      body.homeTeamId ?? match.homeTeamId.toString(),
-      body.awayTeamId ?? match.awayTeamId.toString()
+      body.homeTeamId ?? (match.homeTeamId?.toString() ?? ''),
+      body.awayTeamId ?? (match.awayTeamId?.toString() ?? '')
     )
   }
 
   const next: UpdateMatchInput = { ...body }
   const scoreProvided = body.homeGoals !== undefined && body.awayGoals !== undefined
+  const oldWinner = computeMatchWinner(match)
 
   if (scoreProvided) {
     next.homeGoals = body.homeGoals
@@ -113,6 +165,23 @@ export async function updateMatchById(id: string, body: UpdateMatchInput): Promi
   if (next.status === 'programado') {
     next.homeGoals = null
     next.awayGoals = null
+    next.homePenalties = null
+    next.awayPenalties = null
+  } else if (next.status === 'finalizado') {
+    const isFinalizedByPenalties =
+      (next.homePenalties !== undefined && next.awayPenalties !== undefined) ||
+      (match.homePenalties !== null && match.awayPenalties !== null)
+    if (
+      match.fase !== 'grupos' &&
+      (next.homeGoals ?? match.homeGoals) === (next.awayGoals ?? match.awayGoals) &&
+      !isFinalizedByPenalties
+    ) {
+      throw new AppError(400, 'Debe indicar los penales de ambos equipos para definir al ganador')
+    }
+    if ((next.homeGoals ?? match.homeGoals) !== (next.awayGoals ?? match.awayGoals)) {
+      next.homePenalties = null
+      next.awayPenalties = null
+    }
   }
 
   if (hasSchedule(body)) {
@@ -140,10 +209,44 @@ export async function updateMatchById(id: string, body: UpdateMatchInput): Promi
     }
   }
 
-  return assertFound(
+  const updated = assertFound(
     await Match.findByIdAndUpdate(id, next, { new: true }),
     'Partido no encontrado'
   )
+
+  if (updated.status === 'finalizado' && updated.fase !== 'grupos') {
+    await advancePlayoffWinner(updated, oldWinner)
+  }
+
+  return updated
+}
+
+export async function advancePlayoffWinner(
+  match: MatchDoc,
+  previousWinner: { teamId: string } | null = null
+): Promise<void> {
+  if (match.nextMatchId === null) return
+  const winner = computeMatchWinner(match)
+  if (winner === null) return
+
+  const next = await Match.findById(match.nextMatchId)
+  if (next === null) return
+
+  const winnerId = new Types.ObjectId(winner.teamId)
+  const homeId = next.homeTeamId?.toString()
+  const awayId = next.awayTeamId?.toString()
+
+  if (previousWinner !== null && (previousWinner.teamId === homeId || previousWinner.teamId === awayId)) {
+    if (previousWinner.teamId === homeId) next.homeTeamId = winnerId
+    else next.awayTeamId = winnerId
+  } else if (homeId === undefined) {
+    next.homeTeamId = winnerId
+  } else if (awayId === undefined) {
+    next.awayTeamId = winnerId
+  } else {
+    next.awayTeamId = winnerId
+  }
+  await next.save()
 }
 
 export async function deleteMatchById(id: string): Promise<MatchDoc> {

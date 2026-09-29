@@ -1,6 +1,6 @@
 import type { Booking } from '../types'
 
-export type SlotKind = 'libre' | 'torneo' | 'confirmada' | 'pendiente'
+export type SlotKind = 'libre' | 'torneo' | 'confirmada' | 'pendiente' | 'mantenimiento'
 
 export interface GridSlot {
   start: string
@@ -33,9 +33,13 @@ export function buildSlots(bookings: Booking[]): GridSlot[] {
     let kind: SlotKind = 'libre'
     let booking: Booking | undefined
     if (found.length > 0) {
+      const mantenimiento = found.find((item) => item.type === 'mantenimiento')
       const torneo = found.find((item) => item.type === 'torneo')
       const confirmada = found.find((item) => item.status === 'confirmada')
-      if (torneo !== undefined) {
+      if (mantenimiento !== undefined) {
+        kind = 'mantenimiento'
+        booking = mantenimiento
+      } else if (torneo !== undefined) {
         kind = 'torneo'
         booking = torneo
       } else if (confirmada !== undefined) {

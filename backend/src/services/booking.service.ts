@@ -1,5 +1,5 @@
 import { Booking, Field, Match, type BookingDoc } from '../models/index.js'
-import type { UpdateBookingInput } from '../schemas/index.js'
+import type { CreateAdminBookingInput, UpdateBookingInput } from '../schemas/index.js'
 import { AppError } from '../utils/AppError.js'
 import { assertFound } from '../utils/assertFound.js'
 import { dayStart } from '../utils/time.js'
@@ -79,6 +79,36 @@ export async function createTournamentBooking(
     clientInfo: { name: tournamentName ?? 'Reserva de torneo', phone: '000000' },
     status: 'confirmada',
     type: 'torneo',
+  })
+}
+
+export async function createAdminBooking(body: CreateAdminBookingInput): Promise<BookingDoc> {
+  const field = await Field.findOne({ _id: body.fieldId, isActive: true })
+  if (!field) throw new AppError(404, 'La cancha seleccionada no está disponible')
+
+  const slot: SlotInput = {
+    fieldId: body.fieldId,
+    date: dayStart(body.date),
+    startTime: body.startTime,
+    endTime: body.endTime,
+  }
+  const conflict = await findConflictingBooking(slot)
+  if (conflict) throw new AppError(409, 'El horario seleccionado ya se encuentra reservado')
+
+  if (body.kind === 'bloqueo') {
+    return Booking.create({
+      ...slot,
+      clientInfo: { name: body.clientInfo?.name ?? 'Bloqueo operativo', phone: '000000' },
+      status: 'confirmada',
+      type: 'mantenimiento',
+    })
+  }
+
+  return Booking.create({
+    ...slot,
+    clientInfo: body.clientInfo as CreateAdminBookingInput['clientInfo'],
+    status: 'confirmada',
+    type: 'amistoso',
   })
 }
 

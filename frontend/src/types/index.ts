@@ -1,7 +1,8 @@
 export type BookingStatus = 'pendiente' | 'confirmada' | 'cancelada'
-export type BookingType = 'amistoso' | 'torneo'
+export type BookingType = 'amistoso' | 'torneo' | 'mantenimiento'
 export type TournamentStatus = 'inscripcion' | 'en_curso' | 'finalizado'
 export type MatchStatus = 'programado' | 'finalizado'
+export type MatchFase = 'grupos' | 'octavos' | 'cuartos' | 'semifinal' | 'final'
 
 export interface Field {
   id: string
@@ -83,12 +84,16 @@ export interface Match {
   tournamentId: string
   group: string
   matchday: number
-  homeTeamId: string | TeamRef
-  awayTeamId: string | TeamRef
+  fase: MatchFase
+  homeTeamId: string | TeamRef | null
+  awayTeamId: string | TeamRef | null
   homeGoals: number | null
   awayGoals: number | null
+  homePenalties: number | null
+  awayPenalties: number | null
   status: MatchStatus
   bookingId: MatchBookingRef | null
+  nextMatchId: string | null
   createdAt: string
   updatedAt: string
 }
@@ -115,6 +120,17 @@ export interface GroupStandings {
 export interface Matchday {
   matchday: number
   matches: Match[]
+}
+
+export interface PlayoffRound {
+  fase: MatchFase
+  label: string
+  matches: Match[]
+}
+
+export interface PlayoffBracket {
+  rounds: PlayoffRound[]
+  champion: { teamId: string; teamName: string } | null
 }
 
 export type UserRole = 'admin' | 'cliente'

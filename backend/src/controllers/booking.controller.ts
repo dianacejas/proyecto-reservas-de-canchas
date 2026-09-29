@@ -1,6 +1,13 @@
 import { Booking } from '../models/index.js'
-import type { CreateBookingInput, IdParams, ListBookingsQuery, UpdateBookingInput } from '../schemas/index.js'
+import type {
+  CreateAdminBookingInput,
+  CreateBookingInput,
+  IdParams,
+  ListBookingsQuery,
+  UpdateBookingInput,
+} from '../schemas/index.js'
 import {
+  createAdminBooking,
   createPublicBooking,
   deleteBookingById,
   updateBookingById,
@@ -32,6 +39,11 @@ export const getBooking = asyncHandler(async (req, res) => {
 export const createBooking = asyncHandler(async (req, res) => {
   const body = req.validData.body as CreateBookingInput
   res.status(201).json({ data: await createPublicBooking(body) })
+})
+
+export const createAdminBookingController = asyncHandler(async (req, res) => {
+  const body = req.validData.body as CreateAdminBookingInput
+  res.status(201).json({ data: await createAdminBooking(body) })
 })
 
 export const updateBooking = asyncHandler(async (req, res) => {

@@ -176,8 +176,10 @@ function ScoreRow({
   const [away, setAway] = useState(match.awayGoals ?? 0)
   const finished = match.status === 'finalizado'
 
-  const localName = typeof match.homeTeamId === 'string' ? 'Local' : match.homeTeamId.name
-  const visitanteName = typeof match.awayTeamId === 'string' ? 'Visitante' : match.awayTeamId.name
+  const localName =
+    typeof match.homeTeamId === 'string' ? 'Local' : (match.homeTeamId?.name ?? 'Local')
+  const visitanteName =
+    typeof match.awayTeamId === 'string' ? 'Visitante' : (match.awayTeamId?.name ?? 'Visitante')
 
   function handleSave(): void {
     onSave(Math.max(0, Math.floor(Number(home) || 0)), Math.max(0, Math.floor(Number(away) || 0)))

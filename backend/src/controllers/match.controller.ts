@@ -1,5 +1,11 @@
 import { Match } from '../models/index.js'
-import type { CreateMatchInput, IdParams, ListMatchesQuery, UpdateMatchInput } from '../schemas/index.js'
+import type {
+  CreateMatchInput,
+  IdParams,
+  ListMatchesQuery,
+  UpdateMatchInput,
+  UpdateMatchScoreInput,
+} from '../schemas/index.js'
 import { createMatch, deleteMatchById, updateMatchById } from '../services/match.service.js'
 import { assertFound } from '../utils/assertFound.js'
 import { asyncHandler } from '../utils/asyncHandler.js'
@@ -10,6 +16,7 @@ export const listMatches = asyncHandler(async (req, res) => {
   if (query.tournamentId) filter.tournamentId = query.tournamentId
   if (query.group) filter.group = query.group
   if (query.matchday) filter.matchday = query.matchday
+  if (query.fase) filter.fase = query.fase
 
   const matches = await Match.find(filter)
     .populate('homeTeamId awayTeamId', 'name')
@@ -41,6 +48,18 @@ export const updateMatch = asyncHandler(async (req, res) => {
   const { id } = req.validData.params as IdParams
   const body = req.validData.body as UpdateMatchInput
   res.json({ data: await updateMatchById(id, body) })
+})
+
+export const updateMatchScore = asyncHandler(async (req, res) => {
+  const { id } = req.validData.params as IdParams
+  const body = req.validData.body as UpdateMatchScoreInput
+  const input: UpdateMatchInput = {
+    homeGoals: body.homeGoals,
+    awayGoals: body.awayGoals,
+    homePenalties: body.homePenalties ?? null,
+    awayPenalties: body.awayPenalties ?? null,
+  }
+  res.json({ data: await updateMatchById(id, input) })
 })
 
 export const removeMatch = asyncHandler(async (req, res) => {

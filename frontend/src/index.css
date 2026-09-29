@@ -186,8 +186,8 @@ body {
   --accent-foreground: #1a090d;
 
   /* Estados */
-  --success: #19381f;
-  --success-foreground: #eaf2c8;
+  --success: #a3e635;
+  --success-foreground: #14180c;
   --warning: #c57b57;
   --warning-foreground: #1a090d;
   --danger: #c1514a;

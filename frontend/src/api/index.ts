@@ -9,6 +9,7 @@ import type {
   Match,
   Matchday,
   Payment,
+  PlayoffBracket,
   Team,
   Tournament,
 } from '../types'
@@ -19,6 +20,15 @@ export interface CreateBookingInput {
   startTime: string
   endTime: string
   clientInfo: { name: string; phone: string }
+}
+
+export interface CreateAdminBookingInput {
+  fieldId: string
+  date: string
+  startTime: string
+  endTime: string
+  kind: 'reserva' | 'bloqueo'
+  clientInfo?: { name: string; phone: string } | null
 }
 
 export interface LoginInput {
@@ -84,8 +94,19 @@ export function listBookings(fieldId: string, date: string): Promise<Booking[]> 
   return apiRequest<Booking[]>(`/bookings?fieldId=${fieldId}&date=${date}`)
 }
 
+export function listBookingsByDate(date: string): Promise<Booking[]> {
+  return apiRequest<Booking[]>(`/bookings?date=${date}`)
+}
+
 export function createBooking(input: CreateBookingInput): Promise<Booking> {
   return apiRequest<Booking>('/bookings', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  })
+}
+
+export function createAdminBooking(input: CreateAdminBookingInput): Promise<Booking> {
+  return apiRequest<Booking>('/bookings/admin', {
     method: 'POST',
     body: JSON.stringify(input),
   })
@@ -136,10 +157,27 @@ export function createTeam(input: { name: string; tournamentId: string; group: s
   })
 }
 
-export function updateMatchScore(id: string, input: { homeGoals: number; awayGoals: number }): Promise<Match> {
-  return apiRequest<Match>(`/matches/${id}`, {
-    method: 'PUT',
-    body: JSON.stringify(input),
+export function updateMatchScore(
+  id: string,
+  input: { homeGoals: number; awayGoals: number; homePenalties?: number; awayPenalties?: number }
+): Promise<Match> {
+  const payload: Record<string, number> = { homeGoals: input.homeGoals, awayGoals: input.awayGoals }
+  if (input.homePenalties !== undefined) payload.homePenalties = input.homePenalties
+  if (input.awayPenalties !== undefined) payload.awayPenalties = input.awayPenalties
+  return apiRequest<Match>(`/matches/${id}/score`, {
+    method: 'PATCH',
+    body: JSON.stringify(payload),
+  })
+}
+
+export function getPlayoffs(id: string): Promise<PlayoffBracket> {
+  return apiRequest<PlayoffBracket>(`/tournaments/${id}/playoffs`)
+}
+
+export function generatePlayoffs(id: string): Promise<PlayoffBracket> {
+  return apiRequest<PlayoffBracket>(`/tournaments/${id}/playoffs`, {
+    method: 'POST',
+    body: JSON.stringify({}),
   })
 }
 

@@ -54,6 +54,7 @@ export async function getGroupStandings(
   }
 
   for (const match of matches) {
+    if (match.homeTeamId === null || match.homeTeamId === undefined || match.awayTeamId === null || match.awayTeamId === undefined) continue
     const homeKey = match.homeTeamId.toString()
     const awayKey = match.awayTeamId.toString()
     const home = stats.get(homeKey)

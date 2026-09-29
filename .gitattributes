@@ -1,0 +1,17 @@
+# Normaliza los finales de linea en el repositorio: siempre LF.
+# Los blobs ya estan en LF, asi que esto no genera diff masivo; solo evita
+# que core.autocrlf=true (Windows) reescriba el working tree a CRLF y
+# emita el aviso "LF will be replaced by CRLF" en cada git add.
+* text=auto eol=lf
+
+# Binarios: nunca tocar finales de linea
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.pdf binary

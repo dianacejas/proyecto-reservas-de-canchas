@@ -4,7 +4,7 @@ import Logo from '../brand/Logo'
 const LEGEND = [
   { color: 'bg-lime', label: 'Disponible' },
   { color: 'bg-cinnamon', label: 'Pendiente de pago / confirmación' },
-  { color: 'bg-evergreen', label: 'Confirmada' },
+  { color: 'bg-evergreen dark:bg-[#a3e635]', label: 'Confirmada' },
 ]
 
 export default function Footer(): React.JSX.Element {

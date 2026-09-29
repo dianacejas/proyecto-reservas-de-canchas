@@ -86,6 +86,5 @@ que desmonta toda la página. Las posiciones usan una `<table>` semántica
 | `npm run lint` | `oxlint` sobre el `src`                    |
 | `npm run preview` | Sirve el build de producción            |
 
-El backend espera: `http://localhost:4000` (ver la guía de inicio del
-proyecto). Usuarios demo: admin `admin@canchas.com` / `admin123` · cliente
-`juan@canchas.com` / `juan123`.
+El backend espera: `http://localhost:4000`. Las variables de entorno y los
+usuarios de ejemplo se detallan en el README de la raíz del repositorio.

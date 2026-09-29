@@ -235,6 +235,36 @@ body {
 }
 
 /* ==========================================================================
+   Calendario (HeroUI DatePicker + Calendar).
+
+   @heroui/styles aplica `bg-overlay` al popover pero nunca fija `color`, y
+   ninguna de las piezas (.calendar__cell, __heading, __nav-button) lo define
+   tampoco salvo en estados puntuales. Como el tema no pone color en html/body,
+   el texto del calendario hereda el negro por defecto del navegador y queda
+   ilegible sobre --overlay (#33242c en oscuro). Se ancla el color al token
+   --overlay-foreground, que el tema ya define para cada modo.
+   ========================================================================== */
+.date-picker__popover {
+  color: var(--overlay-foreground);
+}
+
+.calendar__heading,
+.calendar__header-cell,
+.calendar__nav-button,
+.calendar__cell {
+  color: var(--overlay-foreground);
+}
+
+/* Los estados de celda que sí traen color propio (seleccionada, deshabilitada,
+   fuera de mes) tienen que ganarle a la regla anterior. */
+.calendar__cell[data-selected='true'] {
+  color: var(--accent-foreground);
+}
+.calendar__cell[data-outside-month='true'] {
+  color: var(--muted);
+}
+
+/* ==========================================================================
    Tabs (HeroUI) — contraste y legibilidad en ambos temas.
    Se usa el slot (no capa) para ganar a los estilos de @heroui/styles.
    ========================================================================== */

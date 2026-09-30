@@ -55,7 +55,7 @@ export default function DateNav({ date, onChange }: DateNavProps): React.JSX.Ele
         minValue={minDate}
         // El trigger trae width:100% de @heroui/styles y se estiraria al ancho
         // disponible dentro del flex-wrap de DateNav.
-        className="w-auto shrink-0"
+        className="w-auto shrink-0 self-center"
         onChange={(next) => {
           if (next === null) return
           onChange(next.toString().slice(0, 10))
@@ -64,10 +64,10 @@ export default function DateNav({ date, onChange }: DateNavProps): React.JSX.Ele
         <DatePicker.Trigger
           ref={triggerRef}
           aria-label="Elegir otra fecha"
-          className="w-auto shrink-0 text-sm font-semibold"
+          className="w-auto shrink-0 gap-1.5 rounded-lg border border-line bg-cream px-2.5 py-1.5 text-sm font-semibold text-coffee transition-colors hover:bg-cream/70 dark:border-mauve dark:bg-coffee-elev dark:text-[#f3efe8] dark:hover:bg-coffee-elev/70"
         >
-          {formatDayShort(date)}
           <DatePicker.TriggerIndicator />
+          {formatDayShort(date)}
         </DatePicker.Trigger>
         <DatePicker.Popover placement="bottom start" offset={8} triggerRef={triggerRef}>
           <Calendar>

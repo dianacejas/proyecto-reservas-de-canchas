@@ -11,9 +11,9 @@ import TorneosPage from './pages/TorneosPage'
 
 export default function App(): React.JSX.Element {
   return (
-    <div className="flex min-h-svh flex-col bg-paper text-coffee transition-colors dark:bg-coffee dark:text-[#f3efe8]">
+    <div className="flex min-h-svh w-full max-w-full flex-col overflow-x-hidden bg-paper text-coffee transition-colors dark:bg-coffee dark:text-[#f3efe8]">
       <Navbar />
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:py-8">
         <Routes>
           <Route path="/" element={<ReservasPage />} />
           <Route path="/login" element={<LoginPage />} />

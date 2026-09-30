@@ -79,6 +79,11 @@ body,
 
 body {
   margin: 0;
+  /* Los scrollers internos (tabla de posiciones, bracket) son los unicos
+     autorizados a deslocar en horizontal. En el body cualquier desborde es
+     un bug de layout, asi que se corta. */
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
 }
 
 ::selection {

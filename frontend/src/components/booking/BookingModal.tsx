@@ -48,8 +48,8 @@ export default function BookingModal({
 
   return (
     <Modal.Root isOpen onOpenChange={(open) => open || onClose()}>
-      <Modal.Backdrop />
-      <Modal.Container>
+      <Modal.Backdrop variant="blur" />
+      <Modal.Container size="md">
         <Modal.Dialog>
           <Modal.Header>
             <Modal.Heading>Nueva reserva</Modal.Heading>
@@ -116,11 +116,16 @@ export default function BookingModal({
               )}
             </div>
           </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onPress={onClose}>
+          <Modal.Footer className="flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+            <Button variant="secondary" className="min-h-11 w-full sm:w-auto" onPress={onClose}>
               Cancelar
             </Button>
-            <Button variant="primary" isDisabled={!canSubmit} onPress={handleSubmit}>
+            <Button
+              variant="primary"
+              className="min-h-11 w-full sm:w-auto"
+              isDisabled={!canSubmit}
+              onPress={handleSubmit}
+            >
               {isSubmitting ? 'Enviando…' : 'Solicitar reserva'}
             </Button>
           </Modal.Footer>

@@ -37,19 +37,28 @@ export default function Footer(): React.JSX.Element {
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-tertiary dark:text-mauve-soft">
             Navegación
           </p>
-          <ul className="space-y-2 text-sm text-coffee dark:text-[#f3efe8]">
+          <ul className="space-y-1 text-sm text-coffee dark:text-[#f3efe8]">
             <li>
-              <Link to="/" className="hover:text-coffee/70 dark:hover:text-lime">
+              <Link
+                to="/"
+                className="inline-flex min-h-11 items-center hover:text-coffee/70 dark:hover:text-lime"
+              >
                 Reservas
               </Link>
             </li>
             <li>
-              <Link to="/torneos" className="hover:text-coffee/70 dark:hover:text-lime">
+              <Link
+                to="/torneos"
+                className="inline-flex min-h-11 items-center hover:text-coffee/70 dark:hover:text-lime"
+              >
                 Torneos
               </Link>
             </li>
             <li>
-              <Link to="/login" className="hover:text-coffee/70 dark:hover:text-lime">
+              <Link
+                to="/login"
+                className="inline-flex min-h-11 items-center hover:text-coffee/70 dark:hover:text-lime"
+              >
                 Iniciar sesión
               </Link>
             </li>

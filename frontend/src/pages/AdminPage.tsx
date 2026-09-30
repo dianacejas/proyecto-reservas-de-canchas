@@ -173,8 +173,8 @@ function CanchasTab({ onNotice }: { onNotice: (kind: Notice['kind'], message: st
       {fields.length === 0 ? (
         <p className="py-8 text-center text-sm text-tertiary dark:text-mauve-soft">No hay canchas creadas.</p>
       ) : (
-        <div className="overflow-hidden rounded-xl border border-line dark:border-mauve">
-          <table className="w-full text-left text-sm">
+        <div className="overflow-x-auto rounded-xl border border-line dark:border-mauve">
+          <table className="w-full min-w-[34rem] text-left text-sm">
             <thead className="bg-[#f1ebe3] text-tertiary dark:bg-mauve-deep dark:text-mauve-soft">
               <tr>
                 <th className="px-4 py-2 font-medium">Nombre</th>
@@ -214,8 +214,8 @@ function CanchasTab({ onNotice }: { onNotice: (kind: Notice['kind'], message: st
 
       {form !== null && (
         <Modal.Root isOpen onOpenChange={(open) => open || setForm(null)}>
-          <Modal.Backdrop />
-          <Modal.Container>
+<Modal.Backdrop variant="blur" />
+            <Modal.Container size="md">
             <Modal.Dialog>
               <Modal.Header>
                 <Modal.Heading>{form.id === null ? 'Nueva cancha' : 'Editar cancha'}</Modal.Heading>
@@ -233,7 +233,7 @@ function CanchasTab({ onNotice }: { onNotice: (kind: Notice['kind'], message: st
                       value={form.name}
                       onChange={(event) => setForm({ ...form, name: event.target.value })}
                       placeholder="Ej: Cancha Alpha"
-                      className="w-full rounded-lg border border-line bg-cream px-3 py-2 text-sm text-coffee outline-none transition-colors focus:border-lime dark:border-mauve dark:bg-coffee-elev dark:text-[#f3efe8]"
+                      className="min-h-11 w-full rounded-lg border border-line bg-cream px-3 py-2 text-sm text-coffee outline-none transition-colors focus:border-lime dark:border-mauve dark:bg-coffee-elev dark:text-[#f3efe8]"
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -246,7 +246,7 @@ function CanchasTab({ onNotice }: { onNotice: (kind: Notice['kind'], message: st
                       value={form.type}
                       onChange={(event) => setForm({ ...form, type: event.target.value })}
                       placeholder="Ej: Fútbol 5"
-                      className="w-full rounded-lg border border-line bg-cream px-3 py-2 text-sm text-coffee outline-none transition-colors focus:border-lime dark:border-mauve dark:bg-coffee-elev dark:text-[#f3efe8]"
+                      className="min-h-11 w-full rounded-lg border border-line bg-cream px-3 py-2 text-sm text-coffee outline-none transition-colors focus:border-lime dark:border-mauve dark:bg-coffee-elev dark:text-[#f3efe8]"
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -260,7 +260,7 @@ function CanchasTab({ onNotice }: { onNotice: (kind: Notice['kind'], message: st
                       value={form.price}
                       onChange={(event) => setForm({ ...form, price: event.target.value })}
                       placeholder="Ej: 35000"
-                      className="w-full rounded-lg border border-line bg-cream px-3 py-2 text-sm text-coffee outline-none transition-colors focus:border-lime dark:border-mauve dark:bg-coffee-elev dark:text-[#f3efe8]"
+                      className="min-h-11 w-full rounded-lg border border-line bg-cream px-3 py-2 text-sm text-coffee outline-none transition-colors focus:border-lime dark:border-mauve dark:bg-coffee-elev dark:text-[#f3efe8]"
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -273,7 +273,7 @@ function CanchasTab({ onNotice }: { onNotice: (kind: Notice['kind'], message: st
                       value={form.imageUrl}
                       onChange={(event) => setForm({ ...form, imageUrl: event.target.value })}
                       placeholder="Ej: https://…/nocturna.jpg"
-                      className="w-full rounded-lg border border-line bg-cream px-3 py-2 text-sm text-coffee outline-none transition-colors focus:border-lime dark:border-mauve dark:bg-coffee-elev dark:text-[#f3efe8]"
+                      className="min-h-11 w-full rounded-lg border border-line bg-cream px-3 py-2 text-sm text-coffee outline-none transition-colors focus:border-lime dark:border-mauve dark:bg-coffee-elev dark:text-[#f3efe8]"
                     />
                     {form.imageUrl.trim() !== '' && (
                       <img
@@ -284,12 +284,12 @@ function CanchasTab({ onNotice }: { onNotice: (kind: Notice['kind'], message: st
                       />
                     )}
                   </div>
-                  <label className="flex items-center gap-2 text-sm text-coffee/80 dark:text-mauve-soft">
+                  <label className="flex min-h-11 items-center gap-2.5 text-sm text-coffee/80 dark:text-mauve-soft">
                     <input
                       type="checkbox"
                       checked={form.isActive}
                       onChange={(event) => setForm({ ...form, isActive: event.target.checked })}
-                      className="h-4 w-4"
+                      className="size-5 shrink-0 accent-[#8ea63f]"
                     />
                     Cancha activa (visible para reservas)
                   </label>
@@ -300,12 +300,17 @@ function CanchasTab({ onNotice }: { onNotice: (kind: Notice['kind'], message: st
                   )}
                 </div>
               </Modal.Body>
-              <Modal.Footer>
-                <Button variant="secondary" onPress={() => setForm(null)}>
+              <Modal.Footer className="flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                <Button
+                  variant="secondary"
+                  className="min-h-11 w-full sm:w-auto"
+                  onPress={() => setForm(null)}
+                >
                   Cancelar
                 </Button>
                 <Button
                   variant="primary"
+                  className="min-h-11 w-full sm:w-auto"
                   isDisabled={saveMutation.isPending || form.name.trim().length === 0}
                   onPress={() => saveMutation.mutate(form)}
                 >
@@ -392,8 +397,8 @@ function TorneosTab({ onNotice }: { onNotice: (kind: Notice['kind'], message: st
       {tournaments.length === 0 ? (
         <p className="py-8 text-center text-sm text-tertiary dark:text-mauve-soft">No hay torneos creados.</p>
       ) : (
-        <div className="overflow-hidden rounded-xl border border-line dark:border-mauve">
-          <table className="w-full text-left text-sm">
+        <div className="overflow-x-auto rounded-xl border border-line dark:border-mauve">
+          <table className="w-full min-w-[32rem] text-left text-sm">
             <thead className="bg-[#f1ebe3] text-tertiary dark:bg-mauve-deep dark:text-mauve-soft">
               <tr>
                 <th className="px-4 py-2 font-medium">Nombre</th>
@@ -440,8 +445,8 @@ function TorneosTab({ onNotice }: { onNotice: (kind: Notice['kind'], message: st
 
       {creating && (
         <Modal.Root isOpen onOpenChange={(open) => open || setCreating(false)}>
-          <Modal.Backdrop />
-          <Modal.Container>
+<Modal.Backdrop variant="blur" />
+            <Modal.Container size="md">
             <Modal.Dialog>
               <Modal.Header>
                 <Modal.Heading>Nuevo torneo</Modal.Heading>
@@ -459,7 +464,7 @@ function TorneosTab({ onNotice }: { onNotice: (kind: Notice['kind'], message: st
                       value={name}
                       onChange={(event) => setName(event.target.value)}
                       placeholder="Ej: Copa Canchas 2026"
-                      className="w-full rounded-lg border border-line bg-cream px-3 py-2 text-sm text-coffee outline-none transition-colors focus:border-lime dark:border-mauve dark:bg-coffee-elev dark:text-[#f3efe8]"
+                      className="min-h-11 w-full rounded-lg border border-line bg-cream px-3 py-2 text-sm text-coffee outline-none transition-colors focus:border-lime dark:border-mauve dark:bg-coffee-elev dark:text-[#f3efe8]"
                     />
                   </div>
                   {createError !== null && (
@@ -469,12 +474,17 @@ function TorneosTab({ onNotice }: { onNotice: (kind: Notice['kind'], message: st
                   )}
                 </div>
               </Modal.Body>
-              <Modal.Footer>
-                <Button variant="secondary" onPress={() => setCreating(false)}>
+              <Modal.Footer className="flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                <Button
+                  variant="secondary"
+                  className="min-h-11 w-full sm:w-auto"
+                  onPress={() => setCreating(false)}
+                >
                   Cancelar
                 </Button>
                 <Button
                   variant="primary"
+                  className="min-h-11 w-full sm:w-auto"
                   isDisabled={createMutation.isPending || name.trim().length === 0}
                   onPress={() => createMutation.mutate()}
                 >
@@ -510,8 +520,8 @@ interface ConfirmDialogProps {
 function ConfirmDialog({ title, message, isPending, onCancel, onConfirm }: ConfirmDialogProps): React.JSX.Element {
   return (
     <Modal.Root isOpen onOpenChange={(open) => open || onCancel()}>
-      <Modal.Backdrop />
-      <Modal.Container>
+<Modal.Backdrop variant="blur" />
+        <Modal.Container size="md">
         <Modal.Dialog>
           <Modal.Header>
             <Modal.Heading>{title}</Modal.Heading>
@@ -520,11 +530,16 @@ function ConfirmDialog({ title, message, isPending, onCancel, onConfirm }: Confi
           <Modal.Body>
             <p className="text-sm text-tertiary dark:text-mauve-soft">{message}</p>
           </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onPress={onCancel}>
+          <Modal.Footer className="flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+            <Button variant="secondary" className="min-h-11 w-full sm:w-auto" onPress={onCancel}>
               Cancelar
             </Button>
-            <Button variant="danger" isDisabled={isPending} onPress={onConfirm}>
+            <Button
+              variant="danger"
+              className="min-h-11 w-full sm:w-auto"
+              isDisabled={isPending}
+              onPress={onConfirm}
+            >
               {isPending ? 'Eliminando…' : 'Eliminar'}
             </Button>
           </Modal.Footer>

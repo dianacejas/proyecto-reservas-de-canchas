@@ -69,10 +69,20 @@ export default function LoginPage(): React.JSX.Element {
       )}
 
       <div className="flex gap-2">
-        <Button variant={isLogin ? 'secondary' : 'ghost'} size="sm" onPress={() => switchMode('login')}>
+        <Button
+          variant={isLogin ? 'secondary' : 'ghost'}
+          size="sm"
+          className="min-h-11 flex-1"
+          onPress={() => switchMode('login')}
+        >
           Iniciar sesión
         </Button>
-        <Button variant={!isLogin ? 'secondary' : 'ghost'} size="sm" onPress={() => switchMode('register')}>
+        <Button
+          variant={!isLogin ? 'secondary' : 'ghost'}
+          size="sm"
+          className="min-h-11 flex-1"
+          onPress={() => switchMode('register')}
+        >
           Registrarse
         </Button>
       </div>
@@ -89,7 +99,7 @@ export default function LoginPage(): React.JSX.Element {
               value={name}
               onChange={(event) => setName(event.target.value)}
               placeholder="Ej: Juan Pérez"
-              className="w-full rounded-lg border border-line bg-cream px-3 py-2 text-sm text-coffee outline-none transition-colors focus:border-lime dark:border-mauve dark:bg-coffee-elev dark:text-[#f3efe8]"
+              className="min-h-11 w-full rounded-lg border border-line bg-cream px-3 py-2 text-sm text-coffee outline-none transition-colors focus:border-lime dark:border-mauve dark:bg-coffee-elev dark:text-[#f3efe8]"
             />
           </div>
         )}
@@ -104,7 +114,7 @@ export default function LoginPage(): React.JSX.Element {
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             placeholder="tu@email.com"
-            className="w-full rounded-lg border border-line bg-cream px-3 py-2 text-sm text-coffee outline-none transition-colors focus:border-lime dark:border-mauve dark:bg-coffee-elev dark:text-[#f3efe8]"
+            className="min-h-11 w-full rounded-lg border border-line bg-cream px-3 py-2 text-sm text-coffee outline-none transition-colors focus:border-lime dark:border-mauve dark:bg-coffee-elev dark:text-[#f3efe8]"
           />
         </div>
 
@@ -118,7 +128,7 @@ export default function LoginPage(): React.JSX.Element {
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             placeholder="Mínimo 6 caracteres"
-            className="w-full rounded-lg border border-line bg-cream px-3 py-2 text-sm text-coffee outline-none transition-colors focus:border-lime dark:border-mauve dark:bg-coffee-elev dark:text-[#f3efe8]"
+            className="min-h-11 w-full rounded-lg border border-line bg-cream px-3 py-2 text-sm text-coffee outline-none transition-colors focus:border-lime dark:border-mauve dark:bg-coffee-elev dark:text-[#f3efe8]"
           />
         </div>
 
@@ -128,7 +138,7 @@ export default function LoginPage(): React.JSX.Element {
           </Alert>
         )}
 
-        <Button variant="primary" className="w-full" isDisabled={!canSubmit} onPress={handleSubmit}>
+        <Button variant="primary" className="min-h-11 w-full" isDisabled={!canSubmit} onPress={handleSubmit}>
           {isSubmitting ? 'Enviando…' : isLogin ? 'Ingresar' : 'Crear cuenta'}
         </Button>
 

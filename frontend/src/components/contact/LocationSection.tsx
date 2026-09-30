@@ -100,7 +100,7 @@ export default function LocationSection(): React.JSX.Element {
               href={directionsUrl(location)}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-full bg-lime px-4 py-2 text-sm font-semibold text-coffee transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
+              className="inline-flex min-h-11 items-center gap-2 rounded-full bg-lime px-4 py-2 text-sm font-semibold text-coffee transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
             >
               <DirectionsIcon />
               Cómo llegar
@@ -109,7 +109,7 @@ export default function LocationSection(): React.JSX.Element {
               href={directionsUrl(location).replace('/dir/', '/maps/')}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-full border border-mauve/40 px-4 py-2 text-sm font-medium text-coffee transition-colors hover:border-lime dark:text-[#f3efe8]"
+              className="inline-flex min-h-11 items-center gap-2 rounded-full border border-mauve/40 px-4 py-2 text-sm font-medium text-coffee transition-colors hover:border-lime dark:text-[#f3efe8]"
             >
               Ver en Maps
             </a>

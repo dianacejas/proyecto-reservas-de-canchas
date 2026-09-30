@@ -30,7 +30,7 @@ export default function FieldPicker({
   onSelect,
 }: FieldPickerProps): React.JSX.Element {
   return (
-    <div className="grid gap-4 sm:grid-cols-2">
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
       {fields.map((field, index) => {
         const selected = field.id === selectedFieldId
         return (
@@ -51,16 +51,16 @@ export default function FieldPicker({
                 className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
               />
             </div>
-            <Card.Content className="flex flex-col gap-4 p-5">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0 space-y-2">
-                  <Card.Title className="text-lg font-bold">{field.name}</Card.Title>
+            <Card.Content className="flex flex-col gap-4 p-4 sm:p-5">
+              <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
+                <div className="min-w-0 flex-1 space-y-2">
+                  <Card.Title className="text-base font-bold sm:text-lg">{field.name}</Card.Title>
                   <span className="inline-flex items-center rounded-full border border-mauve/30 bg-lime/10 px-2.5 py-0.5 text-xs font-semibold text-coffee dark:border-lime/30 dark:bg-lime/10 dark:text-lime">
                     {field.type}
                   </span>
                 </div>
-                <div className="text-right">
-                  <span className="text-2xl font-extrabold tracking-tight text-coffee dark:text-[#f3efe8]">
+                <div className="shrink-0 text-right">
+                  <span className="text-xl font-extrabold tracking-tight text-coffee sm:text-2xl dark:text-[#f3efe8]">
                     ${field.pricePerHour}
                   </span>
                   <span className="block text-xs font-medium text-tertiary dark:text-mauve-soft">
@@ -68,7 +68,7 @@ export default function FieldPicker({
                   </span>
                 </div>
               </div>
-              <Button variant="primary" className="w-full" onPress={() => onSelect(field.id)} aria-pressed={selected}>
+              <Button variant="primary" className="min-h-11 w-full" onPress={() => onSelect(field.id)} aria-pressed={selected}>
                 {selected ? 'Elegida' : 'Seleccionar'}
               </Button>
             </Card.Content>

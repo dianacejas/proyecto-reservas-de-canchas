@@ -4,17 +4,17 @@ import { crestInitials, teamCrestColor, withColorAlpha } from '../../utils/crest
 export type CrestSize = 'xs' | 'sm' | 'md' | 'lg'
 
 const SIZE_CLASS: Record<CrestSize, string> = {
-  xs: 'size-6',
-  sm: 'size-8',
-  md: 'size-10',
-  lg: 'size-16',
+  xs: 'size-5 sm:size-6',
+  sm: 'size-6 sm:size-8',
+  md: 'size-8 sm:size-10',
+  lg: 'size-12 sm:size-16',
 }
 
 const LABEL_CLASS: Record<CrestSize, string> = {
-  xs: 'text-[10px]',
-  sm: 'text-xs md:text-sm',
-  md: 'text-sm md:text-base',
-  lg: 'text-xl md:text-2xl',
+  xs: 'text-[9px] sm:text-[10px]',
+  sm: 'text-[10px] sm:text-xs md:text-sm',
+  md: 'text-xs sm:text-sm md:text-base',
+  lg: 'text-base sm:text-xl md:text-2xl',
 }
 
 const SHIELD =

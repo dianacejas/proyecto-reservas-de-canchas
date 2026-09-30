@@ -10,9 +10,9 @@ export default function WhatsAppButton(): React.JSX.Element {
       rel="noopener noreferrer"
       aria-label="Consultar por WhatsApp"
       title="Consultar por WhatsApp"
-      className="animate-wa-glow fixed bottom-6 right-6 z-50 flex size-14 items-center justify-center rounded-full bg-[#25d366] text-white shadow-lg transition-transform duration-300 hover:scale-110"
+      className="animate-wa-glow fixed bottom-4 right-4 z-50 flex size-12 items-center justify-center rounded-full bg-[#25d366] text-white shadow-lg transition-transform duration-300 hover:scale-110 sm:bottom-6 sm:right-6 sm:size-14"
     >
-      <WhatsAppIcon className="size-7" />
+      <WhatsAppIcon className="size-6 sm:size-7" />
     </a>
   )
 }
@@ -23,7 +23,7 @@ export function WhatsAppLink({ label = 'Consultar por WhatsApp' }: { label?: str
       href={WHATSAPP_HREF}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex items-center justify-center gap-2 rounded-full bg-[#25d366] px-4 py-2 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
+      className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#25d366] px-4 py-2 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
     >
       <WhatsAppIcon className="size-4" />
       {label}

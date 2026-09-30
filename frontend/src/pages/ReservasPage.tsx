@@ -248,7 +248,7 @@ export default function ReservasPage(): React.JSX.Element {
           </section>
 
           <section className="space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-4">
               <h2 className="text-sm font-semibold uppercase tracking-wide text-tertiary dark:text-mauve-soft">
                 Disponibilidad
               </h2>
@@ -263,7 +263,7 @@ export default function ReservasPage(): React.JSX.Element {
                 onRetry={() => void bookingsQuery.refetch()}
               />
             ) : (
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
                 {slots.map((slot, index) => {
                   const chipMeta =
                     slot.kind === 'torneo'
@@ -282,13 +282,13 @@ export default function ReservasPage(): React.JSX.Element {
                   return (
                     <FadeUp key={slot.start} delayMs={Math.min(index, 8) * 40}>
                       <div
-                        className={`flex h-full items-center justify-between gap-3 rounded-xl border p-4 shadow-surface transition-all duration-300 ${
-                          ocupado
+className={`flex h-full flex-wrap items-center justify-between gap-x-3 gap-y-2 rounded-xl border p-4 shadow-surface transition-all duration-300 ${
+                           ocupado
                             ? 'border-line bg-cream/70 dark:border-mauve/70 dark:bg-mauve-deep/50'
                             : 'border-lime/60 bg-cream hover:-translate-y-0.5 hover:shadow-xl dark:border-lime/50 dark:bg-coffee-elev'
                         }`}
                       >
-                        <div className="flex min-w-0 items-center gap-3">
+                        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 sm:gap-3">
                           <span
                             className={`font-mono text-sm font-semibold ${
                               ocupado
@@ -309,13 +309,14 @@ export default function ReservasPage(): React.JSX.Element {
                           )}
                         </div>
                         {slot.kind === 'libre' ? (
-                          <Button variant="primary" size="sm" onPress={() => setSelectedSlot(slot)}>
+                          <Button variant="primary" size="sm" className="min-h-11 shrink-0" onPress={() => setSelectedSlot(slot)}>
                             Reservar
                           </Button>
                         ) : isAdmin && booking !== undefined && slot.kind === 'pendiente' ? (
                           <Button
-                            variant="outline"
+variant="outline"
                             size="sm"
+                            className="min-h-11 shrink-0"
                             onPress={() =>
                               statusMutation.mutate({ id: booking.id, status: 'confirmada' })
                             }
@@ -326,6 +327,7 @@ export default function ReservasPage(): React.JSX.Element {
                           <Button
                             variant="ghost"
                             size="sm"
+                            className="min-h-11 shrink-0"
                             onPress={() =>
                               statusMutation.mutate({ id: booking.id, status: 'cancelada' })
                             }

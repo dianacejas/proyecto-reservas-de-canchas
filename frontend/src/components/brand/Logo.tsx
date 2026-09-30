@@ -10,8 +10,8 @@ export default function Logo({
   subtitle = 'Complejo Deportivo',
 }: LogoProps): React.JSX.Element {
   return (
-    <span className="inline-flex items-center gap-2.5">
-      <svg viewBox="0 0 64 64" aria-hidden="true" className={className ?? 'h-9 w-9'}>
+    <span className="inline-flex items-center gap-2 sm:gap-2.5">
+      <svg viewBox="0 0 64 64" aria-hidden="true" className={className ?? 'h-8 w-8 sm:h-9 sm:w-9'}>
         <rect width="64" height="64" rx="14" className="fill-coffee" />
         <path d="M24 12c0 6 3 10 8 10s8-4 8-10z" className="fill-lime" />
         <ellipse cx="32" cy="12" rx="8" ry="2.6" className="fill-evergreen" />
@@ -47,10 +47,10 @@ export default function Logo({
       </svg>
       {showText && (
         <span className="flex flex-col leading-none">
-          <span className="text-lg font-extrabold tracking-tight text-coffee dark:text-[#f3efe8]">
+          <span className="text-base font-extrabold tracking-tight text-coffee dark:text-[#f3efe8] sm:text-lg">
             Copa 5
           </span>
-          <span className="mt-0.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-tertiary dark:text-mauve-soft">
+          <span className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-tertiary dark:text-mauve-soft sm:text-[11px] sm:tracking-[0.18em]">
             {subtitle}
           </span>
         </span>

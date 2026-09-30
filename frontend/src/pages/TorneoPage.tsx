@@ -70,12 +70,12 @@ export default function TorneoPage(): React.JSX.Element {
       <div>
         <Link
           to="/torneos"
-          className="text-sm text-tertiary transition-colors hover:text-coffee dark:text-mauve-soft dark:hover:text-lime"
+          className="inline-flex min-h-11 items-center text-sm text-tertiary transition-colors hover:text-coffee dark:text-mauve-soft dark:hover:text-lime"
         >
           ← Torneos
         </Link>
-        <div className="mt-1 flex items-center gap-3">
-          <h1 className="text-2xl font-bold tracking-tight">{tournament.name}</h1>
+        <div className="mt-1 flex flex-wrap items-center gap-3">
+          <h1 className="text-xl font-bold tracking-tight sm:text-2xl">{tournament.name}</h1>
           <Chip
             color={meta.color}
             size="sm"

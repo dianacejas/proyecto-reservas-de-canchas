@@ -16,13 +16,19 @@ type PathTone = 'advance' | 'advanceGlow' | 'link'
 
 const CHAMPION_NODE = '__champion__'
 
+/**
+ * El bracket se renderiza SIEMPRE oscuro, como un panel de transmision, en
+ * ambos temas. Por eso estas clases no llevan variante `dark:`: un `bg-cream`
+ * sin su override `dark:` se convertia en un bloque casi blanco con texto
+ * claro encima (ilegible). Todos los hijos heredan este fondo oscuro.
+ */
 const SHELL_CARD =
-  'overflow-hidden rounded-2xl border backdrop-blur-sm transition-shadow border-line bg-white/95 shadow-[0_10px_28px_-16px_rgba(26,9,13,0.45)] dark:border-white/10 dark:bg-[#1a090d]/90 dark:shadow-[0_18px_46px_-20px_rgba(0,0,0,0.95)]'
+  'overflow-hidden rounded-2xl border border-white/10 bg-[#1a090d]/90 backdrop-blur-sm transition-shadow shadow-[0_18px_46px_-20px_rgba(0,0,0,0.95)]'
 
 const TONE_STROKE: Record<PathTone, string> = {
-  advance: 'stroke-[#8fa33f] dark:stroke-lime',
-  advanceGlow: 'stroke-[#8fa33f]/20 dark:stroke-lime/20',
-  link: 'stroke-[#ded5c8] dark:stroke-[#574752]',
+  advance: 'stroke-lime',
+  advanceGlow: 'stroke-lime/20',
+  link: 'stroke-[#574752]',
 }
 
 const TONE_WIDTH: Record<PathTone, number> = {
@@ -162,7 +168,10 @@ export default function PlayoffBracket({
   }
 
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-line bg-cream shadow-surface dark:border-mauve dark:bg-coffee-elev">
+    <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#1a090d]/80 shadow-[0_18px_46px_-20px_rgba(0,0,0,0.95)]">
+      <p className="border-b border-white/10 px-4 py-2 text-[11px] text-mauve-soft/80 md:hidden">
+        Deslizá para ver la fase final completa.
+      </p>
       <BracketPlate
         rounds={bracket.rounds}
         champion={bracket.champion}
@@ -281,8 +290,8 @@ function BracketPlate({
   }, [matches, targets])
 
   return (
-    <div className="overflow-x-auto overscroll-x-contain scroll-smooth">
-      <div ref={boardRef} className="relative flex min-w-max items-stretch gap-10 px-4 py-6 md:gap-14 md:px-8 md:py-8">
+    <div className="overflow-x-auto overscroll-x-contain scroll-smooth [scrollbar-width:thin] [-webkit-overflow-scrolling:touch]">
+      <div ref={boardRef} className="relative flex min-w-max items-stretch gap-8 px-4 py-6 sm:gap-10 md:gap-14 md:px-8 md:py-8">
         <svg
           className="pointer-events-none absolute left-0 top-0 h-full w-full"
           aria-hidden="true"
@@ -305,7 +314,7 @@ function BracketPlate({
         {rounds.map((round, index) => (
           <section
             key={round.fase}
-            className="flex w-60 shrink-0 snap-center flex-col sm:w-64"
+            className="flex w-[13.5rem] shrink-0 snap-center flex-col sm:w-64"
             aria-label={round.label}
           >
             <RoundHeader label={round.label} isHero={index === lastRound} />
@@ -332,7 +341,7 @@ function BracketPlate({
           </section>
         ))}
 
-        <section className="flex w-60 shrink-0 snap-center flex-col sm:w-64" aria-label="Campeón">
+        <section className="flex w-[13.5rem] shrink-0 snap-center flex-col sm:w-64" aria-label="Campeón">
           <RoundHeader label="Campeón" isHero={false} />
           <div className="flex flex-1 items-center">
             <ChampionPodium
@@ -353,15 +362,15 @@ function BracketPlate({
 function RoundHeader({ label, isHero }: { label: string; isHero: boolean }): React.JSX.Element {
   const shell = isHero
     ? 'border-lime/60 bg-lime/10 shadow-[0_0_28px_-10px_rgba(197,216,109,0.85)]'
-    : 'border-line bg-[#f1ebe3] dark:border-white/5 dark:bg-white/[0.03]'
-  const text = isHero ? 'text-[#4d5a1e] dark:text-lime' : 'text-tertiary dark:text-mauve-soft'
+    : 'border-white/10 bg-white/[0.04]'
+  const text = isHero ? 'text-lime' : 'text-[#c6bbbf]'
 
   return (
     <div
       className={`mb-4 flex min-h-12 items-center justify-center gap-2 rounded-xl border px-3 ${shell}`}
     >
       {isHero ? (
-        <TrophyIcon className="size-4 shrink-0 text-[#6b7a1f] dark:text-lime" />
+        <TrophyIcon className="size-4 shrink-0 text-lime" />
       ) : (
         <span className="size-1.5 shrink-0 rounded-full bg-cinnamon/70" />
       )}
@@ -407,16 +416,16 @@ function MatchCapsule({
 
   return (
     <div ref={cardRef} className={shell}>
-      <div className="flex items-center justify-between gap-2 border-b border-line bg-[#f1ebe3] px-2.5 py-1.5 dark:border-white/10 dark:bg-[#52414c]/30">
+      <div className="flex items-center justify-between gap-2 border-b border-white/10 bg-[#52414c]/30 px-2.5 py-1.5">
         <Chip color={finished ? 'success' : 'default'} size="sm" className="shrink-0">
           {finished ? 'Finalizado' : 'Programado'}
         </Chip>
-        <span className="truncate text-right text-[10px] font-semibold uppercase tracking-[0.16em] text-tertiary/80 dark:text-mauve-soft/80">
+        <span className="truncate text-right text-[10px] font-semibold uppercase tracking-[0.16em] text-mauve-soft/80">
           {scheduleLabel(match)}
         </span>
       </div>
 
-      <div className="divide-y divide-line dark:divide-white/5">
+      <div className="divide-y divide-white/5">
         <TeamRow
           side="home"
           name={teamLabel(match.homeTeamId)}
@@ -436,7 +445,7 @@ function MatchCapsule({
       </div>
 
       {canEdit && (
-        <div className="border-t border-line px-2.5 py-1.5 dark:border-white/10">
+        <div className="border-t border-white/10 px-2.5 py-1.5">
           <Button
             variant="primary"
             size="sm"
@@ -470,20 +479,20 @@ function TeamRow({
   const isLoser = state === 'loser'
 
   const nameTone = isWinner
-    ? 'font-bold text-[#4d5a1e] dark:text-lime'
+    ? 'font-bold text-lime'
     : state === 'pending'
-      ? 'font-semibold text-coffee/80 dark:text-[#f3efe8]/85'
+      ? 'font-semibold text-[#f3efe8]/85'
       : state === 'tbd'
-        ? 'font-medium italic text-tertiary/70 dark:text-mauve-soft/60'
-        : 'font-medium text-coffee/70 dark:text-mauve-soft'
+        ? 'font-medium italic text-mauve-soft/80'
+        : 'font-medium text-mauve-soft'
 
   const boxTone = isWinner
     ? 'bg-lime text-coffee shadow-[0_0_18px_-4px_rgba(197,216,109,0.85)]'
     : isLoser
-      ? 'border border-line bg-transparent text-tertiary/70 dark:border-white/10 dark:text-mauve-soft/70'
+      ? 'border border-white/10 text-mauve-soft/70'
       : state === 'pending'
-        ? 'bg-[#f1ebe3] text-tertiary/80 dark:bg-white/5 dark:text-mauve-soft/80'
-        : 'border border-dashed border-line bg-transparent text-tertiary/50 dark:border-white/15 dark:text-mauve-soft/50'
+        ? 'bg-white/5 text-mauve-soft/80'
+        : 'border border-dashed border-white/15 text-mauve-soft/50'
 
   return (
     <div
@@ -492,10 +501,10 @@ function TeamRow({
       className={`relative flex items-center gap-2.5 px-2.5 py-2 ${isLoser ? 'opacity-40' : ''}`}
     >
       {isWinner && (
-        <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-[#8fa33f] dark:bg-lime" />
+        <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-lime" />
       )}
       <TeamCrest name={name} size="sm" dimmed={isLoser} />
-      <span className={`min-w-0 flex-1 truncate text-sm ${nameTone}`}>{name}</span>
+      <span className={`min-w-0 flex-1 truncate text-xs sm:text-sm ${nameTone}`}>{name}</span>
       <span
         className={`flex h-7 min-w-9 shrink-0 items-center justify-center gap-0.5 rounded-md px-1.5 text-sm font-black tabular-nums ${boxTone}`}
       >
@@ -527,13 +536,13 @@ function ChampionPodium({
     return (
       <div
         ref={cardRef}
-        className="w-full rounded-2xl border border-dashed border-line bg-white/60 px-4 py-8 text-center backdrop-blur-sm dark:border-white/15 dark:bg-white/[0.02]"
+        className="w-full rounded-2xl border border-dashed border-white/15 bg-white/[0.03] px-4 py-8 text-center backdrop-blur-sm"
       >
-        <TrophyIcon className="mx-auto size-8 text-tertiary/50 dark:text-mauve-soft/40" />
-        <p className="mt-3 text-xs font-semibold uppercase tracking-[0.2em] text-tertiary dark:text-mauve-soft/60">
+        <TrophyIcon className="mx-auto size-8 text-mauve-soft/40" />
+        <p className="mt-3 text-xs font-semibold uppercase tracking-[0.2em] text-mauve-soft/60">
           Por coronar
         </p>
-        <p className="mt-1 text-xs text-tertiary/70 dark:text-mauve-soft/40">Definido en la final</p>
+        <p className="mt-1 text-xs text-mauve-soft/40">Definido en la final</p>
       </div>
     )
   }
@@ -543,7 +552,7 @@ function ChampionPodium({
   return (
     <div
       ref={cardRef}
-      className="relative w-full overflow-hidden rounded-2xl border border-lime/60 bg-gradient-to-b from-lime/20 via-lime/[0.06] to-transparent px-4 py-6 text-center shadow-[0_0_54px_-14px_rgba(197,216,109,0.9)] backdrop-blur-sm"
+      className="relative w-full overflow-hidden rounded-2xl border border-[#c5d86d]/40 bg-[#1a090d]/90 bg-gradient-to-b from-lime/20 via-lime/[0.06] to-transparent px-4 py-6 text-center shadow-[0_0_30px_rgba(197,216,109,0.15)] backdrop-blur-sm"
     >
       <div
         className="pointer-events-none absolute inset-x-0 top-0 h-24 opacity-60"
@@ -553,10 +562,10 @@ function ChampionPodium({
         <TrophyIcon className="size-7 text-lime drop-shadow-[0_0_10px_rgba(197,216,109,0.7)]" />
         <p className="text-[11px] font-black uppercase tracking-[0.3em] text-lime">Campeón</p>
         <TeamCrest name={champion.teamName} size="lg" />
-        <p className="w-full truncate text-lg font-black leading-tight text-[#3f4a17] dark:text-[#f3efe8]">
+        <p className="w-full truncate text-lg font-extrabold leading-tight text-white md:text-xl">
           {champion.teamName}
         </p>
-        <span className="w-full truncate text-[11px] uppercase tracking-[0.18em] text-tertiary dark:text-mauve-soft/70">
+        <span className="w-full truncate text-xs font-semibold text-neutral-400">
           {group ?? 'Torneo Copa 5'}
         </span>
       </div>
@@ -764,12 +773,12 @@ function ScoreModal({
   }
 
   const numberClass =
-    'w-full rounded-lg border border-line bg-cream px-2 py-1.5 text-center text-sm text-coffee outline-none focus:border-lime dark:border-mauve dark:bg-coffee-elev dark:text-[#f3efe8]'
+    'min-h-11 w-full rounded-lg border border-line bg-cream px-2 py-1.5 text-center text-sm text-coffee outline-none focus:border-lime dark:border-mauve dark:bg-coffee-elev dark:text-[#f3efe8]'
 
   return (
     <Modal.Root isOpen onOpenChange={(open) => open || onClose()}>
-      <Modal.Backdrop />
-      <Modal.Container>
+      <Modal.Backdrop variant="blur" />
+      <Modal.Container size="md">
         <Modal.Dialog>
           <Modal.Header>
             <Modal.Heading>Cargar resultado</Modal.Heading>
@@ -847,11 +856,16 @@ function ScoreModal({
               )}
             </div>
           </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onPress={onClose}>
+          <Modal.Footer className="flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+            <Button variant="secondary" className="min-h-11 w-full sm:w-auto" onPress={onClose}>
               Cancelar
             </Button>
-            <Button variant="primary" isDisabled={!canSubmit} onPress={handleSave}>
+            <Button
+              variant="primary"
+              className="min-h-11 w-full sm:w-auto"
+              isDisabled={!canSubmit}
+              onPress={handleSave}
+            >
               {isPending ? 'Guardando…' : 'Guardar resultado'}
             </Button>
           </Modal.Footer>

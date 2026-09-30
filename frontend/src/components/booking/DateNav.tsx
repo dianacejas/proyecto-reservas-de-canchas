@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useRef } from 'react'
 import { Button, Calendar, Chip, DatePicker } from '@heroui/react'
 import { parseDate } from '@internationalized/date'
 import { addDays, formatDayShort, formatLong, isBeforeToday, todayKey } from '../../utils/date'
@@ -16,6 +16,13 @@ export default function DateNav({ date, onChange }: DateNavProps): React.JSX.Ele
   // objetos: recrearlos en cada render resetea la navegacion entre meses.
   const selectedDate = useMemo(() => parseDate(date), [date])
   const minDate = useMemo(() => parseDate(todayKey()), [])
+
+  // RAC ancla el popover al DatePickerGroup (private/DatePicker.mjs:144), pero
+  // HeroUI v3 no exporta ese Group, asi que su targetRef queda en null y
+  // useOverlayPosition aborta el posicionamiento (useOverlayPosition.mjs:65):
+  // el popover cae en top:0/left:0 sobre la navbar. Se le pasa el nodo del
+  // trigger a mano para que si ancle.
+  const triggerRef = useRef<HTMLButtonElement>(null)
 
   return (
     <div className="flex flex-wrap items-center gap-3">
@@ -46,16 +53,23 @@ export default function DateNav({ date, onChange }: DateNavProps): React.JSX.Ele
       <DatePicker
         value={selectedDate}
         minValue={minDate}
+        // El trigger trae width:100% de @heroui/styles y se estiraria al ancho
+        // disponible dentro del flex-wrap de DateNav.
+        className="w-auto shrink-0 self-center"
         onChange={(next) => {
           if (next === null) return
           onChange(next.toString().slice(0, 10))
         }}
       >
-        <DatePicker.Trigger aria-label="Elegir otra fecha" className="text-sm font-semibold">
-          {formatDayShort(date)}
+        <DatePicker.Trigger
+          ref={triggerRef}
+          aria-label="Elegir otra fecha"
+          className="w-auto shrink-0 gap-1.5 rounded-lg border border-line bg-cream px-2.5 py-1.5 text-sm font-semibold text-coffee transition-colors hover:bg-cream/70 dark:border-mauve dark:bg-coffee-elev dark:text-[#f3efe8] dark:hover:bg-coffee-elev/70"
+        >
           <DatePicker.TriggerIndicator />
+          {formatDayShort(date)}
         </DatePicker.Trigger>
-        <DatePicker.Popover>
+        <DatePicker.Popover placement="bottom start" offset={8} triggerRef={triggerRef}>
           <Calendar>
             <Calendar.Header>
               <Calendar.NavButton slot="previous" />

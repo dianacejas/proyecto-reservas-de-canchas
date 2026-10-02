@@ -12,13 +12,56 @@ const navLinkClass = ({ isActive }: { isActive: boolean }): string =>
       : 'text-tertiary hover:bg-lime/10 hover:text-coffee dark:text-mauve-soft dark:hover:bg-lime/10 dark:hover:text-[#f3efe8]'
   }`
 
-/** Enlaces del drawer: ancho completo y area tactil comoda. */
 const drawerLinkClass = ({ isActive }: { isActive: boolean }): string =>
-  `flex min-h-11 items-center rounded-xl px-4 text-base font-medium transition-colors ${
+  `flex w-full min-h-11 items-center rounded-xl px-4 py-2 text-lg font-semibold transition-colors ${
     isActive
       ? 'bg-lime text-coffee shadow-surface'
-      : 'text-tertiary hover:bg-lime/10 dark:text-mauve-soft dark:hover:bg-lime/10 dark:hover:text-[#f3efe8]'
+      : 'text-white/90 hover:bg-lime/10 dark:text-white/90 dark:hover:bg-lime/10'
   }`
+
+function SunIcon({ className }: { className?: string }): React.JSX.Element {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+      className={className ?? 'size-5'}
+    >
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2" />
+      <path d="M12 20v2" />
+      <path d="M4.93 4.93l1.41 1.41" />
+      <path d="M17.66 17.66l1.41 1.41" />
+      <path d="M2 12h2" />
+      <path d="M20 12h2" />
+      <path d="M6.34 17.66l-1.41 1.41" />
+      <path d="M19.07 4.93l-1.41 1.41" />
+    </svg>
+  )
+}
+
+function MoonIcon({ className }: { className?: string }): React.JSX.Element {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+      className={className ?? 'size-5'}
+    >
+      <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+    </svg>
+  )
+}
 
 function MenuIcon({ open }: { open: boolean }): React.JSX.Element {
   return (
@@ -54,19 +97,25 @@ export default function Navbar(): React.JSX.Element {
   const navigate = useNavigate()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
-  // El drawer se cierra al navegar para no tapar la pagina de destino.
   function closeMenu(): void {
     setIsMenuOpen(false)
   }
 
   return (
     <header className="sticky top-0 z-30 border-b border-line/70 bg-cream/80 backdrop-blur dark:border-mauve/50 dark:bg-coffee/85">
-      <nav className="mx-auto flex w-full max-w-6xl items-center gap-2 px-4 py-2.5 sm:gap-3 md:gap-4">
-        <NavLink to="/" end aria-label="Copa 5 - Inicio" className="shrink-0">
-          <Logo className="size-8 sm:h-9 sm:w-9" />
-        </NavLink>
+      <nav className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3">
+        <div className="flex min-w-0 items-center gap-2">
+          <NavLink to="/" end aria-label="Copa 5 - Inicio" className="shrink-0">
+            <Logo className="size-8 sm:h-9 sm:w-9" />
+          </NavLink>
+          <div className="hidden min-w-0 flex-col leading-tight sm:flex">
+            <span className="truncate text-sm font-bold text-coffee dark:text-[#f3efe8]">Copa 5</span>
+            <span className="truncate text-[11px] text-tertiary dark:text-mauve-soft">
+              Complejo Deportivo
+            </span>
+          </div>
+        </div>
 
-        {/* Navegacion principal: solo desde md */}
         <div className="hidden items-center gap-1 md:flex">
           <NavLink to="/" end className={navLinkClass}>
             Reservas
@@ -81,10 +130,16 @@ export default function Navbar(): React.JSX.Element {
           )}
         </div>
 
-        {/* Acciones de escritorio */}
-        <div className="ml-auto hidden items-center gap-2 md:flex">
-          <Button variant="ghost" size="sm" className="min-h-11" onPress={toggleDark}>
-            {isDark ? 'Claro' : 'Oscuro'}
+        <div className="hidden items-center gap-2 md:flex">
+          <Button
+            isIconOnly
+            variant="ghost"
+            size="sm"
+            className="min-h-11 min-w-11 rounded-full"
+            onPress={toggleDark}
+            aria-label="Cambiar tema"
+          >
+            {isDark ? <SunIcon className="size-5 text-amber-400" /> : <MoonIcon className="size-5 text-neutral-700" />}
           </Button>
 
           {isAuthenticated && user !== null ? (
@@ -111,18 +166,28 @@ export default function Navbar(): React.JSX.Element {
           )}
         </div>
 
-        {/* Hamburguesa hasta md */}
-        <div className="ml-auto md:hidden">
+        <div className="flex items-center gap-2 md:hidden">
+          <Button
+            isIconOnly
+            variant="ghost"
+            size="sm"
+            className="min-h-11 min-w-11 rounded-full"
+            onPress={toggleDark}
+            aria-label="Cambiar tema"
+          >
+            {isDark ? <SunIcon className="size-5 text-amber-400" /> : <MoonIcon className="size-5 text-neutral-700" />}
+          </Button>
+
           <Disclosure isExpanded={isMenuOpen} onExpandedChange={setIsMenuOpen}>
             <DisclosureTrigger
-              aria-label={isMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
+              aria-label={isMenuOpen ? "Cerrar menu" : "Abrir menu"}
               className="flex size-11 items-center justify-center rounded-xl border border-line bg-cream text-coffee transition-colors hover:bg-lime/10 dark:border-mauve dark:bg-coffee-elev dark:text-[#f3efe8]"
             >
               <MenuIcon open={isMenuOpen} />
             </DisclosureTrigger>
 
-            <DisclosureContent className="border-b border-line bg-cream px-4 pb-4 pt-2 shadow-lg dark:border-mauve dark:bg-coffee-elev">
-              <nav className="flex flex-col gap-1" aria-label="Navegación principal">
+            <DisclosureContent className="absolute inset-x-0 top-full z-40 w-full max-w-full border-b border-line bg-cream px-6 pb-6 pt-4 shadow-lg dark:border-mauve dark:bg-[#1a090d]/95 dark:backdrop-blur-md">
+              <nav className="flex w-full flex-col gap-4" aria-label="Navegacion principal">
                 <NavLink to="/" end className={drawerLinkClass} onClick={closeMenu}>
                   Reservas
                 </NavLink>
@@ -136,17 +201,6 @@ export default function Navbar(): React.JSX.Element {
                 )}
 
                 <div className="my-2 h-px bg-line dark:bg-mauve/60" />
-
-                <Button
-                  variant="ghost"
-                  className="min-h-11 justify-start"
-                  onPress={() => {
-                    toggleDark()
-                    closeMenu()
-                  }}
-                >
-                  {isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
-                </Button>
 
                 {isAuthenticated && user !== null ? (
                   <>

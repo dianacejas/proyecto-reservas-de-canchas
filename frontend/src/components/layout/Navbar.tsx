@@ -1,5 +1,5 @@
 import { Button, Disclosure, DisclosureContent, DisclosureTrigger } from '@heroui/react'
-import { NavLink, useNavigate } from 'react-router-dom'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../../auth/useAuth'
 import { useDarkMode } from '../../hooks/useDarkMode'
@@ -95,6 +95,7 @@ export default function Navbar(): React.JSX.Element {
   const { user, isAdmin, isAuthenticated, logout } = useAuth()
   const { isDark, toggleDark } = useDarkMode()
   const navigate = useNavigate()
+  const location = useLocation()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const headerRef = useRef<HTMLElement | null>(null)
   const [headerHeight, setHeaderHeight] = useState(0)
@@ -112,9 +113,40 @@ export default function Navbar(): React.JSX.Element {
     return () => observer.disconnect()
   }, [])
 
+  // Al llegar con /#reservas desde otra ruta el scroll nativo no alcanza:
+  // el id se monta despues de resolver la query de canchas. Reintentamos
+  // con un par de timeouts. Depende de location porque el Navbar esta
+  // montado en el layout y no se remonta al cambiar de ruta.
+  useEffect(() => {
+    if (location.pathname !== '/' || location.hash !== '#reservas') return
+    const scroll = (): void => {
+      document.getElementById('reservas')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+    scroll()
+    const timers = [setTimeout(scroll, 120), setTimeout(scroll, 400)]
+    return () => timers.forEach(clearTimeout)
+  }, [location.pathname, location.hash])
+
   function closeMenu(): void {
     setIsMenuOpen(false)
   }
+
+  /**
+   * "Reservas" apunta al ancla de la grilla.
+   *
+   * En la home no dejamos que Link navegue: su `to="/"` borraria el hash y
+   * cancelaria el desplazamiento, asi que hacemos scroll puro. Desde otra
+   * ruta dejamos que Link vaya a /#reservas y el effect de hash completa el
+   * scroll cuando la grilla ya esta montada.
+   */
+  function goToReservas(event: React.MouseEvent<HTMLAnchorElement>): void {
+    closeMenu()
+    if (location.pathname !== '/') return
+    event.preventDefault()
+    document.getElementById('reservas')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
+  const reservasTarget = location.pathname === '/' ? '/' : '/#reservas'
 
   return (
     <header
@@ -129,7 +161,7 @@ export default function Navbar(): React.JSX.Element {
         </div>
 
         <div className="hidden items-center gap-1 md:flex">
-          <NavLink to="/" end className={navLinkClass}>
+          <NavLink to={reservasTarget} end className={navLinkClass} onClick={goToReservas}>
             Reservas
           </NavLink>
           <NavLink to="/torneos" className={navLinkClass}>
@@ -203,7 +235,7 @@ export default function Navbar(): React.JSX.Element {
               className="fixed inset-x-0 z-40 w-full max-w-full border-b border-line bg-cream px-6 pb-6 pt-4 shadow-lg dark:border-mauve dark:bg-[#1a090d]/95 dark:backdrop-blur-md"
             >
               <nav className="flex w-full flex-col gap-4" aria-label="Navegación principal">
-                <NavLink to="/" end className={drawerLinkClass} onClick={closeMenu}>
+                <NavLink to={reservasTarget} end className={drawerLinkClass} onClick={goToReservas}>
                   Reservas
                 </NavLink>
                 <NavLink to="/torneos" className={drawerLinkClass} onClick={closeMenu}>

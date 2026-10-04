@@ -19,6 +19,7 @@ import ErrorState from '../components/common/ErrorState'
 import FadeUp from '../components/common/FadeUp'
 import Skeleton from '../components/common/Skeleton'
 import CourtGallery from '../components/courts/CourtGallery'
+import HeroSection from '../components/HeroSection'
 import ServicesSection from '../components/services/ServicesSection'
 import LocationSection from '../components/contact/LocationSection'
 import type { Booking, BookingStatus, Field } from '../types'
@@ -136,7 +137,7 @@ export default function ReservasPage(): React.JSX.Element {
           <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-mauve/30 bg-lime/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-coffee dark:border-lime/30 dark:bg-lime/10 dark:text-lime">
             Copa 5 · Complejo Deportivo
           </div>
-          <h1 className="text-2xl font-bold tracking-tight">Reservá tu cancha</h1>
+          <h2 className="text-2xl font-bold tracking-tight">Reservá tu cancha</h2>
           <p className="mt-1 text-sm text-tertiary dark:text-mauve-soft">
             Elegí cancha y día, y reservá el horario que quieras. Las reservas de torneo aparecen
             bloqueadas.
@@ -163,22 +164,25 @@ export default function ReservasPage(): React.JSX.Element {
 
   return (
     <div className="space-y-8">
-      <header>
-        <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-mauve/30 bg-lime/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-coffee dark:border-lime/30 dark:bg-lime/10 dark:text-lime">
-          Copa 5 · Complejo Deportivo
-        </div>
-        <h1 className="text-2xl font-bold tracking-tight">Reservá tu cancha</h1>
-        <p className="mt-1 text-sm text-tertiary dark:text-mauve-soft">
-          Elegí cancha y día, y reservá el horario que quieras. Las reservas de torneo aparecen
-          bloqueadas.
-        </p>
-      </header>
+      <HeroSection />
 
-      {notice !== null && (
-        <Alert status={notice.kind}>
-          <Alert.Description>{notice.message}</Alert.Description>
-        </Alert>
-      )}
+      <div id="reservas" className="scroll-mt-24 space-y-8">
+        <header>
+          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-mauve/30 bg-lime/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-coffee dark:border-lime/30 dark:bg-lime/10 dark:text-lime">
+            Copa 5 · Complejo Deportivo
+          </div>
+          <h2 className="text-2xl font-bold tracking-tight">Reservá tu cancha</h2>
+          <p className="mt-1 text-sm text-tertiary dark:text-mauve-soft">
+            Elegí cancha y día, y reservá el horario que quieras. Las reservas de torneo aparecen
+            bloqueadas.
+          </p>
+        </header>
+
+        {notice !== null && (
+          <Alert status={notice.kind}>
+            <Alert.Description>{notice.message}</Alert.Description>
+          </Alert>
+        )}
 
       {createdBookings.length > 0 && (
         <section className="space-y-3">
@@ -341,9 +345,10 @@ variant="outline"
                 })}
               </div>
             )}
-          </section>
+</section>
         </>
       )}
+      </div>
 
       <CourtGallery />
       <ServicesSection />

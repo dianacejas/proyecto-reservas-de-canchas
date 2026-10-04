@@ -1,6 +1,6 @@
 import { Button, Disclosure, DisclosureContent, DisclosureTrigger } from '@heroui/react'
 import { NavLink, useNavigate } from 'react-router-dom'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../../auth/useAuth'
 import { useDarkMode } from '../../hooks/useDarkMode'
 import Logo from '../brand/Logo'
@@ -96,16 +96,31 @@ export default function Navbar(): React.JSX.Element {
   const { isDark, toggleDark } = useDarkMode()
   const navigate = useNavigate()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const headerRef = useRef<HTMLElement | null>(null)
+  const [headerHeight, setHeaderHeight] = useState(0)
+
+  // HeroUI envuelve el Disclosure en un div `relative` que mide solo el ancho
+  // del trigger, asi que un panel `absolute inset-x-0` queda angosto y se
+  // corta. Midiendo el header podemosPositionarlo respecto de la ventana.
+  useEffect(() => {
+    const el = headerRef.current
+    if (el === null) return
+    const update = (): void => setHeaderHeight(el.getBoundingClientRect().height)
+    update()
+    const observer = new ResizeObserver(update)
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
 
   function closeMenu(): void {
     setIsMenuOpen(false)
   }
 
   return (
-    <header className="sticky top-0 z-30 border-b border-line/70 bg-cream/80 backdrop-blur dark:border-mauve/50 dark:bg-coffee/85">
-      {/* El panel del menu se ancla al header (relative), no al grupo de
-          botones: si no, `inset-x-0` mide el ancho de ese grupo y el menu
-          queda angosto y cortado. */}
+    <header
+      ref={headerRef}
+      className="sticky top-0 z-30 border-b border-line/70 bg-cream/80 backdrop-blur dark:border-mauve/50 dark:bg-coffee/85"
+    >
       <nav className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3">
         <div className="flex min-w-0 items-center gap-2">
           <NavLink to="/" end aria-label="Copa 5 - Inicio" className="shrink-0">
@@ -183,7 +198,10 @@ export default function Navbar(): React.JSX.Element {
               <MenuIcon open={isMenuOpen} />
             </DisclosureTrigger>
 
-            <DisclosureContent className="absolute inset-x-0 top-full z-50 w-full max-w-full border-b border-line bg-cream px-6 pb-6 pt-4 shadow-lg dark:border-mauve dark:bg-[#1a090d]/95 dark:backdrop-blur-md">
+            <DisclosureContent
+              style={{ top: headerHeight }}
+              className="fixed inset-x-0 z-40 w-full max-w-full border-b border-line bg-cream px-6 pb-6 pt-4 shadow-lg dark:border-mauve dark:bg-[#1a090d]/95 dark:backdrop-blur-md"
+            >
               <nav className="flex w-full flex-col gap-4" aria-label="Navegación principal">
                 <NavLink to="/" end className={drawerLinkClass} onClick={closeMenu}>
                   Reservas

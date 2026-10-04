@@ -168,17 +168,19 @@ export default function PlayoffBracket({
   }
 
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#1a090d]/80 shadow-[0_18px_46px_-20px_rgba(0,0,0,0.95)]">
-      <p className="border-b border-white/10 px-4 py-2 text-[11px] text-mauve-soft/80 md:hidden">
-        Deslizá para ver la fase final completa.
-      </p>
-      <BracketPlate
-        rounds={bracket.rounds}
-        champion={bracket.champion}
-        groupByTeam={groupByTeam}
-        isAdmin={isAdmin}
-        onEditMatch={onEditMatch}
-      />
+    <div className="mx-auto flex w-full max-w-6xl flex-col items-center justify-center">
+      <div className="relative w-full overflow-hidden rounded-3xl border border-white/10 bg-[#1a090d]/80 shadow-[0_18px_46px_-20px_rgba(0,0,0,0.95)]">
+        <p className="border-b border-white/10 px-4 py-2 text-[11px] text-mauve-soft/80 md:hidden">
+          Deslizá para ver la fase final completa.
+        </p>
+        <BracketPlate
+          rounds={bracket.rounds}
+          champion={bracket.champion}
+          groupByTeam={groupByTeam}
+          isAdmin={isAdmin}
+          onEditMatch={onEditMatch}
+        />
+      </div>
     </div>
   )
 }
@@ -291,7 +293,18 @@ function BracketPlate({
 
   return (
     <div className="overflow-x-auto overscroll-x-contain scroll-smooth [scrollbar-width:thin] [-webkit-overflow-scrolling:touch]">
-      <div ref={boardRef} className="relative flex min-w-max items-stretch gap-8 px-4 py-6 sm:gap-10 md:gap-14 md:px-8 md:py-8">
+      {/*
+        El board es un flex de bloque: ocupa todo el panel, pero sus hijos se
+        empaquetan al inicio (justify-content: normal) y el arbol queda
+        recostado a la izquierda con un vacio a la derecha del Campeon.
+        `mx-auto w-full justify-center` centra las columnas; `min-w-max` se
+        mantiene para que, cuando el contenido excede el panel, el ancho Crezca
+        y no quede espacio libre que recorte el lado izquierdo al scrollear.
+      */}
+      <div
+        ref={boardRef}
+        className="relative mx-auto flex w-full min-w-max items-stretch justify-center gap-8 px-4 py-6 sm:gap-10 md:gap-14 md:px-8 md:py-8"
+      >
         <svg
           className="pointer-events-none absolute left-0 top-0 h-full w-full"
           aria-hidden="true"
@@ -314,11 +327,11 @@ function BracketPlate({
         {rounds.map((round, index) => (
           <section
             key={round.fase}
-            className="flex w-[13.5rem] shrink-0 snap-center flex-col sm:w-64"
+            className="flex w-[13.5rem] shrink-0 snap-center flex-col items-center sm:w-64"
             aria-label={round.label}
           >
             <RoundHeader label={round.label} isHero={index === lastRound} />
-            <div className="flex flex-1 flex-col justify-around gap-6">
+            <div className="flex w-full flex-1 flex-col justify-around gap-6">
               {round.matches.map((match) => (
                 <MatchCapsule
                   key={match.id}
@@ -341,9 +354,12 @@ function BracketPlate({
           </section>
         ))}
 
-        <section className="flex w-[13.5rem] shrink-0 snap-center flex-col sm:w-64" aria-label="Campeón">
+        <section
+          className="flex w-[13.5rem] shrink-0 snap-center flex-col items-center sm:w-64"
+          aria-label="Campeón"
+        >
           <RoundHeader label="Campeón" isHero={false} />
-          <div className="flex flex-1 items-center">
+          <div className="flex w-full flex-1 items-center">
             <ChampionPodium
               champion={champion}
               group={champion === null ? null : groupByTeam[champion.teamId]}
@@ -363,11 +379,13 @@ function RoundHeader({ label, isHero }: { label: string; isHero: boolean }): Rea
   const shell = isHero
     ? 'border-lime/60 bg-lime/10 shadow-[0_0_28px_-10px_rgba(197,216,109,0.85)]'
     : 'border-white/10 bg-white/[0.04]'
-  const text = isHero ? 'text-lime' : 'text-[#c6bbbf]'
+  // text-[#c6bbbf] y no text-neutral-400: neutral-400 sobre el panel oscuro
+  // queda en 2.2:1 y no cumple WCAG AA.
+  const text = isHero ? 'text-lime' : 'text-[#c6bbcf]'
 
   return (
     <div
-      className={`mb-4 flex min-h-12 items-center justify-center gap-2 rounded-xl border px-3 ${shell}`}
+      className={`mb-4 flex w-full min-h-12 shrink-0 items-center justify-center gap-2 rounded-xl border px-3 text-center ${shell}`}
     >
       {isHero ? (
         <TrophyIcon className="size-4 shrink-0 text-lime" />

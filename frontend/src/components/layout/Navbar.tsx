@@ -106,14 +106,8 @@ export default function Navbar(): React.JSX.Element {
       <nav className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3">
         <div className="flex min-w-0 items-center gap-2">
           <NavLink to="/" end aria-label="Copa 5 - Inicio" className="shrink-0">
-            <Logo className="size-8 sm:h-9 sm:w-9" showText={false} />
+            <Logo className="size-8 sm:h-9 sm:w-9" />
           </NavLink>
-          <div className="hidden min-w-0 flex-col leading-tight sm:flex">
-            <span className="truncate text-sm font-bold text-coffee dark:text-[#f3efe8]">Copa 5</span>
-            <span className="truncate text-[11px] text-tertiary dark:text-mauve-soft">
-              Complejo Deportivo
-            </span>
-          </div>
         </div>
 
         <div className="hidden items-center gap-1 md:flex">
@@ -166,12 +160,12 @@ export default function Navbar(): React.JSX.Element {
           )}
         </div>
 
-        <div className="flex items-center gap-2 md:hidden">
+        <div className="relative z-50 flex items-center gap-2 md:hidden">
           <Button
             isIconOnly
             variant="ghost"
             size="sm"
-            className="min-h-11 min-w-11 rounded-full"
+            className="pointer-events-auto min-h-11 min-w-11 rounded-full"
             onPress={toggleDark}
             aria-label="Cambiar tema"
           >
@@ -180,14 +174,14 @@ export default function Navbar(): React.JSX.Element {
 
           <Disclosure isExpanded={isMenuOpen} onExpandedChange={setIsMenuOpen}>
             <DisclosureTrigger
-              aria-label={isMenuOpen ? "Cerrar menu" : "Abrir menu"}
+              aria-label={isMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
               className="flex size-11 items-center justify-center rounded-xl border border-line bg-cream text-coffee transition-colors hover:bg-lime/10 dark:border-mauve dark:bg-coffee-elev dark:text-[#f3efe8]"
             >
               <MenuIcon open={isMenuOpen} />
             </DisclosureTrigger>
 
-            <DisclosureContent className="absolute inset-x-0 top-full z-40 w-full max-w-full border-b border-line bg-cream px-6 pb-6 pt-4 shadow-lg dark:border-mauve dark:bg-[#1a090d]/95 dark:backdrop-blur-md">
-              <nav className="flex w-full flex-col gap-4" aria-label="Navegacion principal">
+            <DisclosureContent className="absolute inset-x-0 top-full z-50 w-full max-w-full border-b border-line bg-cream px-6 pb-6 pt-4 shadow-lg dark:border-mauve dark:bg-[#1a090d]/95 dark:backdrop-blur-md">
+              <nav className="flex w-full flex-col gap-4" aria-label="Navegación principal">
                 <NavLink to="/" end className={drawerLinkClass} onClick={closeMenu}>
                   Reservas
                 </NavLink>

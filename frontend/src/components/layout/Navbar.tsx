@@ -106,7 +106,7 @@ export default function Navbar(): React.JSX.Element {
       <nav className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3">
         <div className="flex min-w-0 items-center gap-2">
           <NavLink to="/" end aria-label="Copa 5 - Inicio" className="shrink-0">
-            <Logo className="size-8 sm:h-9 sm:w-9" />
+            <Logo className="size-8 sm:h-9 sm:w-9" showText={false} />
           </NavLink>
           <div className="hidden min-w-0 flex-col leading-tight sm:flex">
             <span className="truncate text-sm font-bold text-coffee dark:text-[#f3efe8]">Copa 5</span>

@@ -103,6 +103,9 @@ export default function Navbar(): React.JSX.Element {
 
   return (
     <header className="sticky top-0 z-30 border-b border-line/70 bg-cream/80 backdrop-blur dark:border-mauve/50 dark:bg-coffee/85">
+      {/* El panel del menu se ancla al header (relative), no al grupo de
+          botones: si no, `inset-x-0` mide el ancho de ese grupo y el menu
+          queda angosto y cortado. */}
       <nav className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3">
         <div className="flex min-w-0 items-center gap-2">
           <NavLink to="/" end aria-label="Copa 5 - Inicio" className="shrink-0">
@@ -160,7 +163,7 @@ export default function Navbar(): React.JSX.Element {
           )}
         </div>
 
-        <div className="relative z-50 flex items-center gap-2 md:hidden">
+        <div className="flex items-center gap-2 md:hidden">
           <Button
             isIconOnly
             variant="ghost"

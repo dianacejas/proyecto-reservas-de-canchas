@@ -1,8 +1,27 @@
+import { env } from '../config/env.js'
 import { Booking, Field, Match, type BookingDoc } from '../models/index.js'
 import type { CreateAdminBookingInput, UpdateBookingInput } from '../schemas/index.js'
 import { AppError } from '../utils/AppError.js'
 import { assertFound } from '../utils/assertFound.js'
 import { dayStart } from '../utils/time.js'
+
+function slotHours(startTime: string, endTime: string): number {
+  const [startHour, startMinute] = startTime.split(':').map(Number)
+  const [endHour, endMinute] = endTime.split(':').map(Number)
+  return Math.max((endHour * 60 + endMinute - (startHour * 60 + startMinute)) / 60, 0)
+}
+
+function slotTotal(pricePerHour: number, startTime: string, endTime: string): number {
+  return Math.round(pricePerHour * slotHours(startTime, endTime))
+}
+
+function dateKey(date: Date): string {
+  return date.toISOString().slice(0, 10)
+}
+
+function pendingExpiryFrom(now: Date = new Date()): Date {
+  return new Date(now.getTime() + env.PENDING_TTL_MINUTES * 60 * 1000)
+}
 
 export interface SlotInput {
   fieldId: string
@@ -17,6 +36,7 @@ export interface CreatePublicBookingInput {
   startTime: string
   endTime: string
   clientInfo: { name: string; phone: string }
+  userId?: string
 }
 
 export interface AvailabilityOptions {
@@ -31,6 +51,7 @@ export async function findConflictingBooking(
     fieldId: slot.fieldId,
     date: dayStart(slot.date),
     status: { $ne: 'cancelada' },
+    $nor: [{ status: 'pendiente', expiresAt: { $ne: null, $lte: new Date() } }],
     $expr: {
       $and: [
         { $lt: ['$startTime', slot.endTime] },
@@ -55,11 +76,19 @@ export async function createPublicBooking(body: CreatePublicBookingInput): Promi
   const conflict = await findConflictingBooking(slot)
   if (conflict) throw new AppError(409, 'El horario solicitado ya se encuentra reservado')
 
+  const totalAmount = slotTotal(field.pricePerHour, body.startTime, body.endTime)
+
   return Booking.create({
     ...slot,
+    userId: body.userId,
     clientInfo: body.clientInfo,
     status: 'pendiente',
     type: 'amistoso',
+    totalAmount,
+    depositAmount: 0,
+    remainingBalance: totalAmount,
+    paymentType: 'full',
+    expiresAt: pendingExpiryFrom(),
   })
 }
 
@@ -142,7 +171,41 @@ export async function updateBookingById(
   }
 
   booking.set({ ...body, fieldId, date: dayStart(date), startTime, endTime })
+  if (body.status !== undefined && body.status !== 'pendiente') {
+    booking.set('expiresAt', null)
+  }
   await booking.save()
+  return booking
+}
+
+export async function listBookingsForUser(userId: string): Promise<BookingDoc[]> {
+  return Booking.find({ userId })
+    .populate('fieldId', 'name type pricePerHour')
+    .sort({ date: 1, startTime: 1 })
+}
+
+export async function cancelClientBooking(userId: string, bookingId: string): Promise<BookingDoc> {
+  const booking = assertFound(await Booking.findById(bookingId), 'Reserva no encontrada')
+
+  if (booking.userId?.toString() !== userId) {
+    throw new AppError(403, 'No podés cancelar una reserva que no es tuya')
+  }
+  if (booking.status !== 'pendiente' && booking.status !== 'confirmada') {
+    throw new AppError(409, 'La reserva ya no se puede cancelar')
+  }
+
+  const turnStart = new Date(`${dateKey(booking.date)}T${booking.startTime}:00`)
+  const hoursLeft = (turnStart.getTime() - Date.now()) / 3_600_000
+  if (hoursLeft <= env.CANCEL_WINDOW_HOURS) {
+    throw new AppError(
+      409,
+      `Solo podés cancelar con más de ${env.CANCEL_WINDOW_HOURS} horas de anticipación`
+    )
+  }
+
+  booking.set({ status: 'cancelada', expiresAt: null })
+  await booking.save()
+  await Match.updateMany({ bookingId: booking._id }, { $set: { bookingId: null } })
   return booking
 }
 

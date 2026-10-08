@@ -2,9 +2,10 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import Footer from './components/layout/Footer'
 import Navbar from './components/layout/Navbar'
 import WhatsAppButton from './components/whatsapp/WhatsAppButton'
-import { RequireAdmin } from './components/common/AuthGuards'
+import { RequireAdmin, RequireClient } from './components/common/AuthGuards'
 import AdminPage from './pages/AdminPage'
 import LoginPage from './pages/LoginPage'
+import MyBookingsPage from './pages/MyBookingsPage'
 import ReservasPage from './pages/ReservasPage'
 import TorneoPage from './pages/TorneoPage'
 import TorneosPage from './pages/TorneosPage'
@@ -17,6 +18,14 @@ export default function App(): React.JSX.Element {
         <Routes>
           <Route path="/" element={<ReservasPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route
+            path="/mis-reservas"
+            element={
+              <RequireClient>
+                <MyBookingsPage />
+              </RequireClient>
+            }
+          />
           <Route
             path="/admin"
             element={

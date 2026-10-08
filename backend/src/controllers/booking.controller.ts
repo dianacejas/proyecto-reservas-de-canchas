@@ -7,11 +7,14 @@ import type {
   UpdateBookingInput,
 } from '../schemas/index.js'
 import {
+  cancelClientBooking,
   createAdminBooking,
   createPublicBooking,
   deleteBookingById,
+  listBookingsForUser,
   updateBookingById,
 } from '../services/booking.service.js'
+import { AppError } from '../utils/AppError.js'
 import { assertFound } from '../utils/assertFound.js'
 import { asyncHandler } from '../utils/asyncHandler.js'
 import { parseDay } from '../utils/time.js'
@@ -38,7 +41,18 @@ export const getBooking = asyncHandler(async (req, res) => {
 
 export const createBooking = asyncHandler(async (req, res) => {
   const body = req.validData.body as CreateBookingInput
-  res.status(201).json({ data: await createPublicBooking(body) })
+  res.status(201).json({ data: await createPublicBooking({ ...body, userId: req.user?.id }) })
+})
+
+export const listMyBookings = asyncHandler(async (req, res) => {
+  if (!req.user) throw new AppError(401, 'Se requiere autenticación')
+  res.json({ data: await listBookingsForUser(req.user.id) })
+})
+
+export const cancelMyBooking = asyncHandler(async (req, res) => {
+  if (!req.user) throw new AppError(401, 'Se requiere autenticación')
+  const { id } = req.validData.params as IdParams
+  res.json({ data: await cancelClientBooking(req.user.id, id) })
 })
 
 export const createAdminBookingController = asyncHandler(async (req, res) => {

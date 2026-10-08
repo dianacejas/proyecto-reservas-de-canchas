@@ -3,19 +3,31 @@ import { Booking, Field, Payment, type PaymentDoc } from '../models/index.js'
 import { AppError } from '../utils/AppError.js'
 import { assertFound } from '../utils/assertFound.js'
 
+export type PaymentType = 'deposit' | 'full'
+
 export interface CheckoutResult {
   provider: 'sandbox' | 'mercadopago'
   paymentId: string
   checkoutUrl: string | null
   amount: number
+  paymentType: PaymentType
+  totalAmount: number
+  depositAmount: number
+  remainingBalance: number
+  depositPercent: number
 }
 
-async function bookingAmount(bookingId: string): Promise<number> {
-  const booking = await Booking.findById(bookingId)
-  if (!booking) throw new AppError(404, 'Reserva no encontrada')
+function slotTotal(pricePerHour: number, startTime: string, endTime: string): number {
+  const [startHour, startMinute] = startTime.split(':').map(Number)
+  const [endHour, endMinute] = endTime.split(':').map(Number)
+  const hours = Math.max((endHour * 60 + endMinute - (startHour * 60 + startMinute)) / 60, 0)
+  return Math.round(pricePerHour * hours)
+}
+
+async function bookingTotal(booking: { fieldId: unknown; startTime: string; endTime: string }): Promise<number> {
   const field = await Field.findOne({ _id: booking.fieldId, isActive: true })
   if (!field) throw new AppError(404, 'La cancha asociada no está disponible')
-  return field.pricePerHour
+  return slotTotal(field.pricePerHour, booking.startTime, booking.endTime)
 }
 
 async function createMercadoPagoPreference(amount: number, paymentId: string): Promise<{ id: string; init_point: string }> {
@@ -60,7 +72,10 @@ async function createMercadoPagoPreference(amount: number, paymentId: string): P
   return { id: data.id, init_point: data.init_point }
 }
 
-export async function createCheckout(bookingId: string): Promise<CheckoutResult> {
+export async function createCheckout(
+  bookingId: string,
+  paymentType: PaymentType = 'full'
+): Promise<CheckoutResult> {
   const booking = assertFound(await Booking.findById(bookingId), 'Reserva no encontrada')
 
   if (booking.status === 'cancelada') throw new AppError(409, 'La reserva está cancelada')
@@ -76,25 +91,46 @@ export async function createCheckout(bookingId: string): Promise<CheckoutResult>
     throw new AppError(409, 'La reserva ya tiene un pago registrado')
   }
 
-  const amount = await bookingAmount(bookingId)
-  const payment = await Payment.create({ bookingId, provider: env.PAYMENT_PROVIDER, amount })
+  const totalAmount = await bookingTotal(booking)
+  const depositAmount =
+    paymentType === 'deposit' ? Math.round((totalAmount * env.DEPOSIT_PERCENT) / 100) : totalAmount
+  const remainingBalance = totalAmount - depositAmount
+  const amount = depositAmount
+
+  booking.set({ totalAmount, depositAmount, remainingBalance, paymentType })
+  await booking.save()
+
+  const payment = await Payment.create({
+    bookingId,
+    provider: env.PAYMENT_PROVIDER,
+    amount,
+    paymentType,
+  })
+
+  const result = {
+    paymentId: payment._id.toString(),
+    amount,
+    paymentType,
+    totalAmount,
+    depositAmount,
+    remainingBalance,
+    depositPercent: env.DEPOSIT_PERCENT,
+  }
 
   if (env.PAYMENT_PROVIDER === 'sandbox') {
     return {
+      ...result,
       provider: 'sandbox',
-      paymentId: payment._id.toString(),
       checkoutUrl: `${env.WEB_BASE_URL}/pago/sandbox/${payment._id.toString()}/confirmar`,
-      amount,
     }
   }
 
   const preference = await createMercadoPagoPreference(amount, payment._id.toString())
   await Payment.updateOne({ _id: payment._id }, { $set: { externalId: preference.id } })
   return {
+    ...result,
     provider: 'mercadopago',
-    paymentId: payment._id.toString(),
     checkoutUrl: preference.init_point,
-    amount,
   }
 }
 
@@ -110,7 +146,10 @@ export async function confirmSandboxPayment(paymentId: string): Promise<PaymentD
 
   payment.status = 'pagado'
   await payment.save()
-  await Booking.updateOne({ _id: payment.bookingId }, { $set: { status: 'confirmada' } })
+  await Booking.updateOne(
+    { _id: payment.bookingId },
+    { $set: { status: 'confirmada', expiresAt: null } }
+  )
   return payment
 }
 

@@ -5,6 +5,7 @@ const paymentSchema = new Schema(
     bookingId: { type: Schema.Types.ObjectId, ref: 'Booking', required: true, index: true },
     provider: { type: String, enum: ['sandbox', 'mercadopago'], required: true },
     amount: { type: Number, required: true, min: 0 },
+    paymentType: { type: String, enum: ['deposit', 'full'], default: 'full' },
     status: { type: String, enum: ['pendiente', 'pagado', 'fallido', 'cancelado'], default: 'pendiente' },
     externalId: { type: String, default: null },
   },

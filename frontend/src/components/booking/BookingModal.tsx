@@ -3,6 +3,7 @@ import { useState } from 'react'
 import type { Field } from '../../types'
 import type { GridSlot } from '../../utils/slots'
 import { formatLong } from '../../utils/date'
+import { DEPOSIT_PERCENT, depositFor, formatCurrency } from '../../utils/payments'
 import { getErrorMessage } from '../../api/client'
 
 export interface BookingFormPayload {
@@ -71,10 +72,20 @@ export default function BookingModal({
                   <span className={INFO_VALUE}>{slot.label}</span>
                 </div>
                 {slot.kind === 'libre' && (
-                  <div className={INFO_ROW}>
-                    <span className={INFO_LABEL}>Total estimado</span>
-                    <span className="font-semibold text-coffee dark:text-lime">${field.pricePerHour}</span>
-                  </div>
+                  <>
+                    <div className={INFO_ROW}>
+                      <span className={INFO_LABEL}>Total estimado</span>
+                      <span className="font-semibold text-coffee dark:text-lime">
+                        {formatCurrency(field.pricePerHour)}
+                      </span>
+                    </div>
+                    <div className={INFO_ROW}>
+                      <span className={INFO_LABEL}>Seña {DEPOSIT_PERCENT}%</span>
+                      <span className={INFO_VALUE}>
+                        {formatCurrency(depositFor(field.pricePerHour))}
+                      </span>
+                    </div>
+                  </>
                 )}
               </div>
 

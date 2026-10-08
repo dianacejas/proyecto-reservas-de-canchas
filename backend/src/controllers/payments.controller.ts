@@ -9,7 +9,7 @@ import {
 
 export const checkout = asyncHandler(async (req, res) => {
   const body = req.validData.body as CheckoutInput
-  res.status(201).json({ data: await createCheckout(body.bookingId) })
+  res.status(201).json({ data: await createCheckout(body.bookingId, body.paymentType) })
 })
 
 export const confirmSandbox = asyncHandler(async (req, res) => {

@@ -1,13 +1,15 @@
 import { Router } from 'express'
 import {
+  cancelMyBooking,
   createAdminBookingController,
   createBooking,
   getBooking,
   listBookings,
+  listMyBookings,
   removeBooking,
   updateBooking,
 } from '../controllers/booking.controller.js'
-import { adminRequired } from '../middleware/auth.js'
+import { adminRequired, authOptional, authRequired } from '../middleware/auth.js'
 import { validate } from '../middleware/validate.js'
 import {
   createAdminBookingSchema,
@@ -20,7 +22,9 @@ import {
 const router = Router()
 
 router.get('/', validate(listBookingsQuerySchema, 'query'), listBookings)
-router.post('/', validate(createBookingSchema), createBooking)
+router.get('/mine', authRequired, listMyBookings)
+router.post('/', authOptional, validate(createBookingSchema), createBooking)
+router.patch('/:id/cancel', authRequired, validate(idParamsSchema, 'params'), cancelMyBooking)
 router.get('/:id', validate(idParamsSchema, 'params'), getBooking)
 router.put('/:id', adminRequired, validate(idParamsSchema, 'params'), validate(updateBookingSchema), updateBooking)
 router.delete('/:id', adminRequired, validate(idParamsSchema, 'params'), removeBooking)

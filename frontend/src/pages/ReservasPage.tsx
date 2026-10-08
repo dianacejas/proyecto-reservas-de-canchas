@@ -15,6 +15,8 @@ import { useAuth } from '../auth/useAuth'
 import BookingModal, { type BookingFormPayload } from '../components/booking/BookingModal'
 import DateNav from '../components/booking/DateNav'
 import FieldPicker from '../components/booking/FieldPicker'
+import PaymentModal from '../components/booking/PaymentModal'
+import ShareBookingModal from '../components/booking/ShareBookingModal'
 import ErrorState from '../components/common/ErrorState'
 import FadeUp from '../components/common/FadeUp'
 import Skeleton from '../components/common/Skeleton'
@@ -22,7 +24,7 @@ import CourtGallery from '../components/courts/CourtGallery'
 import HeroSection from '../components/HeroSection'
 import ServicesSection from '../components/services/ServicesSection'
 import LocationSection from '../components/contact/LocationSection'
-import type { Booking, BookingStatus, Field } from '../types'
+import type { Booking, BookingStatus, Field, PaymentType } from '../types'
 import { bookingDay, todayKey } from '../utils/date'
 import { buildSlots, type GridSlot } from '../utils/slots'
 
@@ -42,6 +44,9 @@ export default function ReservasPage(): React.JSX.Element {
   const [selectedSlot, setSelectedSlot] = useState<GridSlot | null>(null)
   const [notice, setNotice] = useState<Notice | null>(null)
   const [createdBookings, setCreatedBookings] = useState<Booking[]>([])
+  const [paidBookings, setPaidBookings] = useState<Booking[]>([])
+  const [payingBooking, setPayingBooking] = useState<Booking | null>(null)
+  const [sharingBooking, setSharingBooking] = useState<Booking | null>(null)
 
   const fieldsQuery = useQuery({ queryKey: ['fields'], queryFn: listFields })
 
@@ -88,18 +93,30 @@ export default function ReservasPage(): React.JSX.Element {
   })
 
   const payMutation = useMutation({
-    mutationFn: async (booking: Booking) => {
-      const checkout = await createCheckout(booking.id)
+    mutationFn: async ({
+      booking,
+      paymentType,
+    }: {
+      booking: Booking
+      paymentType: PaymentType
+    }) => {
+      const checkout = await createCheckout(booking.id, paymentType)
       if (checkout.provider === 'mercadopago' && checkout.checkoutUrl !== null) {
         window.location.assign(checkout.checkoutUrl)
         return null
       }
       return confirmSandboxPayment(checkout.paymentId)
     },
-    onSuccess: (payment) => {
+    onSuccess: (payment, variables) => {
       if (payment === null) return
-      setCreatedBookings((current) => current.filter((item) => item.id !== payment.bookingId))
+      setPayingBooking(null)
+      setCreatedBookings((current) => current.filter((item) => item.id !== variables.booking.id))
+      setPaidBookings((current) => [
+        ...current.filter((item) => item.id !== variables.booking.id),
+        { ...variables.booking, status: 'confirmada' },
+      ])
       void queryClient.invalidateQueries({ queryKey: ['bookings'] })
+      void queryClient.invalidateQueries({ queryKey: ['my-bookings'] })
       showNotice('success', 'Pago confirmado. La reserva quedó confirmada.')
     },
     onError: (error) => {
@@ -209,8 +226,7 @@ export default function ReservasPage(): React.JSX.Element {
                     <Button
                       variant="primary"
                       size="sm"
-                      isDisabled={payMutation.isPending}
-                      onPress={() => payMutation.mutate(booking)}
+                      onPress={() => setPayingBooking(booking)}
                     >
                       Pagar ahora
                     </Button>
@@ -234,6 +250,38 @@ export default function ReservasPage(): React.JSX.Element {
                     para pagar online.
                   </span>
                 )}
+              </div>
+            )
+          })}
+        </section>
+      )}
+
+      {paidBookings.length > 0 && (
+        <section className="space-y-3">
+          {paidBookings.map((booking) => {
+            return (
+              <div
+                key={booking.id}
+                className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-lime/60 bg-lime/10 p-4 shadow-surface dark:border-lime/40 dark:bg-lime/10"
+              >
+                <div>
+                  <p className="text-sm font-semibold">
+                    ¡Pago confirmado! ·{' '}
+                    {fields.find((item) => item.id === booking.fieldId)?.name ?? 'Tu cancha'} ·{' '}
+                    {bookingDay(booking.date)} · {booking.startTime} a {booking.endTime}
+                  </p>
+                  <p className="text-xs text-tertiary dark:text-mauve-soft">
+                    Saldo pendiente en cancha: $
+                    {booking.remainingBalance.toLocaleString('es-AR')}. Podés gestionarla en{' '}
+                    <Link to="/mis-reservas" className="underline decoration-lime underline-offset-2">
+                      Mis Reservas
+                    </Link>
+                    .
+                  </p>
+                </div>
+                <Button variant="outline" size="sm" className="min-h-11" onPress={() => setSharingBooking(booking)}>
+                  Compartir con el equipo
+                </Button>
               </div>
             )
           })}
@@ -362,6 +410,29 @@ variant="outline"
           isSubmitting={createMutation.isPending}
           onSubmit={handleSubmit}
           onClose={() => setSelectedSlot(null)}
+        />
+      )}
+
+      {payingBooking !== null && (
+        <PaymentModal
+          booking={payingBooking}
+          fieldName={fields.find((item) => item.id === payingBooking.fieldId)?.name ?? 'Tu cancha'}
+          isSubmitting={payMutation.isPending}
+          onConfirm={(paymentType) => payMutation.mutate({ booking: payingBooking, paymentType })}
+          onClose={() => setPayingBooking(null)}
+        />
+      )}
+
+      {sharingBooking !== null && (
+        <ShareBookingModal
+          share={{
+            fieldName: fields.find((item) => item.id === sharingBooking.fieldId)?.name ?? 'Tu cancha',
+            dateKey: bookingDay(sharingBooking.date),
+            startTime: sharingBooking.startTime,
+            endTime: sharingBooking.endTime,
+            totalAmount: sharingBooking.totalAmount,
+          }}
+          onClose={() => setSharingBooking(null)}
         />
       )}
     </div>

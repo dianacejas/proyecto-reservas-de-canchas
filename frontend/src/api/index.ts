@@ -9,6 +9,7 @@ import type {
   Match,
   Matchday,
   Payment,
+  PaymentType,
   PlayoffBracket,
   Team,
   Tournament,
@@ -105,6 +106,14 @@ export function createBooking(input: CreateBookingInput): Promise<Booking> {
   })
 }
 
+export function listMyBookings(): Promise<Booking[]> {
+  return apiRequest<Booking[]>('/bookings/mine')
+}
+
+export function cancelMyBooking(id: string): Promise<Booking> {
+  return apiRequest<Booking>(`/bookings/${id}/cancel`, { method: 'PATCH' })
+}
+
 export function createAdminBooking(input: CreateAdminBookingInput): Promise<Booking> {
   return apiRequest<Booking>('/bookings/admin', {
     method: 'POST',
@@ -181,10 +190,10 @@ export function generatePlayoffs(id: string): Promise<PlayoffBracket> {
   })
 }
 
-export function createCheckout(bookingId: string): Promise<CheckoutResult> {
+export function createCheckout(bookingId: string, paymentType: PaymentType = 'full'): Promise<CheckoutResult> {
   return apiRequest<CheckoutResult>('/payments/checkout', {
     method: 'POST',
-    body: JSON.stringify({ bookingId }),
+    body: JSON.stringify({ bookingId, paymentType }),
   })
 }
 

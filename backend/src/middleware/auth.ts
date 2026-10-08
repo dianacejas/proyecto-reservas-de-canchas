@@ -38,6 +38,15 @@ export function authRequired(req: Request, _res: Response, next: NextFunction): 
   next()
 }
 
+export function authOptional(req: Request, _res: Response, next: NextFunction): void {
+  const token = parseBearerToken(req)
+  if (token) {
+    const claims = verifyToken(token, env.JWT_SECRET)
+    if (claims) req.user = { id: claims.sub, role: claims.role }
+  }
+  next()
+}
+
 export function adminRequired(req: Request, res: Response, next: NextFunction): void {
   authRequired(req, res, (err?: unknown) => {
     if (err !== undefined) {

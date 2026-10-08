@@ -10,6 +10,9 @@ const envSchema = z.object({
   PAYMENT_PROVIDER: z.enum(['sandbox', 'mercadopago']).default('sandbox'),
   MERCADO_PAGO_ACCESS_TOKEN: z.string().optional(),
   WEB_BASE_URL: z.string().url().default('http://localhost:5173'),
+  PENDING_TTL_MINUTES: z.coerce.number().int().positive().default(15),
+  DEPOSIT_PERCENT: z.coerce.number().int().min(1).max(100).default(50),
+  CANCEL_WINDOW_HOURS: z.coerce.number().int().min(0).default(4),
 })
 
 const parsed = envSchema.safeParse(process.env)

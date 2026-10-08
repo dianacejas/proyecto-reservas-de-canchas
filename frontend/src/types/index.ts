@@ -1,5 +1,6 @@
-export type BookingStatus = 'pendiente' | 'confirmada' | 'cancelada'
+export type BookingStatus = 'pendiente' | 'confirmada' | 'cancelada' | 'pagada' | 'bloqueada'
 export type BookingType = 'amistoso' | 'torneo' | 'mantenimiento'
+export type PaymentType = 'deposit' | 'full'
 export type TournamentStatus = 'inscripcion' | 'en_curso' | 'finalizado'
 export type MatchStatus = 'programado' | 'finalizado'
 export type MatchFase = 'grupos' | 'octavos' | 'cuartos' | 'semifinal' | 'final'
@@ -35,6 +36,11 @@ export interface Booking {
   clientInfo: ClientInfo
   status: BookingStatus
   type: BookingType
+  totalAmount: number
+  depositAmount: number
+  remainingBalance: number
+  paymentType: PaymentType
+  expiresAt: string | null
   createdAt: string
   updatedAt: string
 }
@@ -157,6 +163,7 @@ export interface Payment {
   bookingId: string
   provider: PaymentProvider
   amount: number
+  paymentType: PaymentType
   status: PaymentStatus
   externalId: string | null
   createdAt: string
@@ -168,4 +175,9 @@ export interface CheckoutResult {
   paymentId: string
   checkoutUrl: string | null
   amount: number
+  paymentType: PaymentType
+  totalAmount: number
+  depositAmount: number
+  remainingBalance: number
+  depositPercent: number
 }

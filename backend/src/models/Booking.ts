@@ -17,7 +17,7 @@ const bookingSchema = new Schema(
     depositAmount: { type: Number, default: 0 },
     remainingBalance: { type: Number, default: 0 },
     paymentType: { type: String, enum: ['deposit', 'full'], default: 'full' },
-    expiresAt: { type: Date },
+    expiresAt: { type: Date, default: null },
   },
   {
     timestamps: true,
@@ -33,8 +33,8 @@ const bookingSchema = new Schema(
 )
 
 bookingSchema.index({ fieldId: 1, date: 1 })
-bookingSchema.index({ status: 1 })
-bookingSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
+bookingSchema.index({ status: 1, expiresAt: 1 })
+bookingSchema.index({ userId: 1, date: 1 })
 
 export type BookingDoc = InferSchemaType<typeof bookingSchema> & { _id: Types.ObjectId }
 

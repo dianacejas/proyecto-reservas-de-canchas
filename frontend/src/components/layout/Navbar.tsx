@@ -164,6 +164,11 @@ export default function Navbar(): React.JSX.Element {
           <NavLink to={reservasTarget} end className={navLinkClass} onClick={goToReservas}>
             Reservas
           </NavLink>
+          {isAuthenticated && !isAdmin && (
+            <NavLink to="/mis-reservas" className={navLinkClass}>
+              Mis Reservas
+            </NavLink>
+          )}
           <NavLink to="/torneos" className={navLinkClass}>
             Torneos
           </NavLink>
@@ -238,6 +243,11 @@ export default function Navbar(): React.JSX.Element {
                 <NavLink to={reservasTarget} end className={drawerLinkClass} onClick={goToReservas}>
                   Reservas
                 </NavLink>
+                {isAuthenticated && !isAdmin && (
+                  <NavLink to="/mis-reservas" className={drawerLinkClass} onClick={closeMenu}>
+                    Mis Reservas
+                  </NavLink>
+                )}
                 <NavLink to="/torneos" className={drawerLinkClass} onClick={closeMenu}>
                   Torneos
                 </NavLink>

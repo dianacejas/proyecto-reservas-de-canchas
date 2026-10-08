@@ -1,6 +1,15 @@
+import { Types } from 'mongoose'
 import { Match, Team } from '../models/index.js'
 
 export const YELLOW_SUSPENSION_LIMIT = 3
+
+export interface TopScorerRow {
+  rank: number
+  playerName: string
+  teamId: string
+  teamName: string
+  goalsCount: number
+}
 
 export interface ScorerRow {
   position: number
@@ -98,4 +107,54 @@ export async function getTournamentStats(tournamentId: string): Promise<Tourname
     })
 
   return { scorers, sanctions }
+}
+
+interface TopScorerAggregation {
+  playerName: string
+  teamId: Types.ObjectId
+  teamName: string | null
+  goalsCount: number
+}
+
+export async function getTournamentTopScorers(tournamentId: string): Promise<TopScorerRow[]> {
+  const rows = await Match.aggregate<TopScorerAggregation>([
+    { $match: { tournamentId: new Types.ObjectId(tournamentId), status: 'finalizado' } },
+    { $unwind: '$events' },
+    { $match: { 'events.type': 'goal' } },
+    {
+      $group: {
+        _id: { player: { $toLower: '$events.playerName' }, team: '$events.teamId' },
+        playerName: { $first: '$events.playerName' },
+        teamId: { $first: '$events.teamId' },
+        goalsCount: { $sum: 1 },
+      },
+    },
+    {
+      $lookup: {
+        from: 'teams',
+        localField: 'teamId',
+        foreignField: '_id',
+        as: 'team',
+      },
+    },
+    { $unwind: { path: '$team', preserveNullAndEmptyArrays: true } },
+    {
+      $project: {
+        _id: 0,
+        playerName: 1,
+        teamId: 1,
+        teamName: { $ifNull: ['$team.name', 'Equipo'] },
+        goalsCount: 1,
+      },
+    },
+    { $sort: { goalsCount: -1, playerName: 1 } },
+  ])
+
+  return rows.map((row, index) => ({
+    rank: index + 1,
+    playerName: row.playerName,
+    teamId: row.teamId.toString(),
+    teamName: row.teamName ?? 'Equipo',
+    goalsCount: row.goalsCount,
+  }))
 }

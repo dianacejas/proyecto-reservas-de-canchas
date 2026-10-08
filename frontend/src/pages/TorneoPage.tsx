@@ -2,7 +2,7 @@ import { Button, Chip, Tabs } from '@heroui/react'
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { getMatchdays, getStandings, getTournament, getTournamentStats } from '../api'
+import { getMatchdays, getStandings, getTournament, getTournamentStats, getTopScorers } from '../api'
 import { getErrorMessage } from '../api/client'
 import { useAuth } from '../auth/useAuth'
 import ErrorState from '../components/common/ErrorState'
@@ -12,7 +12,7 @@ import ExportBar from '../components/tournament/ExportBar'
 import FixtureList from '../components/tournament/FixtureList'
 import { PlayoffBracketPanel } from '../components/tournament/PlayoffBracket'
 import SanctionsList from '../components/tournament/SanctionsList'
-import ScorersTable from '../components/tournament/ScorersTable'
+import TopScorersTab from '../components/tournament/TopScorersTab'
 import StandingsTable from '../components/tournament/StandingsTable'
 import TournamentRegistrationModal from '../components/tournament/TournamentRegistrationModal'
 import AdminPanel from '../components/tournament/AdminPanel'
@@ -54,6 +54,12 @@ export default function TorneoPage(): React.JSX.Element {
   const statsQuery = useQuery({
     queryKey: ['stats', id],
     queryFn: () => getTournamentStats(id as string),
+    enabled: id !== undefined,
+  })
+
+  const topScorersQuery = useQuery({
+    queryKey: ['top-scorers', id],
+    queryFn: () => getTopScorers(id as string),
     enabled: id !== undefined,
   })
 
@@ -143,15 +149,15 @@ export default function TorneoPage(): React.JSX.Element {
         </Tabs.Panel>
 
         <Tabs.Panel id="goleadores">
-          {statsQuery.isLoading ? (
+          {topScorersQuery.isLoading ? (
             <TableSkeleton label="Calculando goleadores" />
-          ) : statsQuery.isError ? (
+          ) : topScorersQuery.isError ? (
             <ErrorState
-              message={getErrorMessage(statsQuery.error)}
-              onRetry={() => void statsQuery.refetch()}
+              message={getErrorMessage(topScorersQuery.error)}
+              onRetry={() => void topScorersQuery.refetch()}
             />
           ) : (
-            <ScorersTable rows={statsQuery.data?.scorers ?? []} />
+            <TopScorersTab rows={topScorersQuery.data ?? []} />
           )}
         </Tabs.Panel>
 

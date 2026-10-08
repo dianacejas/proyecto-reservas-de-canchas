@@ -8,11 +8,13 @@ import type {
   Field,
   GroupStandings,
   Match,
+  MatchEvent,
   Matchday,
   Payment,
   PaymentType,
   PlayoffBracket,
   Team,
+  TopScorerRow,
   Tournament,
   TournamentRegistration,
   TournamentStats,
@@ -162,6 +164,10 @@ export function getTournamentStats(id: string): Promise<TournamentStats> {
   return apiRequest<TournamentStats>(`/tournaments/${id}/stats`)
 }
 
+export function getTopScorers(id: string): Promise<TopScorerRow[]> {
+  return apiRequest<TopScorerRow[]>(`/tournaments/${id}/top-scorers`)
+}
+
 export function createTournamentRegistration(
   id: string,
   input: CreateRegistrationInput
@@ -210,11 +216,18 @@ export function createTeam(input: { name: string; tournamentId: string; group: s
 
 export function updateMatchScore(
   id: string,
-  input: { homeGoals: number; awayGoals: number; homePenalties?: number; awayPenalties?: number }
+  input: {
+    homeGoals: number
+    awayGoals: number
+    homePenalties?: number
+    awayPenalties?: number
+    events?: MatchEvent[]
+  }
 ): Promise<Match> {
-  const payload: Record<string, number> = { homeGoals: input.homeGoals, awayGoals: input.awayGoals }
+  const payload: Record<string, unknown> = { homeGoals: input.homeGoals, awayGoals: input.awayGoals }
   if (input.homePenalties !== undefined) payload.homePenalties = input.homePenalties
   if (input.awayPenalties !== undefined) payload.awayPenalties = input.awayPenalties
+  if (input.events !== undefined) payload.events = input.events
   return apiRequest<Match>(`/matches/${id}/score`, {
     method: 'PATCH',
     body: JSON.stringify(payload),

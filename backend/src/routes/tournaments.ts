@@ -5,6 +5,7 @@ import {
   createTournament,
   generatePlayoffsController,
   getPlayoffBracketController,
+  getTopScorersController,
   getTournament,
   getTournamentStandings,
   getTournamentStatsController,
@@ -42,6 +43,7 @@ router.get('/:id/standings', validate(idParamsSchema, 'params'), getTournamentSt
 router.get('/:id/playoffs', validate(idParamsSchema, 'params'), getPlayoffBracketController)
 router.post('/:id/playoffs', adminRequired, validate(idParamsSchema, 'params'), validate(generatePlayoffsSchema), generatePlayoffsController)
 router.get('/:id/stats', validate(idParamsSchema, 'params'), getTournamentStatsController)
+router.get('/:id/top-scorers', validate(idParamsSchema, 'params'), getTopScorersController)
 router.get(
   '/:id/registrations',
   adminRequired,

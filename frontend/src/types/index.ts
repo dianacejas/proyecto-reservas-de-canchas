@@ -215,6 +215,14 @@ export interface TournamentStats {
   sanctions: SanctionRow[]
 }
 
+export interface TopScorerRow {
+  rank: number
+  playerName: string
+  teamId: string
+  teamName: string
+  goalsCount: number
+}
+
 export interface RegistrationPlayer {
   name: string
   number: number | null

@@ -11,7 +11,7 @@ import type {
   UpdateTournamentInput,
 } from '../schemas/index.js'
 import { getGroupStandings } from '../services/standings.service.js'
-import { getTournamentStats } from '../services/stats.service.js'
+import { getTournamentStats, getTournamentTopScorers } from '../services/stats.service.js'
 import {
   approveRegistration,
   createRegistration,
@@ -118,6 +118,12 @@ export const getTournamentStatsController = asyncHandler(async (req, res) => {
   const { id } = req.validData.params as IdParams
   assertFound(await Tournament.findById(id), 'Torneo no encontrado')
   res.json({ data: await getTournamentStats(id) })
+})
+
+export const getTopScorersController = asyncHandler(async (req, res) => {
+  const { id } = req.validData.params as IdParams
+  assertFound(await Tournament.findById(id), 'Torneo no encontrado')
+  res.json({ data: await getTournamentTopScorers(id) })
 })
 
 export const createRegistrationController = asyncHandler(async (req, res) => {

@@ -58,6 +58,7 @@ export const updateMatchScore = asyncHandler(async (req, res) => {
     awayGoals: body.awayGoals,
     homePenalties: body.homePenalties ?? null,
     awayPenalties: body.awayPenalties ?? null,
+    events: body.events ?? [],
   }
   res.json({ data: await updateMatchById(id, input) })
 })

@@ -5,18 +5,27 @@ import { createTeam, getMatchdays, listTournamentTeams, updateMatchScore } from 
 import { getErrorMessage } from '../../api/client'
 import Loading from '../common/Loading'
 import ErrorState from '../common/ErrorState'
+import MatchResultModal, { type MatchResultSubmit } from './MatchResultModal'
 import RegistrationRequests from './RegistrationRequests'
-import type { Match } from '../../types'
+import TeamCrest from './TeamCrest'
+import type { Match, TeamPlayer, TeamRef } from '../../types'
 
 interface NewTeamForm {
   name: string
   group: string
 }
 
+function teamLabel(team: string | TeamRef | null | undefined): string {
+  if (team === null || team === undefined) return 'Sin equipo'
+  return typeof team === 'object' ? team.name : 'Sin equipo'
+}
+
 export default function AdminPanel({ tournamentId }: { tournamentId: string }): React.JSX.Element {
   const queryClient = useQueryClient()
   const [team, setTeam] = useState<NewTeamForm>({ name: '', group: 'Grupo A' })
   const [formError, setFormError] = useState<string | null>(null)
+  const [editingMatch, setEditingMatch] = useState<Match | null>(null)
+  const [scoreError, setScoreError] = useState<string | null>(null)
 
   const teamsQuery = useQuery({
     queryKey: ['teams', tournamentId],
@@ -36,10 +45,19 @@ export default function AdminPanel({ tournamentId }: { tournamentId: string }): 
     return [...seen.entries()].sort(([a], [b]) => a.localeCompare(b))
   }, [teamsQuery.data])
 
+  const playersByTeam = useMemo(() => {
+    const map: Record<string, TeamPlayer[]> = {}
+    for (const team of teamsQuery.data ?? []) map[team.id] = team.players
+    return map
+  }, [teamsQuery.data])
+
   const invalidateAll = (): void => {
     void queryClient.invalidateQueries({ queryKey: ['teams', tournamentId] })
     void queryClient.invalidateQueries({ queryKey: ['matchdays', tournamentId] })
     void queryClient.invalidateQueries({ queryKey: ['standings', tournamentId] })
+    void queryClient.invalidateQueries({ queryKey: ['stats', tournamentId] })
+    void queryClient.invalidateQueries({ queryKey: ['top-scorers', tournamentId] })
+    void queryClient.invalidateQueries({ queryKey: ['playoffs', tournamentId] })
   }
 
   const teamMutation = useMutation({
@@ -54,10 +72,13 @@ export default function AdminPanel({ tournamentId }: { tournamentId: string }): 
   })
 
   const scoreMutation = useMutation({
-    mutationFn: ({ id, homeGoals, awayGoals }: { id: string; homeGoals: number; awayGoals: number }) =>
-      updateMatchScore(id, { homeGoals, awayGoals }),
-    onSuccess: () => invalidateAll(),
-    onError: (err) => setFormError(getErrorMessage(err)),
+    mutationFn: ({ id, ...input }: { id: string } & MatchResultSubmit) => updateMatchScore(id, input),
+    onSuccess: () => {
+      invalidateAll()
+      setEditingMatch(null)
+      setScoreError(null)
+    },
+    onError: (err) => setScoreError(getErrorMessage(err)),
   })
 
   const matches = (matchdaysQuery.data ?? []).flatMap((matchday) => matchday.matches)
@@ -149,17 +170,31 @@ export default function AdminPanel({ tournamentId }: { tournamentId: string }): 
           ) : (
             <ul className="space-y-2">
               {matches.map((match) => (
-                <ScoreRow
+                <ResultRow
                   key={match.id}
                   match={match}
-                  isPending={scoreMutation.isPending}
-                  onSave={(homeGoals, awayGoals) => scoreMutation.mutate({ id: match.id, homeGoals, awayGoals })}
+                  onEdit={() => {
+                    setScoreError(null)
+                    setEditingMatch(match)
+                  }}
                 />
               ))}
             </ul>
           )}
         </div>
       </div>
+
+      {editingMatch !== null && (
+        <MatchResultModal
+          match={editingMatch}
+          isPending={scoreMutation.isPending}
+          error={scoreError}
+          playersByTeam={playersByTeam}
+          onClose={() => setEditingMatch(null)}
+          onError={setScoreError}
+          onSubmit={(input) => scoreMutation.mutate({ id: editingMatch.id, ...input })}
+        />
+      )}
 
       <div className="border-t border-line pt-5 dark:border-mauve">
         <RegistrationRequests tournamentId={tournamentId} />
@@ -168,55 +203,34 @@ export default function AdminPanel({ tournamentId }: { tournamentId: string }): 
   )
 }
 
-function ScoreRow({
-  match,
-  isPending,
-  onSave,
-}: {
-  match: Match
-  isPending: boolean
-  onSave: (homeGoals: number, awayGoals: number) => void
-}): React.JSX.Element {
-  const [home, setHome] = useState(match.homeGoals ?? 0)
-  const [away, setAway] = useState(match.awayGoals ?? 0)
+function ResultRow({ match, onEdit }: { match: Match; onEdit: () => void }): React.JSX.Element {
   const finished = match.status === 'finalizado'
-
-  const localName =
-    typeof match.homeTeamId === 'string' ? 'Local' : (match.homeTeamId?.name ?? 'Local')
-  const visitanteName =
-    typeof match.awayTeamId === 'string' ? 'Visitante' : (match.awayTeamId?.name ?? 'Visitante')
-
-  function handleSave(): void {
-    onSave(Math.max(0, Math.floor(Number(home) || 0)), Math.max(0, Math.floor(Number(away) || 0)))
-  }
+  const local = teamLabel(match.homeTeamId)
+  const visitante = teamLabel(match.awayTeamId)
 
   return (
     <li className="rounded-lg border border-line p-3 dark:border-mauve">
-<p className="text-xs text-tertiary dark:text-mauve-soft">
+      <p className="text-xs text-tertiary dark:text-mauve-soft">
         {match.group} · Jornada {match.matchday}
       </p>
-      <div className="mt-1 flex flex-wrap items-center gap-2 text-sm">
-        <span className="flex-1 text-coffee/80 dark:text-mauve-soft">{localName}</span>
-        <input
-          type="number"
-          min="0"
-          value={home}
-          onChange={(event) => setHome(Number(event.target.value))}
-          className="w-14 rounded-lg border border-line bg-cream px-2 py-1 text-center text-sm text-coffee outline-none focus:border-lime dark:border-mauve dark:bg-coffee-elev dark:text-[#f3efe8]"
-          aria-label={`Goles de ${localName}`}
-        />
-        <span className="text-tertiary/60 dark:text-mauve-soft">-</span>
-        <input
-          type="number"
-          min="0"
-          value={away}
-          onChange={(event) => setAway(Number(event.target.value))}
-          className="w-14 rounded-lg border border-line bg-cream px-2 py-1 text-center text-sm text-coffee outline-none focus:border-lime dark:border-mauve dark:bg-coffee-elev dark:text-[#f3efe8]"
-          aria-label={`Goles de ${visitanteName}`}
-        />
-        <span className="flex-1 text-right text-coffee/80 dark:text-mauve-soft">{visitanteName}</span>
-        <Button variant={finished ? 'outline' : 'primary'} size="sm" isDisabled={isPending} onPress={handleSave}>
-          {finished ? 'Actualizar' : 'Guardar'}
+      <div className="mt-1 flex flex-wrap items-center justify-between gap-2 text-sm">
+        <span className="flex min-w-0 items-center gap-2">
+          <TeamCrest name={local} size="xs" />
+          <span className="min-w-0 truncate text-coffee/80 dark:text-mauve-soft">{local}</span>
+        </span>
+        <span
+          className={`shrink-0 px-1 font-bold tabular-nums ${
+            finished ? 'text-coffee dark:text-[#f3efe8]' : 'text-tertiary/60 dark:text-mauve-soft'
+          }`}
+        >
+          {finished ? `${match.homeGoals ?? 0} - ${match.awayGoals ?? 0}` : 'vs'}
+        </span>
+        <span className="flex min-w-0 items-center gap-2">
+          <span className="min-w-0 truncate text-coffee/80 dark:text-mauve-soft">{visitante}</span>
+          <TeamCrest name={visitante} size="xs" />
+        </span>
+        <Button variant={finished ? 'outline' : 'primary'} size="sm" onPress={onEdit}>
+          {finished ? 'Actualizar' : 'Cargar resultado'}
         </Button>
       </div>
     </li>

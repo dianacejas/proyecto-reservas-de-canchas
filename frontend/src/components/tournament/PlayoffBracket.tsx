@@ -1,11 +1,19 @@
-import { Alert, Button, Chip, Modal } from '@heroui/react'
+import { Alert, Button, Chip } from '@heroui/react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { generatePlayoffs, getPlayoffs, getStandings, updateMatchScore } from '../../api'
+import {
+  generatePlayoffs,
+  getPlayoffs,
+  getStandings,
+  getTopScorers,
+  listTournamentTeams,
+  updateMatchScore,
+} from '../../api'
 import { getErrorMessage } from '../../api/client'
 import ErrorState from '../common/ErrorState'
 import Loading from '../common/Loading'
-import type { Match, PlayoffBracket as PlayoffData, TeamRef } from '../../types'
+import MatchResultModal, { type MatchResultSubmit } from './MatchResultModal'
+import type { Match, PlayoffBracket as PlayoffData, TeamPlayer, TeamRef, TopScorerRow } from '../../types'
 import { bookingDay, formatDayShort } from '../../utils/date'
 import { teamCrestColor } from '../../utils/crest'
 import TeamCrest from './TeamCrest'
@@ -134,6 +142,7 @@ export interface PlayoffBracketProps {
   groupByTeam?: Record<string, string>
   isAdmin?: boolean
   isGenerating?: boolean
+  mvp?: TopScorerRow | null
   onGenerate?: () => void
   onEditMatch?: (match: Match) => void
 }
@@ -143,26 +152,34 @@ export default function PlayoffBracket({
   groupByTeam = {},
   isAdmin = false,
   isGenerating = false,
+  mvp = null,
   onGenerate,
   onEditMatch,
 }: PlayoffBracketProps): React.JSX.Element {
   if (bracket.rounds.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-line p-10 text-center dark:border-mauve/60">
-        <p className="text-sm text-tertiary dark:text-mauve-soft">
-          Todavía no hay cruces de fase final. Se arman automáticamente con los mejores de cada
-          grupo.
-        </p>
-        {onGenerate !== undefined && (
-          <Button
-            variant="primary"
-            className="mt-4"
-            isDisabled={isGenerating}
-            onPress={onGenerate}
-          >
-            {isGenerating ? 'Generando…' : 'Generar fase final'}
-          </Button>
+      <div className="space-y-4">
+        {mvp !== null && (
+          <div className="mx-auto flex w-full max-w-sm justify-center">
+            <MvpPodium mvp={mvp} />
+          </div>
         )}
+        <div className="rounded-2xl border border-dashed border-line p-10 text-center dark:border-mauve/60">
+          <p className="text-sm text-tertiary dark:text-mauve-soft">
+            Todavía no hay cruces de fase final. Se arman automáticamente con los mejores de cada
+            grupo.
+          </p>
+          {onGenerate !== undefined && (
+            <Button
+              variant="primary"
+              className="mt-4"
+              isDisabled={isGenerating}
+              onPress={onGenerate}
+            >
+              {isGenerating ? 'Generando…' : 'Generar fase final'}
+            </Button>
+          )}
+        </div>
       </div>
     )
   }
@@ -178,6 +195,7 @@ export default function PlayoffBracket({
           champion={bracket.champion}
           groupByTeam={groupByTeam}
           isAdmin={isAdmin}
+          mvp={mvp}
           onEditMatch={onEditMatch}
         />
       </div>
@@ -190,12 +208,14 @@ function BracketPlate({
   champion,
   groupByTeam,
   isAdmin,
+  mvp,
   onEditMatch,
 }: {
   rounds: PlayoffData['rounds']
   champion: PlayoffData['champion']
   groupByTeam: Record<string, string>
   isAdmin: boolean
+  mvp: TopScorerRow | null
   onEditMatch?: (match: Match) => void
 }): React.JSX.Element {
   const boardRef = useRef<HTMLDivElement | null>(null)
@@ -370,6 +390,18 @@ function BracketPlate({
             />
           </div>
         </section>
+
+        {mvp !== null && (
+          <section
+            className="flex w-[13.5rem] shrink-0 snap-center flex-col items-center sm:w-64"
+            aria-label="Goleador MVP"
+          >
+            <RoundHeader label="MVP" isHero={false} />
+            <div className="flex w-full flex-1 items-center">
+              <MvpPodium mvp={mvp} />
+            </div>
+          </section>
+        )}
       </div>
     </div>
   )
@@ -591,6 +623,49 @@ function ChampionPodium({
   )
 }
 
+function MvpPodium({ mvp }: { mvp: TopScorerRow }): React.JSX.Element {
+  const accent = teamCrestColor(mvp.teamName, 0.22)
+
+  return (
+    <div className="relative w-full overflow-hidden rounded-2xl border border-[#c5d86d]/40 bg-[#1a090d]/90 bg-gradient-to-b from-lime/20 via-lime/[0.06] to-transparent px-4 py-6 text-center shadow-[0_0_30px_rgba(197,216,109,0.22)] backdrop-blur-sm">
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 h-24 opacity-60"
+        style={{ background: `radial-gradient(60% 100% at 50% 0%, ${accent}33, transparent)` }}
+      />
+      <div className="relative flex flex-col items-center gap-3">
+        <StarIcon className="size-7 text-lime drop-shadow-[0_0_10px_rgba(197,216,109,0.7)]" />
+        <p className="text-[11px] font-black uppercase tracking-[0.3em] text-lime">MVP · Goleador</p>
+        <p className="w-full truncate text-lg font-extrabold leading-tight text-white md:text-xl">
+          {mvp.playerName}
+        </p>
+        <div className="flex min-w-0 items-center gap-2">
+          <TeamCrest name={mvp.teamName} size="sm" />
+          <span className="min-w-0 truncate text-xs font-semibold text-neutral-400">
+            {mvp.teamName}
+          </span>
+        </div>
+        <span className="inline-flex items-center gap-1 rounded-full border border-lime/30 bg-lime/15 px-3 py-1 text-xs font-bold text-lime">
+          ⚽ {mvp.goalsCount} {mvp.goalsCount === 1 ? 'Gol' : 'Goles'}
+        </span>
+      </div>
+    </div>
+  )
+}
+
+function StarIcon({ className }: { className?: string }): React.JSX.Element {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={className ?? 'size-4'}
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path d="M12 2.4l2.72 5.66 6.18.82-4.55 4.27 1.14 6.12L12 16.92l-5.49 3.35 1.14-6.12L3.1 8.88l6.18-.82z" />
+    </svg>
+  )
+}
+
 function TrophyIcon({ className }: { className?: string }): React.JSX.Element {
   return (
     <svg
@@ -636,6 +711,16 @@ export function PlayoffBracketPanel({
     queryFn: () => getStandings(tournamentId),
   })
 
+  const teamsQuery = useQuery({
+    queryKey: ['teams', tournamentId],
+    queryFn: () => listTournamentTeams(tournamentId),
+  })
+
+  const topScorersQuery = useQuery({
+    queryKey: ['top-scorers', tournamentId],
+    queryFn: () => getTopScorers(tournamentId),
+  })
+
   const groupByTeam = useMemo(() => {
     const map: Record<string, string> = {}
     for (const group of standingsQuery.data ?? []) {
@@ -644,9 +729,18 @@ export function PlayoffBracketPanel({
     return map
   }, [standingsQuery.data])
 
+  const playersByTeam = useMemo(() => {
+    const map: Record<string, TeamPlayer[]> = {}
+    for (const team of teamsQuery.data ?? []) map[team.id] = team.players
+    return map
+  }, [teamsQuery.data])
+
   function invalidate(): void {
     void queryClient.invalidateQueries({ queryKey: ['playoffs', tournamentId] })
     void queryClient.invalidateQueries({ queryKey: ['matchdays', tournamentId] })
+    void queryClient.invalidateQueries({ queryKey: ['standings', tournamentId] })
+    void queryClient.invalidateQueries({ queryKey: ['stats', tournamentId] })
+    void queryClient.invalidateQueries({ queryKey: ['top-scorers', tournamentId] })
   }
 
   const generateMutation = useMutation({
@@ -659,13 +753,7 @@ export function PlayoffBracketPanel({
   })
 
   const scoreMutation = useMutation({
-    mutationFn: (input: {
-      id: string
-      homeGoals: number
-      awayGoals: number
-      homePenalties?: number
-      awayPenalties?: number
-    }) => updateMatchScore(input.id, input),
+    mutationFn: ({ id, ...input }: { id: string } & MatchResultSubmit) => updateMatchScore(id, input),
     onSuccess: () => {
       invalidate()
       setEditing(null)
@@ -707,6 +795,7 @@ export function PlayoffBracketPanel({
         groupByTeam={groupByTeam}
         isAdmin={isAdmin}
         isGenerating={generateMutation.isPending}
+        mvp={topScorersQuery.data?.[0] ?? null}
         onGenerate={
           isAdmin && bracket.rounds.length === 0
             ? () => generateMutation.mutate()
@@ -723,172 +812,16 @@ export function PlayoffBracketPanel({
       />
 
       {editing !== null && (
-        <ScoreModal
+        <MatchResultModal
           match={editing}
           isPending={scoreMutation.isPending}
           error={scoreError}
+          playersByTeam={playersByTeam}
           onClose={() => setEditing(null)}
           onError={setScoreError}
           onSubmit={(input) => scoreMutation.mutate({ id: editing.id, ...input })}
         />
       )}
     </div>
-  )
-}
-
-function ScoreModal({
-  match,
-  isPending,
-  error,
-  onClose,
-  onError,
-  onSubmit,
-}: {
-  match: Match
-  isPending: boolean
-  error: string | null
-  onClose: () => void
-  onError: (err: string | null) => void
-  onSubmit: (input: {
-    homeGoals: number
-    awayGoals: number
-    homePenalties?: number
-    awayPenalties?: number
-  }) => void
-}): React.JSX.Element {
-  const [home, setHome] = useState('')
-  const [away, setAway] = useState('')
-  const [homePen, setHomePen] = useState('')
-  const [awayPen, setAwayPen] = useState('')
-
-  const homeGoals = Number(home)
-  const awayGoals = Number(away)
-  const isTied = home !== '' && away !== '' && homeGoals === awayGoals
-  const canSubmit =
-    !isPending &&
-    home.trim() !== '' &&
-    away.trim() !== '' &&
-    Number.isInteger(homeGoals) &&
-    Number.isInteger(awayGoals) &&
-    homeGoals >= 0 &&
-    awayGoals >= 0 &&
-    (!isTied ||
-      (Number.isInteger(Number(homePen)) &&
-        Number.isInteger(Number(awayPen)) &&
-        Number(homePen) >= 0 &&
-        Number(awayPen) >= 0 &&
-        homePen !== '' &&
-        awayPen !== ''))
-
-  function handleSave(): void {
-    onError(null)
-    const input = { homeGoals, awayGoals }
-    if (isTied) {
-      onSubmit({ ...input, homePenalties: Number(homePen), awayPenalties: Number(awayPen) })
-      return
-    }
-    onSubmit(input)
-  }
-
-  const numberClass =
-    'min-h-11 w-full rounded-lg border border-line bg-cream px-2 py-1.5 text-center text-sm text-coffee outline-none focus:border-lime dark:border-mauve dark:bg-coffee-elev dark:text-[#f3efe8]'
-
-  return (
-    <Modal.Root isOpen onOpenChange={(open) => open || onClose()}>
-      <Modal.Backdrop variant="blur" />
-      <Modal.Container size="md">
-        <Modal.Dialog>
-          <Modal.Header>
-            <Modal.Heading>Cargar resultado</Modal.Heading>
-            <Modal.CloseTrigger />
-          </Modal.Header>
-          <Modal.Body>
-            <div className="space-y-4 text-sm">
-              <div className="grid grid-cols-[1fr_auto] items-center gap-3">
-                <span className="truncate text-right font-medium text-coffee/80 dark:text-mauve-soft">
-                  {teamLabel(match.homeTeamId)}
-                </span>
-                <input
-                  type="number"
-                  min="0"
-                  value={home}
-                  onChange={(event) => setHome(event.target.value)}
-                  className={numberClass}
-                  aria-label="Goles local"
-                  placeholder="0"
-                />
-              </div>
-              <div className="grid grid-cols-[1fr_auto] items-center gap-3">
-                <span className="truncate text-right font-medium text-coffee/80 dark:text-mauve-soft">
-                  {teamLabel(match.awayTeamId)}
-                </span>
-                <input
-                  type="number"
-                  min="0"
-                  value={away}
-                  onChange={(event) => setAway(event.target.value)}
-                  className={numberClass}
-                  aria-label="Goles visitante"
-                  placeholder="0"
-                />
-              </div>
-
-              {isTied && (
-                <div className="space-y-2 rounded-lg border border-line bg-paper/70 p-3 dark:border-mauve dark:bg-mauve-deep/60">
-                  <p className="text-xs font-medium uppercase tracking-wide text-tertiary dark:text-mauve-soft">
-                    Definición por penales
-                  </p>
-                  <div className="grid grid-cols-2 gap-2">
-                    <label className="space-y-1 text-xs text-coffee/70 dark:text-mauve-soft">
-                      <span>{teamLabel(match.homeTeamId)}</span>
-                      <input
-                        type="number"
-                        min="0"
-                        value={homePen}
-                        onChange={(event) => setHomePen(event.target.value)}
-                        className={numberClass}
-                        aria-label="Penales local"
-                        placeholder="0"
-                      />
-                    </label>
-                    <label className="space-y-1 text-xs text-coffee/70 dark:text-mauve-soft">
-                      <span>{teamLabel(match.awayTeamId)}</span>
-                      <input
-                        type="number"
-                        min="0"
-                        value={awayPen}
-                        onChange={(event) => setAwayPen(event.target.value)}
-                        className={numberClass}
-                        aria-label="Penales visitante"
-                        placeholder="0"
-                      />
-                    </label>
-                  </div>
-                </div>
-              )}
-
-              {error !== null && (
-                <Chip color="danger" size="sm" className="h-auto py-1">
-                  {error}
-                </Chip>
-              )}
-            </div>
-          </Modal.Body>
-          <Modal.Footer className="flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-            <Button variant="secondary" className="min-h-11 w-full sm:w-auto" onPress={onClose}>
-              Cancelar
-            </Button>
-            <Button
-              variant="primary"
-              className="min-h-11 w-full sm:w-auto"
-              isDisabled={!canSubmit}
-              onPress={handleSave}
-            >
-              {isPending ? 'Guardando…' : 'Guardar resultado'}
-            </Button>
-          </Modal.Footer>
-        </Modal.Dialog>
-      </Modal.Container>
-    </Modal.Root>
   )
 }

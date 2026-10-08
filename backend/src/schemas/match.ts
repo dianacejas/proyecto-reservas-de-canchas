@@ -100,18 +100,18 @@ export const updateMatchScoreSchema = z
     awayGoals: z.number().int().min(0),
     homePenalties: z.number().int().min(0).optional(),
     awayPenalties: z.number().int().min(0).optional(),
+    ...eventsField,
   })
   .superRefine((score, ctx) => {
-    if (score.homeGoals === score.awayGoals) {
-      const homeMissing = score.homePenalties === undefined
-      const awayMissing = score.awayPenalties === undefined
-      if (homeMissing !== awayMissing || homeMissing) {
-        ctx.addIssue({
-          code: 'custom',
-          message: 'Debe indicar los penales de ambos equipos cuando el partido termina empatado',
-          path: ['homePenalties'],
-        })
-      }
+    const goalEvents = score.events.filter((event) => event.type === 'goal')
+    const attributedGoals = goalEvents.length
+    const scoreGoals = score.homeGoals + score.awayGoals
+    if (attributedGoals !== scoreGoals) {
+      ctx.addIssue({
+        code: 'custom',
+        message: `Debe cargar un goleador por cada gol del marcador (${attributedGoals}/${scoreGoals})`,
+        path: ['events'],
+      })
     }
   })
 

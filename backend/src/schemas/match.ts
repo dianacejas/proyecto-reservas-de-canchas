@@ -3,6 +3,18 @@ import { objectIdSchema, timeSchema } from './common.js'
 
 export const matchStatusSchema = z.enum(['programado', 'finalizado'])
 export const matchFaseSchema = z.enum(['grupos', 'octavos', 'cuartos', 'semifinal', 'final'])
+export const matchEventTypeSchema = z.enum(['goal', 'yellow_card', 'red_card'])
+
+export const matchEventSchema = z.object({
+  type: matchEventTypeSchema,
+  playerName: z.string().trim().min(1, 'El nombre del jugador es requerido'),
+  teamId: objectIdSchema,
+  minute: z.number().int().min(0).max(200).nullable().optional(),
+})
+
+const eventsField = {
+  events: z.array(matchEventSchema).default([]),
+}
 
 export interface MatchSchedule {
   fieldId: string
@@ -72,12 +84,12 @@ function validateSchedule(m: Partial<MatchSchedule>, ctx: RefinementCtx): void {
 }
 
 export const createMatchSchema = z
-  .object({ ...matchFields, ...schedulingFields })
+  .object({ ...matchFields, ...schedulingFields, ...eventsField })
   .superRefine(validateDistinctTeams)
   .superRefine(validateSchedule)
 
 export const updateMatchSchema = z
-  .object({ ...matchFields, ...schedulingFields })
+  .object({ ...matchFields, ...schedulingFields, ...eventsField })
   .partial()
   .superRefine(validateDistinctTeams)
   .superRefine(validateSchedule)

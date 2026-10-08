@@ -4,6 +4,8 @@ export type PaymentType = 'deposit' | 'full'
 export type TournamentStatus = 'inscripcion' | 'en_curso' | 'finalizado'
 export type MatchStatus = 'programado' | 'finalizado'
 export type MatchFase = 'grupos' | 'octavos' | 'cuartos' | 'semifinal' | 'final'
+export type MatchEventType = 'goal' | 'yellow_card' | 'red_card'
+export type RegistrationStatus = 'pendiente_aprobacion' | 'aprobada' | 'rechazada'
 
 export interface Field {
   id: string
@@ -85,6 +87,13 @@ export interface MatchBookingRef {
   type: BookingType
 }
 
+export interface MatchEvent {
+  type: MatchEventType
+  playerName: string
+  teamId: string
+  minute: number | null
+}
+
 export interface Match {
   id: string
   tournamentId: string
@@ -98,6 +107,7 @@ export interface Match {
   homePenalties: number | null
   awayPenalties: number | null
   status: MatchStatus
+  events: MatchEvent[]
   bookingId: MatchBookingRef | null
   nextMatchId: string | null
   createdAt: string
@@ -180,4 +190,55 @@ export interface CheckoutResult {
   depositAmount: number
   remainingBalance: number
   depositPercent: number
+}
+
+export interface ScorerRow {
+  position: number
+  playerName: string
+  teamId: string
+  teamName: string
+  goals: number
+}
+
+export interface SanctionRow {
+  playerName: string
+  teamId: string
+  teamName: string
+  yellowCards: number
+  redCards: number
+  suspended: boolean
+  reason: string
+}
+
+export interface TournamentStats {
+  scorers: ScorerRow[]
+  sanctions: SanctionRow[]
+}
+
+export interface RegistrationPlayer {
+  name: string
+  number: number | null
+}
+
+export interface TournamentRegistration {
+  id: string
+  tournamentId: string
+  teamName: string
+  color: string
+  captainName: string
+  captainPhone: string
+  players: RegistrationPlayer[]
+  status: RegistrationStatus
+  assignedGroup: string | null
+  teamId: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface CreateRegistrationInput {
+  teamName: string
+  color: string
+  captainName: string
+  captainPhone: string
+  players: string[]
 }

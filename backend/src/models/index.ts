@@ -3,5 +3,9 @@ export { Booking, type BookingDoc } from './Booking.js'
 export { Tournament, type TournamentDoc } from './Tournament.js'
 export { Team, type TeamDoc } from './Team.js'
 export { Match, type MatchDoc } from './Match.js'
+export {
+  TournamentRegistration,
+  type TournamentRegistrationDoc,
+} from './TournamentRegistration.js'
 export { User, type UserDoc } from './User.js'
 export { Payment, type PaymentDoc } from './Payment.js'

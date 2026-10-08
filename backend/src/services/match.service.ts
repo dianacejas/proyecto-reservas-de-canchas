@@ -7,6 +7,13 @@ import { assertFound } from '../utils/assertFound.js'
 import { dayStart } from '../utils/time.js'
 import { createTournamentBooking, findConflictingBooking } from './booking.service.js'
 
+export interface MatchEventInput {
+  type: 'goal' | 'yellow_card' | 'red_card'
+  playerName: string
+  teamId: string
+  minute?: number | null
+}
+
 export interface CreateMatchServiceInput {
   tournamentId: string
   group: string
@@ -19,6 +26,7 @@ export interface CreateMatchServiceInput {
   date?: Date
   startTime?: string
   endTime?: string
+  events?: MatchEventInput[]
 }
 
 export interface TeamDocLike {
@@ -126,6 +134,7 @@ export async function createMatch(body: CreateMatchServiceInput): Promise<MatchD
       homeGoals: body.homeGoals ?? null,
       awayGoals: body.awayGoals ?? null,
       status: finalized ? 'finalizado' : 'programado',
+      events: body.events ?? [],
       bookingId,
     })
   } catch (err) {
@@ -167,6 +176,7 @@ export async function updateMatchById(id: string, body: UpdateMatchInput): Promi
     next.awayGoals = null
     next.homePenalties = null
     next.awayPenalties = null
+    next.events = []
   } else if (next.status === 'finalizado') {
     const isFinalizedByPenalties =
       (next.homePenalties !== undefined && next.awayPenalties !== undefined) ||

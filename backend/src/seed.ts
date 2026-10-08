@@ -71,14 +71,61 @@ async function seed(): Promise<void> {
   ]
 
   for (const fixture of fixturesDayOne) {
+    const homeTeamId = fixture.homeTeamId._id.toString()
+    const awayTeamId = fixture.awayTeamId._id.toString()
+    const homePlayers = fixture.homeTeamId.players
+    const awayPlayers = fixture.awayTeamId.players
+    const events: {
+      type: 'goal' | 'yellow_card' | 'red_card'
+      playerName: string
+      teamId: string
+      minute: number
+    }[] = []
+
+    for (let index = 0; index < fixture.homeGoals; index += 1) {
+      events.push({
+        type: 'goal',
+        playerName: homePlayers[index % homePlayers.length].name,
+        teamId: homeTeamId,
+        minute: 10 + index * 7,
+      })
+    }
+    for (let index = 0; index < fixture.awayGoals; index += 1) {
+      events.push({
+        type: 'goal',
+        playerName: awayPlayers[index % awayPlayers.length].name,
+        teamId: awayTeamId,
+        minute: 15 + index * 9,
+      })
+    }
+    events.push({
+      type: 'yellow_card',
+      playerName: homePlayers[1 % homePlayers.length].name,
+      teamId: homeTeamId,
+      minute: 38,
+    })
+    events.push({
+      type: 'yellow_card',
+      playerName: awayPlayers[2 % awayPlayers.length].name,
+      teamId: awayTeamId,
+      minute: 44,
+    })
+    events.push({
+      type: 'red_card',
+      playerName: awayPlayers[3 % awayPlayers.length].name,
+      teamId: awayTeamId,
+      minute: 72,
+    })
+
     await createMatch({
       tournamentId,
       group: fixture.group,
       matchday: 1,
-      homeTeamId: fixture.homeTeamId._id.toString(),
-      awayTeamId: fixture.awayTeamId._id.toString(),
+      homeTeamId,
+      awayTeamId,
       homeGoals: fixture.homeGoals,
       awayGoals: fixture.awayGoals,
+      events,
     })
   }
 

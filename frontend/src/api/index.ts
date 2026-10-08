@@ -4,6 +4,7 @@ import type {
   Booking,
   BookingStatus,
   CheckoutResult,
+  CreateRegistrationInput,
   Field,
   GroupStandings,
   Match,
@@ -13,6 +14,8 @@ import type {
   PlayoffBracket,
   Team,
   Tournament,
+  TournamentRegistration,
+  TournamentStats,
 } from '../types'
 
 export interface CreateBookingInput {
@@ -153,6 +156,45 @@ export function getStandings(id: string): Promise<GroupStandings[]> {
 
 export function getMatchdays(id: string): Promise<Matchday[]> {
   return apiRequest<Matchday[]>(`/tournaments/${id}/matches`)
+}
+
+export function getTournamentStats(id: string): Promise<TournamentStats> {
+  return apiRequest<TournamentStats>(`/tournaments/${id}/stats`)
+}
+
+export function createTournamentRegistration(
+  id: string,
+  input: CreateRegistrationInput
+): Promise<TournamentRegistration> {
+  return apiRequest<TournamentRegistration>(`/tournaments/${id}/registrations`, {
+    method: 'POST',
+    body: JSON.stringify(input),
+  })
+}
+
+export function listTournamentRegistrations(id: string): Promise<TournamentRegistration[]> {
+  return apiRequest<TournamentRegistration[]>(`/tournaments/${id}/registrations`)
+}
+
+export function approveTournamentRegistration(
+  id: string,
+  registrationId: string,
+  group: string
+): Promise<{ registration: TournamentRegistration; team: Team }> {
+  return apiRequest<{ registration: TournamentRegistration; team: Team }>(
+    `/tournaments/${id}/registrations/${registrationId}/approve`,
+    { method: 'POST', body: JSON.stringify({ group }) }
+  )
+}
+
+export function rejectTournamentRegistration(
+  id: string,
+  registrationId: string
+): Promise<TournamentRegistration> {
+  return apiRequest<TournamentRegistration>(
+    `/tournaments/${id}/registrations/${registrationId}/reject`,
+    { method: 'POST' }
+  )
 }
 
 export function listTournamentTeams(id: string): Promise<Team[]> {

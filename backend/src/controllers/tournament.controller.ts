@@ -1,12 +1,23 @@
 import { Match, Team, Tournament, type MatchDoc } from '../models/index.js'
 import type {
+  ApproveRegistrationInput,
+  CreateRegistrationInput,
   CreateTournamentInput,
   IdParams,
   ListMatchesQuery,
+  ListRegistrationsQuery,
   ListTournamentsQuery,
+  RegistrationParams,
   UpdateTournamentInput,
 } from '../schemas/index.js'
 import { getGroupStandings } from '../services/standings.service.js'
+import { getTournamentStats } from '../services/stats.service.js'
+import {
+  approveRegistration,
+  createRegistration,
+  listRegistrations,
+  rejectRegistration,
+} from '../services/registration.service.js'
 import { generatePlayoffs, getPlayoffBracket } from '../services/playoffs.service.js'
 import { assertFound } from '../utils/assertFound.js'
 import { asyncHandler } from '../utils/asyncHandler.js'
@@ -101,4 +112,33 @@ export const generatePlayoffsController = asyncHandler(async (req, res) => {
 export const getPlayoffBracketController = asyncHandler(async (req, res) => {
   const { id } = req.validData.params as IdParams
   res.json({ data: await getPlayoffBracket(id) })
+})
+
+export const getTournamentStatsController = asyncHandler(async (req, res) => {
+  const { id } = req.validData.params as IdParams
+  assertFound(await Tournament.findById(id), 'Torneo no encontrado')
+  res.json({ data: await getTournamentStats(id) })
+})
+
+export const createRegistrationController = asyncHandler(async (req, res) => {
+  const { id } = req.validData.params as IdParams
+  const body = req.validData.body as CreateRegistrationInput
+  res.status(201).json({ data: await createRegistration(id, body) })
+})
+
+export const listRegistrationsController = asyncHandler(async (req, res) => {
+  const { id } = req.validData.params as IdParams
+  const query = (req.validData.query ?? {}) as ListRegistrationsQuery
+  res.json({ data: await listRegistrations(id, query.status) })
+})
+
+export const approveRegistrationController = asyncHandler(async (req, res) => {
+  const { id, registrationId } = req.validData.params as RegistrationParams
+  const body = req.validData.body as ApproveRegistrationInput
+  res.json({ data: await approveRegistration(id, registrationId, body) })
+})
+
+export const rejectRegistrationController = asyncHandler(async (req, res) => {
+  const { id, registrationId } = req.validData.params as RegistrationParams
+  res.json({ data: await rejectRegistration(id, registrationId) })
 })

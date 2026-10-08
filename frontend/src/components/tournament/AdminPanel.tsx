@@ -5,6 +5,7 @@ import { createTeam, getMatchdays, listTournamentTeams, updateMatchScore } from 
 import { getErrorMessage } from '../../api/client'
 import Loading from '../common/Loading'
 import ErrorState from '../common/ErrorState'
+import RegistrationRequests from './RegistrationRequests'
 import type { Match } from '../../types'
 
 interface NewTeamForm {
@@ -158,6 +159,10 @@ export default function AdminPanel({ tournamentId }: { tournamentId: string }): 
             </ul>
           )}
         </div>
+      </div>
+
+      <div className="border-t border-line pt-5 dark:border-mauve">
+        <RegistrationRequests tournamentId={tournamentId} />
       </div>
     </section>
   )

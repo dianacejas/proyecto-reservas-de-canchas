@@ -1,16 +1,22 @@
-import { Chip, Tabs } from '@heroui/react'
+import { Button, Chip, Tabs } from '@heroui/react'
 import { useQuery } from '@tanstack/react-query'
+import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { getMatchdays, getStandings, getTournament } from '../api'
+import { getMatchdays, getStandings, getTournament, getTournamentStats } from '../api'
 import { getErrorMessage } from '../api/client'
 import { useAuth } from '../auth/useAuth'
 import ErrorState from '../components/common/ErrorState'
 import Loading from '../components/common/Loading'
 import TableSkeleton from '../components/common/TableSkeleton'
+import ExportBar from '../components/tournament/ExportBar'
 import FixtureList from '../components/tournament/FixtureList'
 import { PlayoffBracketPanel } from '../components/tournament/PlayoffBracket'
+import SanctionsList from '../components/tournament/SanctionsList'
+import ScorersTable from '../components/tournament/ScorersTable'
 import StandingsTable from '../components/tournament/StandingsTable'
+import TournamentRegistrationModal from '../components/tournament/TournamentRegistrationModal'
 import AdminPanel from '../components/tournament/AdminPanel'
+import { buildFixtureText, buildStandingsText, slugify } from '../utils/tournamentExport'
 import type { GroupStandings, TournamentStatus } from '../types'
 
 const STATUS_META: Record<
@@ -25,6 +31,7 @@ const STATUS_META: Record<
 export default function TorneoPage(): React.JSX.Element {
   const { id } = useParams<{ id: string }>()
   const { isAdmin } = useAuth()
+  const [showRegistration, setShowRegistration] = useState(false)
 
   const tournamentQuery = useQuery({
     queryKey: ['tournament', id],
@@ -41,6 +48,12 @@ export default function TorneoPage(): React.JSX.Element {
   const matchdaysQuery = useQuery({
     queryKey: ['matchdays', id],
     queryFn: () => getMatchdays(id as string),
+    enabled: id !== undefined,
+  })
+
+  const statsQuery = useQuery({
+    queryKey: ['stats', id],
+    queryFn: () => getTournamentStats(id as string),
     enabled: id !== undefined,
   })
 
@@ -84,11 +97,22 @@ export default function TorneoPage(): React.JSX.Element {
             {meta.label}
           </Chip>
         </div>
+        {!isAdmin && tournament.status === 'inscripcion' && (
+          <Button
+            variant="primary"
+            className="mt-3 min-h-11"
+            onPress={() => setShowRegistration(true)}
+          >
+            Inscribir mi Equipo
+          </Button>
+        )}
       </div>
 
       <Tabs.Root defaultSelectedKey="posiciones">
         <Tabs.List>
           <Tabs.Tab id="posiciones">Posiciones</Tabs.Tab>
+          <Tabs.Tab id="goleadores">Goleadores</Tabs.Tab>
+          <Tabs.Tab id="sanciones">Sanciones</Tabs.Tab>
           <Tabs.Tab id="fixture">Fixture</Tabs.Tab>
           <Tabs.Tab id="playoffs">Fase Final</Tabs.Tab>
         </Tabs.List>
@@ -106,7 +130,41 @@ export default function TorneoPage(): React.JSX.Element {
               No hay equipos inscriptos todavía.
             </p>
           ) : (
-            renderStandings(standingsQuery.data ?? [])
+            <div className="space-y-3">
+              <div className="flex justify-end">
+                <ExportBar
+                  text={buildStandingsText(tournament.name, standingsQuery.data ?? [])}
+                  filename={`posiciones-${slugify(tournament.name)}.txt`}
+                />
+              </div>
+              {renderStandings(standingsQuery.data ?? [])}
+            </div>
+          )}
+        </Tabs.Panel>
+
+        <Tabs.Panel id="goleadores">
+          {statsQuery.isLoading ? (
+            <TableSkeleton label="Calculando goleadores" />
+          ) : statsQuery.isError ? (
+            <ErrorState
+              message={getErrorMessage(statsQuery.error)}
+              onRetry={() => void statsQuery.refetch()}
+            />
+          ) : (
+            <ScorersTable rows={statsQuery.data?.scorers ?? []} />
+          )}
+        </Tabs.Panel>
+
+        <Tabs.Panel id="sanciones">
+          {statsQuery.isLoading ? (
+            <TableSkeleton label="Calculando sanciones" />
+          ) : statsQuery.isError ? (
+            <ErrorState
+              message={getErrorMessage(statsQuery.error)}
+              onRetry={() => void statsQuery.refetch()}
+            />
+          ) : (
+            <SanctionsList rows={statsQuery.data?.sanctions ?? []} />
           )}
         </Tabs.Panel>
 
@@ -119,7 +177,17 @@ export default function TorneoPage(): React.JSX.Element {
               onRetry={() => void matchdaysQuery.refetch()}
             />
           ) : (
-            <FixtureList matchdays={matchdaysQuery.data ?? []} />
+            <div className="space-y-3">
+              {(matchdaysQuery.data ?? []).length > 0 && (
+                <div className="flex justify-end">
+                  <ExportBar
+                    text={buildFixtureText(tournament.name, matchdaysQuery.data ?? [])}
+                    filename={`fixture-${slugify(tournament.name)}.txt`}
+                  />
+                </div>
+              )}
+              <FixtureList matchdays={matchdaysQuery.data ?? []} />
+            </div>
           )}
         </Tabs.Panel>
 
@@ -127,6 +195,10 @@ export default function TorneoPage(): React.JSX.Element {
           {id !== undefined && <PlayoffBracketPanel tournamentId={id} isAdmin={isAdmin} />}
         </Tabs.Panel>
       </Tabs.Root>
+
+      {showRegistration && id !== undefined && (
+        <TournamentRegistrationModal tournamentId={id} onClose={() => setShowRegistration(false)} />
+      )}
 
       {isAdmin && id !== undefined && <AdminPanel tournamentId={id} />}
     </div>

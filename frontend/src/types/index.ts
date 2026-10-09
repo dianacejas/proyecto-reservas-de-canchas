@@ -165,7 +165,7 @@ export interface AuthResponse {
   user: AuthUser
 }
 
-export type PaymentProvider = 'sandbox' | 'mercadopago'
+export type PaymentProvider = 'sandbox' | 'mercadopago' | 'mostrador'
 export type PaymentStatus = 'pendiente' | 'pagado' | 'fallido' | 'cancelado'
 
 export interface Payment {
@@ -249,4 +249,49 @@ export interface CreateRegistrationInput {
   captainName: string
   captainPhone: string
   players: string[]
+}
+
+export interface DailyMetrics {
+  date: string
+  recaudacion: {
+    mostrador: number
+    pasarela: number
+    total: number
+  }
+  saldoPorCobrar: {
+    senasAbonadas: number
+    saldoRestante: number
+    total: number
+  }
+  ocupacion: {
+    ocupados: number
+    totalTurnos: number
+    porcentaje: number
+  }
+  cancelaciones: {
+    cantidad: number
+    montoPerdido: number
+  }
+  turnos: {
+    confirmadas: number
+    pendientes: number
+    pagadas: number
+    bloqueadas: number
+    canceladas: number
+  }
+}
+
+export interface AdminCustomer {
+  id: string
+  name: string
+  phone: string
+  whatsapp: string | null
+  userId: string | null
+  totalReservas: number
+  completadas: number
+  canceladas: number
+  inasistencias: number
+  tasaCancelacion: number
+  totalRecaudado: number
+  ultimaReserva: string | null
 }

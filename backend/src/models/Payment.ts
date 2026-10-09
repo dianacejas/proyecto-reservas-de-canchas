@@ -3,7 +3,7 @@ import { Schema, model, Types, type InferSchemaType } from 'mongoose'
 const paymentSchema = new Schema(
   {
     bookingId: { type: Schema.Types.ObjectId, ref: 'Booking', required: true, index: true },
-    provider: { type: String, enum: ['sandbox', 'mercadopago'], required: true },
+    provider: { type: String, enum: ['sandbox', 'mercadopago', 'mostrador'], required: true },
     amount: { type: Number, required: true, min: 0 },
     paymentType: { type: String, enum: ['deposit', 'full'], default: 'full' },
     status: { type: String, enum: ['pendiente', 'pagado', 'fallido', 'cancelado'], default: 'pendiente' },

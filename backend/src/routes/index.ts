@@ -1,4 +1,5 @@
 import { Router } from 'express'
+import adminRoutes from './admin.js'
 import authRoutes from './auth.js'
 import bookingRoutes from './bookings.js'
 import fieldRoutes from './fields.js'
@@ -9,6 +10,7 @@ import tournamentRoutes from './tournaments.js'
 
 const router = Router()
 
+router.use('/admin', adminRoutes)
 router.use('/auth', authRoutes)
 router.use('/fields', fieldRoutes)
 router.use('/bookings', bookingRoutes)

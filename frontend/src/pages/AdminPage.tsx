@@ -13,6 +13,8 @@ import {
 } from '../api'
 import { getErrorMessage } from '../api/client'
 import AdminBookingGrid from '../components/admin/AdminBookingGrid'
+import AdminCustomers from '../components/admin/AdminCustomers'
+import AdminMetrics from '../components/admin/AdminMetrics'
 import ErrorState from '../components/common/ErrorState'
 import Loading from '../components/common/Loading'
 import type { Field, Tournament, TournamentStatus } from '../types'
@@ -56,12 +58,22 @@ export default function AdminPage(): React.JSX.Element {
       <Tabs.Root defaultSelectedKey="agenda">
         <Tabs.List>
           <Tabs.Tab id="agenda">Agenda</Tabs.Tab>
+          <Tabs.Tab id="metricas">Métricas</Tabs.Tab>
+          <Tabs.Tab id="clientes">Clientes</Tabs.Tab>
           <Tabs.Tab id="canchas">Canchas</Tabs.Tab>
           <Tabs.Tab id="torneos">Torneos</Tabs.Tab>
         </Tabs.List>
 
         <Tabs.Panel id="agenda">
           <AdminBookingGrid onNotice={showNotice} />
+        </Tabs.Panel>
+
+        <Tabs.Panel id="metricas">
+          <AdminMetrics />
+        </Tabs.Panel>
+
+        <Tabs.Panel id="clientes">
+          <AdminCustomers />
         </Tabs.Panel>
 
         <Tabs.Panel id="canchas">

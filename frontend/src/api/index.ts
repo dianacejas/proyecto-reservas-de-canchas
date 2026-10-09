@@ -1,10 +1,12 @@
 import { apiRequest } from './client'
 import type {
+  AdminCustomer,
   AuthResponse,
   Booking,
   BookingStatus,
   CheckoutResult,
   CreateRegistrationInput,
+  DailyMetrics,
   Field,
   GroupStandings,
   Match,
@@ -131,6 +133,18 @@ export function updateBookingStatus(id: string, status: BookingStatus): Promise<
     method: 'PUT',
     body: JSON.stringify({ status }),
   })
+}
+
+export function getDailyMetrics(date: string): Promise<DailyMetrics> {
+  return apiRequest<DailyMetrics>(`/admin/metrics?date=${date}`)
+}
+
+export function listAdminCustomers(): Promise<AdminCustomer[]> {
+  return apiRequest<AdminCustomer[]>('/admin/customers')
+}
+
+export function completeBookingAtDoor(id: string): Promise<Booking> {
+  return apiRequest<Booking>(`/admin/bookings/${id}/complete`, { method: 'POST' })
 }
 
 export function listTournaments(): Promise<Tournament[]> {

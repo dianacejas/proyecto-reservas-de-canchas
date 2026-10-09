@@ -1,13 +1,20 @@
 import { Button, Chip, Modal } from '@heroui/react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
-import { createAdminBooking, listBookingsByDate, listFields, updateBookingStatus } from '../../api'
+import {
+  completeBookingAtDoor,
+  createAdminBooking,
+  listBookingsByDate,
+  listFields,
+  updateBookingStatus,
+} from '../../api'
 import { getErrorMessage } from '../../api/client'
 import ErrorState from '../common/ErrorState'
 import Loading from '../common/Loading'
 import DateNav from '../booking/DateNav'
 import type { Booking, BookingStatus, Field } from '../../types'
 import { bookingDay, formatLong, todayKey } from '../../utils/date'
+import { formatCurrency } from '../../utils/payments'
 
 interface Notice {
   kind: 'success' | 'danger'
@@ -47,10 +54,12 @@ function bookingForSlot(bookings: Booking[], fieldId: string, slot: SlotDef): Bo
   })
 }
 
-function bookingChip(booking: Booking): { label: string; color: 'success' | 'warning' | 'accent' } {
+function bookingChip(booking: Booking): { label: string; color: 'success' | 'warning' | 'accent' | 'danger' } {
   if (booking.type === 'mantenimiento') return { label: 'Bloqueo', color: 'warning' }
   if (booking.type === 'torneo') return { label: 'Torneo', color: 'accent' }
   if (booking.status === 'pendiente') return { label: 'Pendiente', color: 'warning' }
+  if (booking.status === 'pagada') return { label: 'Pagada', color: 'success' }
+  if (booking.status === 'cancelada') return { label: 'Cancelada', color: 'danger' }
   return { label: 'Confirmada', color: 'success' }
 }
 
@@ -84,6 +93,8 @@ export default function AdminBookingGrid({
   function invalidate(): void {
     void queryClient.invalidateQueries({ queryKey: ['admin-bookings', date] })
     void queryClient.invalidateQueries({ queryKey: ['bookings'] })
+    void queryClient.invalidateQueries({ queryKey: ['admin-metrics'] })
+    void queryClient.invalidateQueries({ queryKey: ['admin-customers'] })
   }
 
   const createMutation = useMutation({
@@ -102,6 +113,16 @@ export default function AdminBookingGrid({
       invalidate()
       setDetail(null)
       onNotice('success', 'Estado de la reserva actualizado.')
+    },
+    onError: (err) => onNotice('danger', getErrorMessage(err)),
+  })
+
+  const completeMutation = useMutation({
+    mutationFn: (id: string) => completeBookingAtDoor(id),
+    onSuccess: () => {
+      invalidate()
+      setDetail(null)
+      onNotice('success', 'Turno cobrado en puerta y sumado a la caja del día.')
     },
     onError: (err) => onNotice('danger', getErrorMessage(err)),
   })
@@ -204,6 +225,7 @@ export default function AdminBookingGrid({
                             onCancel={() =>
                               statusMutation.mutate({ id: booking.id, status: 'cancelada' })
                             }
+                            onComplete={() => completeMutation.mutate(booking.id)}
                           />
                         </td>
                       )
@@ -236,10 +258,11 @@ export default function AdminBookingGrid({
               ? fields.find((item) => item.id === detail.fieldId)?.name ?? 'Cancha'
               : detail.fieldId.name
           }
-          isPending={statusMutation.isPending}
+          isPending={statusMutation.isPending || completeMutation.isPending}
           onClose={() => setDetail(null)}
           onConfirm={() => statusMutation.mutate({ id: detail.id, status: 'confirmada' })}
           onCancel={() => statusMutation.mutate({ id: detail.id, status: 'cancelada' })}
+          onComplete={() => completeMutation.mutate(detail.id)}
         />
       )}
     </div>
@@ -252,12 +275,14 @@ function CellCard({
   onOpen,
   onConfirm,
   onCancel,
+  onComplete,
 }: {
   booking: Booking
   fieldName: string
   onOpen: () => void
   onConfirm: () => void
   onCancel: () => void
+  onComplete: () => void
 }): React.JSX.Element {
   const chip = bookingChip(booking)
   const waLink = whatsappLink(booking, fieldName)
@@ -277,7 +302,7 @@ function CellCard({
       <span className="truncate text-xs font-medium text-coffee/80 dark:text-mauve-soft">
         {booking.type === 'mantenimiento' ? booking.clientInfo.name : booking.clientInfo.name}
       </span>
-      <div className="flex w-full gap-1" onClick={(event) => event.stopPropagation()}>
+      <div className="flex w-full flex-wrap gap-1" onClick={(event) => event.stopPropagation()}>
         {waLink !== null && (
           <a
             href={waLink}
@@ -287,6 +312,16 @@ function CellCard({
           >
             WhatsApp
           </a>
+        )}
+        {booking.status === 'confirmada' && booking.type !== 'mantenimiento' && (
+          <Button
+            variant="primary"
+            size="sm"
+            className="h-7 flex-1 px-1 text-xs"
+            onPress={onComplete}
+          >
+            {booking.remainingBalance > 0 ? 'Cobrar' : 'Completar'}
+          </Button>
         )}
         {booking.status === 'pendiente' && (
           <Button variant="primary" size="sm" className="h-7 flex-1 px-1 text-xs" onPress={onConfirm}>
@@ -484,6 +519,7 @@ function BookingDetailModal({
   onClose,
   onConfirm,
   onCancel,
+  onComplete,
 }: {
   booking: Booking
   fieldName: string
@@ -491,6 +527,7 @@ function BookingDetailModal({
   onClose: () => void
   onConfirm: () => void
   onCancel: () => void
+  onComplete: () => void
 }): React.JSX.Element {
   const chip = bookingChip(booking)
   const waLink = whatsappLink(booking, fieldName)
@@ -535,10 +572,26 @@ function BookingDetailModal({
                 <span className={value}>{booking.clientInfo.name}</span>
               </div>
               {booking.type !== 'mantenimiento' && (
-                <div className={row}>
-                  <span className={label}>Teléfono</span>
-                  <span className={value}>{booking.clientInfo.phone}</span>
-                </div>
+                <>
+                  <div className={row}>
+                    <span className={label}>Teléfono</span>
+                    <span className={value}>{booking.clientInfo.phone}</span>
+                  </div>
+                  <div className={row}>
+                    <span className={label}>Total</span>
+                    <span className={value}>{formatCurrency(booking.totalAmount)}</span>
+                  </div>
+                  <div className={row}>
+                    <span className={label}>Seña abonada</span>
+                    <span className={value}>{formatCurrency(booking.depositAmount)}</span>
+                  </div>
+                  <div className={row}>
+                    <span className={label}>Saldo restante</span>
+                    <span className="font-semibold text-coffee dark:text-lime">
+                      {formatCurrency(booking.remainingBalance)}
+                    </span>
+                  </div>
+                </>
               )}
             </div>
           </Modal.Body>
@@ -556,6 +609,13 @@ function BookingDetailModal({
             <Button variant="secondary" onPress={onClose}>
               Cerrar
             </Button>
+            {booking.status === 'confirmada' && booking.type !== 'mantenimiento' && (
+              <Button variant="primary" isDisabled={isPending} onPress={onComplete}>
+                {booking.remainingBalance > 0
+                  ? `Cobrar en puerta · ${formatCurrency(booking.remainingBalance)}`
+                  : 'Marcar completado'}
+              </Button>
+            )}
             {booking.status === 'pendiente' && (
               <Button variant="primary" isDisabled={isPending} onPress={onConfirm}>
                 Confirmar

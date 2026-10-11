@@ -1,15 +1,8 @@
 import { Button } from '@heroui/react'
 import { useEffect, useState } from 'react'
 import { WhatsAppIcon } from '../whatsapp/WhatsAppButton'
-import { downloadTextFile } from '../../utils/tournamentExport'
 
-export default function ExportBar({
-  text,
-  filename,
-}: {
-  text: string
-  filename: string
-}): React.JSX.Element {
+export default function ExportBar({ text }: { text: string }): React.JSX.Element {
   const [copied, setCopied] = useState(false)
 
   useEffect(() => {
@@ -31,9 +24,6 @@ export default function ExportBar({
     <div className="flex flex-wrap items-center gap-2">
       <Button size="sm" variant="ghost" onPress={copy}>
         {copied ? 'Copiado' : 'Copiar'}
-      </Button>
-      <Button size="sm" variant="secondary" onPress={() => downloadTextFile(filename, text)}>
-        Descargar .txt
       </Button>
       <a
         href={`https://wa.me/?text=${encodeURIComponent(text)}`}

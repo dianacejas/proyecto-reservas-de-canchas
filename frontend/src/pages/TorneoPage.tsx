@@ -16,7 +16,8 @@ import TopScorersTab from '../components/tournament/TopScorersTab'
 import StandingsTable from '../components/tournament/StandingsTable'
 import TournamentRegistrationModal from '../components/tournament/TournamentRegistrationModal'
 import AdminPanel from '../components/tournament/AdminPanel'
-import { buildFixtureText, buildStandingsText, slugify } from '../utils/tournamentExport'
+import { buildFixtureText, buildStandingsText } from '../utils/tournamentExport'
+import { PILL_TAB_CLASS } from '../utils/tabs'
 import type { GroupStandings, TournamentStatus } from '../types'
 
 const STATUS_META: Record<
@@ -115,12 +116,12 @@ export default function TorneoPage(): React.JSX.Element {
       </div>
 
       <Tabs.Root defaultSelectedKey="posiciones">
-        <Tabs.List>
-          <Tabs.Tab id="posiciones">Posiciones</Tabs.Tab>
-          <Tabs.Tab id="goleadores">Goleadores</Tabs.Tab>
-          <Tabs.Tab id="sanciones">Sanciones</Tabs.Tab>
-          <Tabs.Tab id="fixture">Fixture</Tabs.Tab>
-          <Tabs.Tab id="playoffs">Fase Final</Tabs.Tab>
+        <Tabs.List className="gap-2">
+          <Tabs.Tab id="posiciones" className={PILL_TAB_CLASS}>Posiciones</Tabs.Tab>
+          <Tabs.Tab id="goleadores" className={PILL_TAB_CLASS}>Goleadores</Tabs.Tab>
+          <Tabs.Tab id="sanciones" className={PILL_TAB_CLASS}>Sanciones</Tabs.Tab>
+          <Tabs.Tab id="fixture" className={PILL_TAB_CLASS}>Fixture</Tabs.Tab>
+          <Tabs.Tab id="playoffs" className={PILL_TAB_CLASS}>Fase Final</Tabs.Tab>
         </Tabs.List>
 
         <Tabs.Panel id="posiciones">
@@ -138,10 +139,7 @@ export default function TorneoPage(): React.JSX.Element {
           ) : (
             <div className="space-y-3">
               <div className="flex justify-end">
-                <ExportBar
-                  text={buildStandingsText(tournament.name, standingsQuery.data ?? [])}
-                  filename={`posiciones-${slugify(tournament.name)}.txt`}
-                />
+                <ExportBar text={buildStandingsText(tournament.name, standingsQuery.data ?? [])} />
               </div>
               {renderStandings(standingsQuery.data ?? [])}
             </div>
@@ -186,10 +184,7 @@ export default function TorneoPage(): React.JSX.Element {
             <div className="space-y-3">
               {(matchdaysQuery.data ?? []).length > 0 && (
                 <div className="flex justify-end">
-                  <ExportBar
-                    text={buildFixtureText(tournament.name, matchdaysQuery.data ?? [])}
-                    filename={`fixture-${slugify(tournament.name)}.txt`}
-                  />
+                  <ExportBar text={buildFixtureText(tournament.name, matchdaysQuery.data ?? [])} />
                 </div>
               )}
               <FixtureList matchdays={matchdaysQuery.data ?? []} />
@@ -218,9 +213,9 @@ function renderStandings(groups: GroupStandings[]): React.JSX.Element {
   const groupsKey = groups.map((group) => group.group).join(',')
   return (
     <Tabs.Root key={groupsKey} defaultSelectedKey={groups[0].group}>
-      <Tabs.List>
+      <Tabs.List className="gap-2">
         {groups.map((group) => (
-          <Tabs.Tab key={group.group} id={group.group}>
+          <Tabs.Tab key={group.group} id={group.group} className={PILL_TAB_CLASS}>
             {group.group}
           </Tabs.Tab>
         ))}

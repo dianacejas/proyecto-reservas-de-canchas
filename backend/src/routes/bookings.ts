@@ -10,6 +10,7 @@ import {
   updateBooking,
 } from '../controllers/booking.controller.js'
 import { adminRequired, authOptional, authRequired } from '../middleware/auth.js'
+import { bookingCreateLimiter } from '../middleware/rateLimit.js'
 import { validate } from '../middleware/validate.js'
 import {
   createAdminBookingSchema,
@@ -23,7 +24,7 @@ const router = Router()
 
 router.get('/', validate(listBookingsQuerySchema, 'query'), listBookings)
 router.get('/mine', authRequired, listMyBookings)
-router.post('/', authOptional, validate(createBookingSchema), createBooking)
+router.post('/', bookingCreateLimiter, authOptional, validate(createBookingSchema), createBooking)
 router.patch('/:id/cancel', authRequired, validate(idParamsSchema, 'params'), cancelMyBooking)
 router.get('/:id', validate(idParamsSchema, 'params'), getBooking)
 router.put('/:id', adminRequired, validate(idParamsSchema, 'params'), validate(updateBookingSchema), updateBooking)

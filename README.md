@@ -23,7 +23,7 @@ proyecto-canchas/
 │   ├── src/
 │   │   ├── config/       # conexión a MongoDB y validación de entorno con zod
 │   │   ├── controllers/  # auth, reservas, canchas, partidos, pagos, …
-│   │   ├── middleware/   # autenticación, validación y manejo de errores
+│   │   ├── middleware/   # autenticación, validación, rate limiting, sanitización y errores
 │   │   ├── models/       # esquemas de Mongoose
 │   │   ├── routes/       # endpoints bajo /api
 │   │   ├── schemas/      # esquemas de validación zod
@@ -65,7 +65,16 @@ cp .env.example .env   # en Windows: copy .env.example .env
 | `JWT_EXPIRES_IN_DAYS`         | Vigencia del token                                      | `7`                                      |
 | `PAYMENT_PROVIDER`            | `sandbox` (simulada) o `mercadopago`                   | `sandbox`                                |
 | `MERCADO_PAGO_ACCESS_TOKEN`   | Access token de Mercado Pago (solo si `mercadopago`)   | (vacío: el pago online queda deshabilitado) |
+| `MERCADO_PAGO_WEBHOOK_SECRET` | Clave para validar la firma del webhook de pagos       | (vacío: no se valida la firma)           |
 | `WEB_BASE_URL`                | Origen del frontend, para los links de retorno del pago | `http://localhost:5173`                 |
+| `SMTP_HOST`                   | Host SMTP para emails de confirmación                  | (vacío: envío deshabilitado)             |
+| `SMTP_PORT`                   | Puerto SMTP                                            | `587`                                    |
+| `SMTP_SECURE`                 | `true` para TLS implícito (puerto 465)                 | `false`                                  |
+| `SMTP_USER` / `SMTP_PASS`     | Credenciales SMTP                                      | (vacío)                                  |
+| `MAIL_FROM`                   | Remitente de los emails                                | `Copa 5 <no-reply@copa5.local>`          |
+| `MAIL_REPLY_TO`               | Dirección de respuesta (opcional)                      | (vacío)                                  |
+| `AUTH_RATE_LIMIT_MAX`         | Máximo de intentos de login/registro por minuto y por IP | `5`                                    |
+| `BOOKING_RATE_LIMIT_MAX`      | Máximo de reservas por 15 minutos y por IP             | `10`                                     |
 
 > `JWT_SECRET` no tiene valor por defecto a propósito: sin ella el servidor
 > arrancaría con una clave de firma conocida y cualquier token ajeno sería
@@ -139,7 +148,7 @@ npm run dev
 | `/admin`       | Panel de administración (solo rol `admin`)       |
 | `/login`       | Ingreso / registro                              |
 
-Cualquier otra ruta redirige a `/`.
+Cualquier otra ruta muestra una pantalla 404 temática con un botón para volver al inicio.
 
 ## API
 
@@ -169,6 +178,16 @@ Si no hay `MERCADO_PAGO_ACCESS_TOKEN`, el pago online queda deshabilitado y el
 resto del flujo sigue funcionando. Nunca subes un token de producción al
 repositorio.
 
+Cuando Mercado Pago confirma un pago notifica al endpoint `POST /api/payments/webhook`.
+El servidor verifica la firma `x-signature` (si `MERCADO_PAGO_WEBHOOK_SECRET`
+está configurado), consulta el pago a la API de Mercado Pago y, si está
+aprobado, marca el pago como pagado y confirma la reserva.
+
+Al confirmarse un pago se envía (si SMTP está configurado) un email con el
+comprobante de la reserva: código, cancha, fecha, horario, importe abonado y
+las reglas de convivencia. El envío es asíncrono: un fallo de SMTP no afecta la
+confirmación.
+
 ## Notas de seguridad
 
 - `.env` está ignorado por Git; solo se versiona `.env.example`.
@@ -176,6 +195,12 @@ repositorio.
 - Las contraseñas se almacenan con hash, nunca en claro.
 - El rol se valida en el servidor: los endpoints de administración rechazan
   tokens sin `role: admin`, sin confiar en lo que la UI oculta.
+- **Rate limiting**: login y registro están limitados a `AUTH_RATE_LIMIT_MAX`
+  intentos por minuto y por IP; la creación de reservas, a
+  `BOOKING_RATE_LIMIT_MAX` por cada 15 minutos.
+- **Sanitización NoSQL**: un middleware descarta claves con operadores (`$gt`,
+  `$ne`, …) o puntos en `body`, `params` y `query` antes de que lleguen a
+  Mongoose.
 - Las imágenes de las canchas son de Pexels (libres de uso, sin atribución
   requerida).
 

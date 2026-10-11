@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 import Footer from './components/layout/Footer'
 import Navbar from './components/layout/Navbar'
 import WhatsAppButton from './components/whatsapp/WhatsAppButton'
@@ -6,6 +6,7 @@ import { RequireAdmin, RequireClient } from './components/common/AuthGuards'
 import AdminPage from './pages/AdminPage'
 import LoginPage from './pages/LoginPage'
 import MyBookingsPage from './pages/MyBookingsPage'
+import NotFoundView from './pages/NotFoundView'
 import ReservasPage from './pages/ReservasPage'
 import TorneoPage from './pages/TorneoPage'
 import TorneosPage from './pages/TorneosPage'
@@ -36,7 +37,7 @@ export default function App(): React.JSX.Element {
           />
           <Route path="/torneos" element={<TorneosPage />} />
           <Route path="/torneos/:id" element={<TorneoPage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<NotFoundView />} />
         </Routes>
       </main>
       <Footer />

@@ -14,6 +14,13 @@ const envSchema = z.object({
   // Origenes permitidos por CORS, separados por coma. Si se omite se permite
   // unicamente WEB_BASE_URL. Ej: "https://copa5.com,https://www.copa5.com".
   CORS_ORIGINS: z.string().optional(),
+  // Numero de saltos de proxy a confiar para leer la IP real (X-Forwarded-For).
+  // Sin valor, Express no confia en el proxy (trust proxy = false). Detras de
+  // Nginx/Cloudflare hay que indicar el numero de saltos (normalmente 1).
+  TRUST_PROXY: z.string().optional(),
+  // URL de Redis para compartir el store de rate limiting entre instancias.
+  // Si se omite se usa el store en memoria (no compartido entre procesos).
+  REDIS_URL: z.string().optional(),
   PENDING_TTL_MINUTES: z.coerce.number().int().positive().default(15),
   DEPOSIT_PERCENT: z.coerce.number().int().min(1).max(100).default(50),
   CANCEL_WINDOW_HOURS: z.coerce.number().int().min(0).default(4),

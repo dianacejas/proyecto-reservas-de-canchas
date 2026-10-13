@@ -68,6 +68,8 @@ cp .env.example .env   # en Windows: copy .env.example .env
 | `MERCADO_PAGO_WEBHOOK_SECRET` | Clave para validar la firma del webhook de pagos       | (vacío: no se valida la firma)           |
 | `WEB_BASE_URL`                | Origen del frontend, para los links de retorno del pago | `http://localhost:5173`                 |
 | `CORS_ORIGINS`                | Orígenes permitidos por CORS, separados por coma (si se omite, solo `WEB_BASE_URL`) | (vacío) |
+| `TRUST_PROXY`                 | Saltos de proxy a confiar para resolver la IP real (si se omite, ninguno) | (vacío) |
+| `REDIS_URL`                   | Redis para compartir el rate limiting entre instancias (si se omite, memoria) | (vacío) |
 | `SMTP_HOST`                   | Host SMTP para emails de confirmación                  | (vacío: envío deshabilitado)             |
 | `SMTP_PORT`                   | Puerto SMTP                                            | `587`                                    |
 | `SMTP_SECURE`                 | `true` para TLS implícito (puerto 465)                 | `false`                                  |
@@ -201,7 +203,12 @@ confirmación.
   tokens sin `role: admin`, sin confiar en lo que la UI oculta.
 - **Rate limiting**: login y registro están limitados a `AUTH_RATE_LIMIT_MAX`
   intentos por minuto y por IP; la creación de reservas, a
-  `BOOKING_RATE_LIMIT_MAX` por cada 15 minutos.
+  `BOOKING_RATE_LIMIT_MAX` por cada 15 minutos. Los contadores viven en memoria
+  por defecto; con `REDIS_URL` se comparten entre todas las instancias y
+  sobreviven a los reinicios.
+- **IP detrás de proxy**: si hay un reverse proxy delante (Nginx, Cloudflare),
+  configurar `TRUST_PROXY` con el número de saltos para que el rate limiting
+  cuente por cliente y no por la IP del proxy.
 - **Sanitización NoSQL**: un middleware descarta claves con operadores (`$gt`,
   `$ne`, …) o puntos en `body`, `params` y `query` antes de que lleguen a
   Mongoose.

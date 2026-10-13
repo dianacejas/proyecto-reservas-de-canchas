@@ -1,5 +1,6 @@
 import { connectDB } from './config/db.js'
 import { env } from './config/env.js'
+import { connectRedis } from './config/redis.js'
 import { app } from './app.js'
 import {
   cancelExpiredPendingBookings,
@@ -8,6 +9,7 @@ import {
 
 async function start(): Promise<void> {
   await connectDB()
+  await connectRedis()
   await cancelExpiredPendingBookings().catch(() => undefined)
   startBookingExpirySweeper()
   app.listen(env.PORT, () => {

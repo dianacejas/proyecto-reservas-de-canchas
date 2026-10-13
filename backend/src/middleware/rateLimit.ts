@@ -1,7 +1,24 @@
-import rateLimit from 'express-rate-limit'
+import rateLimit, { type Store } from 'express-rate-limit'
+import { RedisStore, type RedisReply } from 'rate-limit-redis'
 import { env } from '../config/env.js'
+import { getRedisClient } from '../config/redis.js'
 
 const MINUTE = 60 * 1000
+
+/**
+ * Store del rate limiting. Si hay `REDIS_URL` configurada usa Redis para
+ * compartir los contadores entre todas las instancias y sobrevivir a los
+ * reinicios; si no, express-rate-limit usa su MemoryStore por defecto (no
+ * compartido entre procesos).
+ */
+function buildStore(prefix: string): Store | undefined {
+  const client = getRedisClient()
+  if (!client) return undefined
+  return new RedisStore({
+    prefix,
+    sendCommand: (...args: string[]) => client.sendCommand(args) as Promise<RedisReply>,
+  })
+}
 
 /**
  * Fuerza bruta sobre autenticación: pocos intentos por minuto y por IP.
@@ -12,6 +29,7 @@ export const authLimiter = rateLimit({
   limit: env.AUTH_RATE_LIMIT_MAX,
   standardHeaders: 'draft-7',
   legacyHeaders: false,
+  store: buildStore('copa5:rl:auth:'),
   message: {
     error: {
       message: 'Demasiados intentos. Esperá un minuto antes de volver a probar.',
@@ -29,6 +47,7 @@ export const bookingCreateLimiter = rateLimit({
   limit: env.BOOKING_RATE_LIMIT_MAX,
   standardHeaders: 'draft-7',
   legacyHeaders: false,
+  store: buildStore('copa5:rl:booking:'),
   message: {
     error: {
       message: 'Demasiadas reservas desde esta conexión. Probá más tarde o contactanos por WhatsApp.',
@@ -44,4 +63,5 @@ export const webhookLimiter = rateLimit({
   limit: 120,
   standardHeaders: 'draft-7',
   legacyHeaders: false,
+  store: buildStore('copa5:rl:webhook:'),
 })

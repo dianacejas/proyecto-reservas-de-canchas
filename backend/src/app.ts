@@ -9,6 +9,14 @@ import { AppError } from './utils/AppError.js'
 
 export const app = express()
 
+// Confía en el proxy para resolver la IP real del cliente (X-Forwarded-For),
+// de modo que el rate limiting cuente por cliente y no por la IP del proxy.
+// Sin TRUST_PROXY, Express no confía en ningún proxy (seguro por defecto).
+if (env.TRUST_PROXY !== undefined && env.TRUST_PROXY.length > 0) {
+  const hops = Number(env.TRUST_PROXY)
+  app.set('trust proxy', Number.isNaN(hops) ? env.TRUST_PROXY : hops)
+}
+
 // Oculta la cabecera X-Powered-By y agrega cabeceras de seguridad. El CORP se
 // abre a cross-origin porque la API se consume desde el origen del frontend.
 app.disable('x-powered-by')

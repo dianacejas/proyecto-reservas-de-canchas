@@ -23,6 +23,17 @@ export function errorHandler(err: unknown, _req: Request, res: Response, _next: 
     return
   }
 
+  // `express.json()` (body-parser) lanza un SyntaxError con `type`
+  // `entity.parse.failed` cuando el cuerpo no es JSON válido. Es un error del
+  // cliente: debe responder 400 y no ensuciar los logs con un stack trace.
+  if (
+    err instanceof SyntaxError &&
+    (err as { type?: unknown }).type === 'entity.parse.failed'
+  ) {
+    res.status(400).json({ error: { message: 'JSON inválido en el cuerpo de la petición' } })
+    return
+  }
+
   if (err && typeof err === 'object' && (err as { code?: unknown }).code === 11000) {
     res.status(409).json({
       error: {

@@ -67,6 +67,7 @@ cp .env.example .env   # en Windows: copy .env.example .env
 | `MERCADO_PAGO_ACCESS_TOKEN`   | Access token de Mercado Pago (solo si `mercadopago`)   | (vacío: el pago online queda deshabilitado) |
 | `MERCADO_PAGO_WEBHOOK_SECRET` | Clave para validar la firma del webhook de pagos       | (vacío: no se valida la firma)           |
 | `WEB_BASE_URL`                | Origen del frontend, para los links de retorno del pago | `http://localhost:5173`                 |
+| `CORS_ORIGINS`                | Orígenes permitidos por CORS, separados por coma (si se omite, solo `WEB_BASE_URL`) | (vacío) |
 | `SMTP_HOST`                   | Host SMTP para emails de confirmación                  | (vacío: envío deshabilitado)             |
 | `SMTP_PORT`                   | Puerto SMTP                                            | `587`                                    |
 | `SMTP_SECURE`                 | `true` para TLS implícito (puerto 465)                 | `false`                                  |
@@ -192,6 +193,9 @@ confirmación.
 
 - `.env` está ignorado por Git; solo se versiona `.env.example`.
 - `JWT_SECRET` es obligatoria y no tiene valor por defecto.
+- **CORS**: solo se permiten los orígenes de `CORS_ORIGINS` (o `WEB_BASE_URL`);
+  el resto recibe un `403`. Se deshabilita `X-Powered-By` y se agregan cabeceras
+  de seguridad con Helmet.
 - Las contraseñas se almacenan con hash, nunca en claro.
 - El rol se valida en el servidor: los endpoints de administración rechazan
   tokens sin `role: admin`, sin confiar en lo que la UI oculta.

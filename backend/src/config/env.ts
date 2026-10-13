@@ -11,6 +11,9 @@ const envSchema = z.object({
   MERCADO_PAGO_ACCESS_TOKEN: z.string().optional(),
   MERCADO_PAGO_WEBHOOK_SECRET: z.string().optional(),
   WEB_BASE_URL: z.string().url().default('http://localhost:5173'),
+  // Origenes permitidos por CORS, separados por coma. Si se omite se permite
+  // unicamente WEB_BASE_URL. Ej: "https://copa5.com,https://www.copa5.com".
+  CORS_ORIGINS: z.string().optional(),
   PENDING_TTL_MINUTES: z.coerce.number().int().positive().default(15),
   DEPOSIT_PERCENT: z.coerce.number().int().min(1).max(100).default(50),
   CANCEL_WINDOW_HOURS: z.coerce.number().int().min(0).default(4),

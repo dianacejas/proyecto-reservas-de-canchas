@@ -65,7 +65,7 @@ cp .env.example .env   # en Windows: copy .env.example .env
 | `JWT_EXPIRES_IN_DAYS`         | Vigencia del token                                      | `7`                                      |
 | `PAYMENT_PROVIDER`            | `sandbox` (simulada) o `mercadopago`                   | `sandbox`                                |
 | `MERCADO_PAGO_ACCESS_TOKEN`   | Access token de Mercado Pago (solo si `mercadopago`)   | (vacío: el pago online queda deshabilitado) |
-| `MERCADO_PAGO_WEBHOOK_SECRET` | Clave para validar la firma del webhook de pagos       | (vacío: no se valida la firma)           |
+| `MERCADO_PAGO_WEBHOOK_SECRET` | Clave para validar la firma del webhook de pagos (obligatoria en producción si `PAYMENT_PROVIDER=mercadopago`) | (vacío: no se valida la firma) |
 | `WEB_BASE_URL`                | Origen del frontend, para los links de retorno del pago | `http://localhost:5173`                 |
 | `CORS_ORIGINS`                | Orígenes permitidos por CORS, separados por coma (si se omite, solo `WEB_BASE_URL`) | (vacío) |
 | `TRUST_PROXY`                 | Saltos de proxy a confiar para resolver la IP real (si se omite, ninguno) | (vacío) |
@@ -184,7 +184,9 @@ repositorio.
 Cuando Mercado Pago confirma un pago notifica al endpoint `POST /api/payments/webhook`.
 El servidor verifica la firma `x-signature` (si `MERCADO_PAGO_WEBHOOK_SECRET`
 está configurado), consulta el pago a la API de Mercado Pago y, si está
-aprobado, marca el pago como pagado y confirma la reserva.
+aprobado, marca el pago como pagado y confirma la reserva. En producción, con
+`PAYMENT_PROVIDER=mercadopago`, el secreto es obligatorio: el servidor no
+arranca si falta, para no aceptar webhooks sin firma.
 
 Al confirmarse un pago se envía (si SMTP está configurado) un email con el
 comprobante de la reserva: código, cancha, fecha, horario, importe abonado y

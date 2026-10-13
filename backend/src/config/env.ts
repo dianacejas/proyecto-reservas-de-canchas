@@ -43,7 +43,25 @@ const envSchema = z.object({
   BOOKING_RATE_LIMIT_MAX: z.coerce.number().int().positive().default(10),
 })
 
-const parsed = envSchema.safeParse(process.env)
+// Reglas que cruzan campos: en producción no se admite una configuración que
+// deje el webhook de pagos sin validación de firma.
+const envSchemaRefined = envSchema.superRefine((values, ctx) => {
+  if (
+    values.NODE_ENV === 'production' &&
+    values.PAYMENT_PROVIDER === 'mercadopago' &&
+    (values.MERCADO_PAGO_WEBHOOK_SECRET === undefined ||
+      values.MERCADO_PAGO_WEBHOOK_SECRET.length === 0)
+  ) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['MERCADO_PAGO_WEBHOOK_SECRET'],
+      message:
+        'En producción con PAYMENT_PROVIDER=mercadopago es obligatorio definir MERCADO_PAGO_WEBHOOK_SECRET para validar la firma del webhook.',
+    })
+  }
+})
+
+const parsed = envSchemaRefined.safeParse(process.env)
 
 if (!parsed.success) {
   console.error('Configuración de entorno inválida:', parsed.error.flatten().fieldErrors)

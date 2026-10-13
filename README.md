@@ -14,6 +14,8 @@ panel de administración protegido por rol.
 - **Node.js 24.x**
 - **npm** (incluido con Node.js)
 - **MongoDB** escuchando en `127.0.0.1:27017`.
+- **Redis** (opcional): solo si querés compartir el rate limiting entre
+  instancias o reinicios (`REDIS_URL`).
 
 ## Estructura
 
@@ -21,7 +23,7 @@ panel de administración protegido por rol.
 proyecto-canchas/
 ├── backend/    # API Express (puerto 4000) — TypeScript
 │   ├── src/
-│   │   ├── config/       # conexión a MongoDB y validación de entorno con zod
+│   │   ├── config/       # conexión a MongoDB/Redis y validación de entorno con zod
 │   │   ├── controllers/  # auth, reservas, canchas, partidos, pagos, …
 │   │   ├── middleware/   # autenticación, validación, rate limiting, sanitización y errores
 │   │   ├── models/       # esquemas de Mongoose
@@ -169,13 +171,14 @@ El backend monta los recursos bajo `/api`:
 
 ## Pagos
 
-El flujo crea la reserva en estado `pending` y, según `PAYMENT_PROVIDER`:
+El flujo crea la reserva en estado `pendiente` y, según `PAYMENT_PROVIDER`:
 
-- `sandbox`: devuelve un identificador de preferencia simulado y marca la reserva
-  como confirmada, útil para desarrollo sin credenciales.
-- `mercadopago`: crea la preferencia con el SDK oficial y redirige al
-  `initPoint`. El servidor **recalcula el total** del lado del servidor; el
-  importe del cliente no se toma como fuente de verdad.
+- `sandbox`: crea un pago simulado y devuelve una URL de confirmación
+  (`/pago/sandbox/:paymentId/confirmar`); al confirmarla, la reserva pasa a
+  confirmada. Útil para desarrollo sin credenciales.
+- `mercadopago`: crea la preferencia contra la API de Mercado Pago y devuelve el
+  `initPoint` para redirigir al checkout. El servidor **recalcula el total** del
+  lado del servidor; el importe del cliente no se toma como fuente de verdad.
 
 Si no hay `MERCADO_PAGO_ACCESS_TOKEN`, el pago online queda deshabilitado y el
 resto del flujo sigue funcionando. Nunca subes un token de producción al
@@ -200,6 +203,9 @@ confirmación.
 - **CORS**: solo se permiten los orígenes de `CORS_ORIGINS` (o `WEB_BASE_URL`);
   el resto recibe un `403`. Se deshabilita `X-Powered-By` y se agregan cabeceras
   de seguridad con Helmet.
+- **Errores**: un JSON inválido en el cuerpo responde `400`; los errores de las
+  rutas protegidas devuelven `401`/`403`. Nunca se expone un stack trace de
+  Node.js al cliente.
 - Las contraseñas se almacenan con hash, nunca en claro.
 - El rol se valida en el servidor: los endpoints de administración rechazan
   tokens sin `role: admin`, sin confiar en lo que la UI oculta.

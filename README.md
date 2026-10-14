@@ -1,5 +1,7 @@
 # Copa 5 — Plataforma de reservas y torneos
 
+[![CI](https://github.com/dianacejas/proyecto-reservas-de-canchas/actions/workflows/ci.yml/badge.svg)](https://github.com/dianacejas/proyecto-reservas-de-canchas/actions/workflows/ci.yml)
+
 Aplicación web para un complejo de fútbol 5: permite reservas de canchas con
 pago online y un hub de torneos con posiciones, fixture y playoffs. Incluye un
 panel de administración protegido por rol.

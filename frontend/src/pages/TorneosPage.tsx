@@ -1,10 +1,13 @@
-import { Card, Chip } from '@heroui/react'
-import { useQuery } from '@tanstack/react-query'
-import { Link } from 'react-router-dom'
-import { listTournaments } from '../api'
+import { Button, Card, Chip, Modal } from '@heroui/react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { createTournament, listTournaments } from '../api'
 import { getErrorMessage } from '../api/client'
+import { useAuth } from '../auth/useAuth'
 import ErrorState from '../components/common/ErrorState'
 import Loading from '../components/common/Loading'
+import { SelectInput, TextInput } from '../components/common/fields'
 import type { Tournament, TournamentStatus } from '../types'
 
 const STATUS_META: Record<
@@ -174,7 +177,28 @@ function buildFacts(tournament: Tournament): { icon: React.JSX.Element; label: s
 }
 
 export default function TorneosPage(): React.JSX.Element {
+  const { isAdmin } = useAuth()
+  const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const tournamentsQuery = useQuery({ queryKey: ['tournaments'], queryFn: listTournaments })
+
+  const [creating, setCreating] = useState(false)
+  const [tName, setTName] = useState('')
+  const [tStatus, setTStatus] = useState<'inscripcion' | 'en_curso'>('inscripcion')
+  const [createError, setCreateError] = useState<string | null>(null)
+
+  const createMutation = useMutation({
+    mutationFn: () => createTournament({ name: tName.trim(), status: tStatus }),
+    onSuccess: (tournament) => {
+      void queryClient.invalidateQueries({ queryKey: ['tournaments'] })
+      setCreating(false)
+      setTName('')
+      setTStatus('inscripcion')
+      setCreateError(null)
+      navigate(`/torneos/${tournament.id}`)
+    },
+    onError: (err) => setCreateError(getErrorMessage(err)),
+  })
 
   if (tournamentsQuery.isLoading) return <Loading label="Cargando torneos…" />
   if (tournamentsQuery.isError) {
@@ -190,14 +214,30 @@ export default function TorneosPage(): React.JSX.Element {
 
   return (
     <div className="space-y-8">
-      <header>
-        <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-mauve/30 bg-lime/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-coffee dark:border-lime/30 dark:bg-lime/10 dark:text-lime">
-          Copa 5 · Competencia
+      <header className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-mauve/30 bg-lime/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-coffee dark:border-lime/30 dark:bg-lime/10 dark:text-lime">
+            Copa 5 · Competencia
+          </div>
+          <h1 className="text-2xl font-bold tracking-tight">Torneos</h1>
+          <p className="mt-1 text-sm text-tertiary dark:text-mauve-soft">
+            Seguí las posiciones y el fixture de cada torneo.
+          </p>
         </div>
-        <h1 className="text-2xl font-bold tracking-tight">Torneos</h1>
-        <p className="mt-1 text-sm text-tertiary dark:text-mauve-soft">
-          Seguí las posiciones y el fixture de cada torneo.
-        </p>
+        {isAdmin && (
+          <Button
+            variant="primary"
+            className="shrink-0"
+            onPress={() => {
+              setCreateError(null)
+              setTName('')
+              setTStatus('inscripcion')
+              setCreating(true)
+            }}
+          >
+            + Nuevo torneo
+          </Button>
+        )}
       </header>
 
       {tournaments.length === 0 ? (
@@ -280,6 +320,63 @@ export default function TorneosPage(): React.JSX.Element {
             )
           })}
         </div>
+      )}
+
+      {/* Modal de creación de torneo (solo admin) */}
+      {creating && (
+        <Modal.Root isOpen onOpenChange={(open) => open || setCreating(false)}>
+          <Modal.Backdrop variant="blur" />
+          <Modal.Container size="md">
+            <Modal.Dialog>
+              <Modal.Header>
+                <Modal.Heading>Nuevo torneo</Modal.Heading>
+                <Modal.CloseTrigger />
+              </Modal.Header>
+              <Modal.Body>
+                <div className="space-y-4">
+                  <TextInput
+                    label="Nombre del torneo"
+                    value={tName}
+                    onValueChange={setTName}
+                    placeholder="Ej: Copa Canchas 2026"
+                    autoFocus
+                  />
+                  <SelectInput
+                    label="Estado inicial"
+                    value={tStatus}
+                    onValueChange={(value) => setTStatus(value as 'inscripcion' | 'en_curso')}
+                    options={[
+                      { key: 'inscripcion', label: 'Inscripción abierta' },
+                      { key: 'en_curso', label: 'En curso (ya jugando)' },
+                    ]}
+                  />
+                  {createError !== null && (
+                    <Chip color="danger" size="sm" className="h-auto py-1">
+                      {createError}
+                    </Chip>
+                  )}
+                </div>
+              </Modal.Body>
+              <Modal.Footer className="flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                <Button
+                  variant="secondary"
+                  className="min-h-11 w-full sm:w-auto"
+                  onPress={() => setCreating(false)}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  variant="primary"
+                  className="min-h-11 w-full sm:w-auto"
+                  isDisabled={createMutation.isPending || tName.trim().length === 0}
+                  onPress={() => createMutation.mutate()}
+                >
+                  {createMutation.isPending ? 'Creando…' : 'Crear torneo'}
+                </Button>
+              </Modal.Footer>
+            </Modal.Dialog>
+          </Modal.Container>
+        </Modal.Root>
       )}
     </div>
   )

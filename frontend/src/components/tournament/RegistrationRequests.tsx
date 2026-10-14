@@ -10,6 +10,7 @@ import { getErrorMessage } from '../../api/client'
 import type { RegistrationStatus, TournamentRegistration } from '../../types'
 import Loading from '../common/Loading'
 import ErrorState from '../common/ErrorState'
+import { TextInput } from '../common/fields'
 
 const STATUS_META: Record<RegistrationStatus, { label: string; color: 'warning' | 'success' | 'danger' }> = {
   pendiente_aprobacion: { label: 'Pendiente', color: 'warning' },
@@ -148,12 +149,12 @@ function PendingRow({
         jugadores
       </p>
       <div className="mt-2 flex flex-wrap items-center gap-2">
-        <input
-          type="text"
+        <TextInput
+          aria-label="Grupo"
+          className="w-32"
           value={group}
-          onChange={(event) => setGroup(event.target.value)}
+          onValueChange={setGroup}
           placeholder="Grupo"
-          className="w-32 rounded-lg border border-line bg-cream px-3 py-1.5 text-sm text-coffee outline-none transition-colors focus:border-lime dark:border-mauve dark:bg-coffee-elev dark:text-[#f3efe8]"
         />
         <Button
           size="sm"

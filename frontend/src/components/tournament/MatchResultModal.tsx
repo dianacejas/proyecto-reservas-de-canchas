@@ -1,6 +1,7 @@
 import { Button, Chip, Modal } from '@heroui/react'
-import { useId, useState } from 'react'
+import { useState } from 'react'
 import type { Match, MatchEvent, TeamPlayer, TeamRef } from '../../types'
+import { SelectInput, TextInput, type SelectOption } from '../common/fields'
 import TeamCrest from './TeamCrest'
 
 export interface MatchResultSubmit {
@@ -26,9 +27,6 @@ function resizeScorers(list: string[], goals: number): string[] {
   if (list.length > goals) return list.slice(0, goals)
   return [...list, ...Array.from({ length: goals - list.length }, () => '')]
 }
-
-const SCORER_INPUT_CLASS =
-  'min-h-11 w-full rounded-lg border border-line bg-cream px-3 py-1.5 text-sm text-coffee outline-none focus:border-lime dark:border-mauve dark:bg-coffee-elev dark:text-[#f3efe8]'
 
 export default function MatchResultModal({
   match,
@@ -64,10 +62,6 @@ export default function MatchResultModal({
       .filter((event) => event.type === 'goal' && event.teamId === awayId)
       .map((event) => event.playerName)
   )
-
-  const id = useId().replace(/[^a-zA-Z0-9]/g, '')
-  const homeListId = `${id}-home`
-  const awayListId = `${id}-away`
 
   const parsedHome = home.trim() === '' ? null : Number(home)
   const parsedAway = away.trim() === '' ? null : Number(away)
@@ -173,9 +167,6 @@ export default function MatchResultModal({
     onSubmit(input)
   }
 
-  const numberClass =
-    'min-h-11 w-full rounded-lg border border-line bg-cream px-2 py-1.5 text-center text-sm text-coffee outline-none focus:border-lime dark:border-mauve dark:bg-coffee-elev dark:text-[#f3efe8]'
-
   return (
     <Modal.Root isOpen onOpenChange={(open) => open || onClose()}>
       <Modal.Backdrop variant="blur" />
@@ -194,13 +185,14 @@ export default function MatchResultModal({
                     {teamRefName(match.homeTeamId)}
                   </span>
                 </span>
-                <input
-                  type="number"
-                  min="0"
-                  value={home}
-                  onChange={(event) => handleHomeChange(event.target.value)}
-                  className={numberClass}
+                <TextInput
                   aria-label="Goles local"
+                  type="number"
+                  min={0}
+                  className="w-16"
+                  inputClassName="text-center"
+                  value={home}
+                  onValueChange={handleHomeChange}
                   placeholder="0"
                 />
               </div>
@@ -211,13 +203,14 @@ export default function MatchResultModal({
                     {teamRefName(match.awayTeamId)}
                   </span>
                 </span>
-                <input
-                  type="number"
-                  min="0"
-                  value={away}
-                  onChange={(event) => handleAwayChange(event.target.value)}
-                  className={numberClass}
+                <TextInput
                   aria-label="Goles visitante"
+                  type="number"
+                  min={0}
+                  className="w-16"
+                  inputClassName="text-center"
+                  value={away}
+                  onValueChange={handleAwayChange}
                   placeholder="0"
                 />
               </div>
@@ -227,7 +220,6 @@ export default function MatchResultModal({
                   teamName={teamRefName(match.homeTeamId)}
                   scorers={homeScorers}
                   suggestions={homeSuggestions}
-                  listId={homeListId}
                   onChange={setHomeScorer}
                 />
               )}
@@ -237,7 +229,6 @@ export default function MatchResultModal({
                   teamName={teamRefName(match.awayTeamId)}
                   scorers={awayScorers}
                   suggestions={awaySuggestions}
-                  listId={awayListId}
                   onChange={setAwayScorer}
                 />
               )}
@@ -248,30 +239,32 @@ export default function MatchResultModal({
                     Definición por penales
                   </p>
                   <div className="grid grid-cols-2 gap-2">
-                    <label className="space-y-1 text-xs text-coffee/70 dark:text-mauve-soft">
-                      <span>{teamRefName(match.homeTeamId)}</span>
-                      <input
-                        type="number"
-                        min="0"
-                        value={homePen}
-                        onChange={(event) => setHomePen(event.target.value)}
-                        className={numberClass}
+                    <div className="space-y-1 text-xs text-coffee/70 dark:text-mauve-soft">
+                      <span className="block">{teamRefName(match.homeTeamId)}</span>
+                      <TextInput
                         aria-label="Penales local"
-                        placeholder="0"
-                      />
-                    </label>
-                    <label className="space-y-1 text-xs text-coffee/70 dark:text-mauve-soft">
-                      <span>{teamRefName(match.awayTeamId)}</span>
-                      <input
                         type="number"
-                        min="0"
-                        value={awayPen}
-                        onChange={(event) => setAwayPen(event.target.value)}
-                        className={numberClass}
-                        aria-label="Penales visitante"
+                        min={0}
+                        className="w-full"
+                        inputClassName="text-center"
+                        value={homePen}
+                        onValueChange={setHomePen}
                         placeholder="0"
                       />
-                    </label>
+                    </div>
+                    <div className="space-y-1 text-xs text-coffee/70 dark:text-mauve-soft">
+                      <span className="block">{teamRefName(match.awayTeamId)}</span>
+                      <TextInput
+                        aria-label="Penales visitante"
+                        type="number"
+                        min={0}
+                        className="w-full"
+                        inputClassName="text-center"
+                        value={awayPen}
+                        onValueChange={setAwayPen}
+                        placeholder="0"
+                      />
+                    </div>
                   </div>
                 </div>
               )}
@@ -312,45 +305,58 @@ function GoalScorerSection({
   teamName,
   scorers,
   suggestions,
-  listId,
   onChange,
 }: {
   teamName: string
   scorers: string[]
   suggestions: string[]
-  listId: string
   onChange: (index: number, name: string) => void
 }): React.JSX.Element {
+  // Si hay plantel cargado elegimos de la lista; sino, texto libre.
+  const useSelect = suggestions.length > 0
+
   return (
     <div className="space-y-2 rounded-lg border border-line bg-paper/70 p-3 dark:border-mauve dark:bg-mauve-deep/60">
       <p className="text-xs font-medium uppercase tracking-wide text-tertiary dark:text-mauve-soft">
         Goleadores · {teamName}
       </p>
       <div className="space-y-2">
-        {scorers.map((name, index) => (
-          <div key={index} className="flex items-center gap-2">
-            <span className="w-16 shrink-0 text-xs font-semibold text-tertiary dark:text-mauve-soft">
-              Gol {index + 1}
-            </span>
-            <input
-              type="text"
-              list={listId}
-              value={name}
-              onChange={(event) => onChange(index, event.target.value)}
-              placeholder="Nombre del jugador"
-              className={SCORER_INPUT_CLASS}
-              aria-label={`Goleador ${index + 1} de ${teamName}`}
-            />
-          </div>
-        ))}
+        {scorers.map((name, index) => {
+          const options: SelectOption[] = [
+            ...suggestions.map((suggestion) => ({ key: suggestion, label: suggestion })),
+            // Opción manual si el nombre actual no está en el plantel
+            ...(name !== '' && !suggestions.includes(name)
+              ? [{ key: name, label: `${name} (ingresado manualmente)` }]
+              : []),
+          ]
+
+          return (
+            <div key={index} className="flex items-center gap-2">
+              <span className="w-16 shrink-0 text-xs font-semibold text-tertiary dark:text-mauve-soft">
+                Gol {index + 1}
+              </span>
+              {useSelect ? (
+                <SelectInput
+                  aria-label={`Goleador ${index + 1} de ${teamName}`}
+                  className="flex-1"
+                  placeholder="— Seleccionar jugador —"
+                  value={name}
+                  onValueChange={(value) => onChange(index, value)}
+                  options={options}
+                />
+              ) : (
+                <TextInput
+                  aria-label={`Goleador ${index + 1} de ${teamName}`}
+                  className="flex-1"
+                  value={name}
+                  onValueChange={(value) => onChange(index, value)}
+                  placeholder="Nombre del jugador"
+                />
+              )}
+            </div>
+          )
+        })}
       </div>
-      {suggestions.length > 0 && (
-        <datalist id={listId}>
-          {suggestions.map((suggestion) => (
-            <option key={suggestion} value={suggestion} />
-          ))}
-        </datalist>
-      )}
     </div>
   )
 }

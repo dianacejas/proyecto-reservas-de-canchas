@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { createTournamentRegistration } from '../../api'
 import { getErrorMessage } from '../../api/client'
 import type { CreateRegistrationInput } from '../../types'
+import { TextInput } from '../common/fields'
 
 const COLOR_OPTIONS = [
   '#2563eb',
@@ -98,9 +99,6 @@ export default function TournamentRegistrationModal({
     })
   }
 
-  const inputClass =
-    'w-full rounded-lg border border-line bg-cream px-3 py-2 text-sm text-coffee outline-none transition-colors focus:border-lime dark:border-mauve dark:bg-coffee-elev dark:text-[#f3efe8]'
-
   return (
     <Modal.Root isOpen onOpenChange={(open) => open || onClose()}>
       <Modal.Backdrop variant="blur" />
@@ -123,18 +121,12 @@ export default function TournamentRegistrationModal({
               </div>
             ) : (
               <div className="space-y-4">
-                <div>
-                  <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-tertiary dark:text-mauve-soft">
-                    Nombre del equipo
-                  </label>
-                  <input
-                    type="text"
-                    className={inputClass}
-                    value={form.teamName}
-                    onChange={(event) => setForm({ ...form, teamName: event.target.value })}
-                    placeholder="Los Halcones"
-                  />
-                </div>
+                <TextInput
+                  label="Nombre del equipo"
+                  value={form.teamName}
+                  onValueChange={(teamName) => setForm({ ...form, teamName })}
+                  placeholder="Los Halcones"
+                />
 
                 <div>
                   <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-tertiary dark:text-mauve-soft">
@@ -159,30 +151,19 @@ export default function TournamentRegistrationModal({
                 </div>
 
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <div>
-                    <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-tertiary dark:text-mauve-soft">
-                      Capitán
-                    </label>
-                    <input
-                      type="text"
-                      className={inputClass}
-                      value={form.captainName}
-                      onChange={(event) => setForm({ ...form, captainName: event.target.value })}
-                      placeholder="Nombre y apellido"
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-tertiary dark:text-mauve-soft">
-                      Teléfono del capitán
-                    </label>
-                    <input
-                      type="tel"
-                      className={inputClass}
-                      value={form.captainPhone}
-                      onChange={(event) => setForm({ ...form, captainPhone: event.target.value })}
-                      placeholder="3001234567"
-                    />
-                  </div>
+                  <TextInput
+                    label="Capitán"
+                    value={form.captainName}
+                    onValueChange={(captainName) => setForm({ ...form, captainName })}
+                    placeholder="Nombre y apellido"
+                  />
+                  <TextInput
+                    label="Teléfono del capitán"
+                    type="tel"
+                    value={form.captainPhone}
+                    onValueChange={(captainPhone) => setForm({ ...form, captainPhone })}
+                    placeholder="3001234567"
+                  />
                 </div>
 
                 <div>
@@ -205,11 +186,11 @@ export default function TournamentRegistrationModal({
                         <span className="flex w-8 shrink-0 items-center justify-center text-xs font-semibold text-tertiary dark:text-mauve-soft">
                           {index + 1}
                         </span>
-                        <input
-                          type="text"
-                          className={inputClass}
+                        <TextInput
+                          aria-label={`Jugador ${index + 1}`}
+                          className="flex-1"
                           value={player}
-                          onChange={(event) => updatePlayer(index, event.target.value)}
+                          onValueChange={(value) => updatePlayer(index, value)}
                           placeholder={`Jugador ${index + 1}`}
                         />
                         <Button

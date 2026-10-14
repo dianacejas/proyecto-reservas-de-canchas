@@ -1,4 +1,4 @@
-﻿import { Alert, Button, Chip, Modal, Tabs } from '@heroui/react'
+﻿import { Alert, Button, Checkbox, Chip, Modal, Tabs } from '@heroui/react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -17,6 +17,7 @@ import AdminCustomers from '../components/admin/AdminCustomers'
 import AdminMetrics from '../components/admin/AdminMetrics'
 import ErrorState from '../components/common/ErrorState'
 import Loading from '../components/common/Loading'
+import { TextInput } from '../components/common/fields'
 import type { Field, Tournament, TournamentStatus } from '../types'
 import { PILL_TAB_CLASS } from '../utils/tabs'
 
@@ -236,57 +237,32 @@ function CanchasTab({ onNotice }: { onNotice: (kind: Notice['kind'], message: st
               </Modal.Header>
               <Modal.Body>
                 <div className="space-y-3">
+                  <TextInput
+                    label="Nombre"
+                    value={form.name}
+                    onValueChange={(name) => setForm({ ...form, name })}
+                    placeholder="Ej: Cancha Alpha"
+                  />
+                  <TextInput
+                    label="Tipo de superficie"
+                    value={form.type}
+                    onValueChange={(type) => setForm({ ...form, type })}
+                    placeholder="Ej: Fútbol 5"
+                  />
+                  <TextInput
+                    label="Precio por hora ($)"
+                    type="number"
+                    min={0}
+                    value={form.price}
+                    onValueChange={(price) => setForm({ ...form, price })}
+                    placeholder="Ej: 35000"
+                  />
                   <div className="space-y-1.5">
-                    <label className="text-sm font-medium text-coffee/80 dark:text-mauve-soft" htmlFor="f-name">
-                      Nombre
-                    </label>
-                    <input
-                      id="f-name"
-                      type="text"
-                      value={form.name}
-                      onChange={(event) => setForm({ ...form, name: event.target.value })}
-                      placeholder="Ej: Cancha Alpha"
-                      className="min-h-11 w-full rounded-lg border border-line bg-cream px-3 py-2 text-sm text-coffee outline-none transition-colors focus:border-lime dark:border-mauve dark:bg-coffee-elev dark:text-[#f3efe8]"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-sm font-medium text-coffee/80 dark:text-mauve-soft" htmlFor="f-type">
-                      Tipo de superficie
-                    </label>
-                    <input
-                      id="f-type"
-                      type="text"
-                      value={form.type}
-                      onChange={(event) => setForm({ ...form, type: event.target.value })}
-                      placeholder="Ej: Fútbol 5"
-                      className="min-h-11 w-full rounded-lg border border-line bg-cream px-3 py-2 text-sm text-coffee outline-none transition-colors focus:border-lime dark:border-mauve dark:bg-coffee-elev dark:text-[#f3efe8]"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-sm font-medium text-coffee/80 dark:text-mauve-soft" htmlFor="f-price">
-                      Precio por hora ($)
-                    </label>
-                    <input
-                      id="f-price"
-                      type="number"
-                      min="0"
-                      value={form.price}
-                      onChange={(event) => setForm({ ...form, price: event.target.value })}
-                      placeholder="Ej: 35000"
-                      className="min-h-11 w-full rounded-lg border border-line bg-cream px-3 py-2 text-sm text-coffee outline-none transition-colors focus:border-lime dark:border-mauve dark:bg-coffee-elev dark:text-[#f3efe8]"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-sm font-medium text-coffee/80 dark:text-mauve-soft" htmlFor="f-image">
-                      Imagen (URL)
-                    </label>
-                    <input
-                      id="f-image"
-                      type="text"
+                    <TextInput
+                      label="Imagen (URL)"
                       value={form.imageUrl}
-                      onChange={(event) => setForm({ ...form, imageUrl: event.target.value })}
+                      onValueChange={(imageUrl) => setForm({ ...form, imageUrl })}
                       placeholder="Ej: https://…/nocturna.jpg"
-                      className="min-h-11 w-full rounded-lg border border-line bg-cream px-3 py-2 text-sm text-coffee outline-none transition-colors focus:border-lime dark:border-mauve dark:bg-coffee-elev dark:text-[#f3efe8]"
                     />
                     {form.imageUrl.trim() !== '' && (
                       <img
@@ -297,15 +273,17 @@ function CanchasTab({ onNotice }: { onNotice: (kind: Notice['kind'], message: st
                       />
                     )}
                   </div>
-                  <label className="flex min-h-11 items-center gap-2.5 text-sm text-coffee/80 dark:text-mauve-soft">
-                    <input
-                      type="checkbox"
-                      checked={form.isActive}
-                      onChange={(event) => setForm({ ...form, isActive: event.target.checked })}
-                      className="size-5 shrink-0 accent-[#8ea63f]"
-                    />
-                    Cancha activa (visible para reservas)
-                  </label>
+                  <Checkbox
+                    isSelected={form.isActive}
+                    onChange={(isActive) => setForm({ ...form, isActive })}
+                  >
+                    <Checkbox.Content className="text-sm text-coffee/80 dark:text-mauve-soft">
+                      <Checkbox.Control>
+                        <Checkbox.Indicator />
+                      </Checkbox.Control>
+                      Cancha activa (visible para reservas)
+                    </Checkbox.Content>
+                  </Checkbox>
                   {formError !== null && (
                     <Chip color="danger" size="sm" className="h-auto py-1">
                       {formError}
@@ -467,19 +445,12 @@ function TorneosTab({ onNotice }: { onNotice: (kind: Notice['kind'], message: st
               </Modal.Header>
               <Modal.Body>
                 <div className="space-y-3">
-                  <div className="space-y-1.5">
-                    <label className="text-sm font-medium text-coffee/80 dark:text-mauve-soft" htmlFor="t-name">
-                      Nombre
-                    </label>
-                    <input
-                      id="t-name"
-                      type="text"
-                      value={name}
-                      onChange={(event) => setName(event.target.value)}
-                      placeholder="Ej: Copa Canchas 2026"
-                      className="min-h-11 w-full rounded-lg border border-line bg-cream px-3 py-2 text-sm text-coffee outline-none transition-colors focus:border-lime dark:border-mauve dark:bg-coffee-elev dark:text-[#f3efe8]"
-                    />
-                  </div>
+                  <TextInput
+                    label="Nombre"
+                    value={name}
+                    onValueChange={setName}
+                    placeholder="Ej: Copa Canchas 2026"
+                  />
                   {createError !== null && (
                     <Chip color="danger" size="sm" className="h-auto py-1">
                       {createError}

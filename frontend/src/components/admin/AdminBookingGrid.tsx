@@ -15,6 +15,7 @@ import DateNav from '../booking/DateNav'
 import type { Booking, BookingStatus, Field } from '../../types'
 import { bookingDay, formatLong, todayKey } from '../../utils/date'
 import { formatCurrency } from '../../utils/payments'
+import { TextInput } from '../common/fields'
 
 interface Notice {
   kind: 'success' | 'danger'
@@ -392,9 +393,6 @@ function NewSlotModal({
     onSubmit({ ...base, clientInfo: { name: name.trim(), phone: phone.trim() } })
   }
 
-  const inputClass =
-    'w-full rounded-lg border border-line bg-cream px-3 py-2 text-sm text-coffee outline-none transition-colors focus:border-lime dark:border-mauve dark:bg-coffee-elev dark:text-[#f3efe8]'
-
   return (
     <Modal.Root isOpen onOpenChange={(open) => open || onClose()}>
       <Modal.Backdrop />
@@ -444,47 +442,27 @@ function NewSlotModal({
 
               {kind === 'reserva' ? (
                 <>
-                  <div className="space-y-1.5">
-                    <label className="text-sm font-medium text-coffee/80 dark:text-mauve-soft" htmlFor="ag-name">
-                      Nombre y apellido
-                    </label>
-                    <input
-                      id="ag-name"
-                      type="text"
-                      value={name}
-                      onChange={(event) => setName(event.target.value)}
-                      placeholder="Ej: Juan Pérez"
-                      className={inputClass}
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-sm font-medium text-coffee/80 dark:text-mauve-soft" htmlFor="ag-phone">
-                      Teléfono
-                    </label>
-                    <input
-                      id="ag-phone"
-                      type="tel"
-                      value={phone}
-                      onChange={(event) => setPhone(event.target.value)}
-                      placeholder="Ej: 11 5555 1234"
-                      className={inputClass}
-                    />
-                  </div>
+                  <TextInput
+                    label="Nombre y apellido"
+                    value={name}
+                    onValueChange={setName}
+                    placeholder="Ej: Juan Pérez"
+                  />
+                  <TextInput
+                    label="Teléfono"
+                    type="tel"
+                    value={phone}
+                    onValueChange={setPhone}
+                    placeholder="Ej: 11 5555 1234"
+                  />
                 </>
               ) : (
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-coffee/80 dark:text-mauve-soft" htmlFor="ag-note">
-                    Motivo (opcional, visible en la grilla)
-                  </label>
-                  <input
-                    id="ag-note"
-                    type="text"
-                    value={note}
-                    onChange={(event) => setNote(event.target.value)}
-                    placeholder="Ej: Mantenimiento de césped"
-                    className={inputClass}
-                  />
-                </div>
+                <TextInput
+                  label="Motivo (opcional, visible en la grilla)"
+                  value={note}
+                  onValueChange={setNote}
+                  placeholder="Ej: Mantenimiento de césped"
+                />
               )}
 
               {error !== null && (

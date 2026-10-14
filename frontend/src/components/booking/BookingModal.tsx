@@ -5,6 +5,7 @@ import type { GridSlot } from '../../utils/slots'
 import { formatLong } from '../../utils/date'
 import { DEPOSIT_PERCENT, depositFor, formatCurrency } from '../../utils/payments'
 import { getErrorMessage } from '../../api/client'
+import { TextInput } from '../common/fields'
 
 export interface BookingFormPayload {
   clientInfo: { name: string; phone: string }
@@ -89,31 +90,20 @@ export default function BookingModal({
                 )}
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-coffee/80 dark:text-mauve-soft" htmlFor="bk-name">
-                  Nombre y apellido
-                </label>
-                <input
-                  id="bk-name"
-                  type="text"
-                  value={name}
-                  onChange={(event) => setName(event.target.value)}
-                  placeholder="Ej: Juan Pérez"
-                  className="w-full rounded-lg border border-line bg-cream px-3 py-2 text-sm text-coffee outline-none transition-colors focus:border-lime dark:border-mauve dark:bg-coffee-elev dark:text-[#f3efe8]"
-                />
-              </div>
+              <TextInput
+                label="Nombre y apellido"
+                value={name}
+                onValueChange={setName}
+                placeholder="Ej: Juan Pérez"
+              />
 
               <div className="space-y-1.5">
-                <label className="text-sm font-medium text-coffee/80 dark:text-mauve-soft" htmlFor="bk-phone">
-                  Teléfono
-                </label>
-                <input
-                  id="bk-phone"
+                <TextInput
+                  label="Teléfono"
                   type="tel"
                   value={phone}
-                  onChange={(event) => setPhone(event.target.value)}
+                  onValueChange={setPhone}
                   placeholder="Ej: 11 5555 1234"
-                  className="w-full rounded-lg border border-line bg-cream px-3 py-2 text-sm text-coffee outline-none transition-colors focus:border-lime dark:border-mauve dark:bg-coffee-elev dark:text-[#f3efe8]"
                 />
                 <p className="text-xs text-tertiary dark:text-mauve-soft">
                   La reserva queda en estado pendiente hasta que la confirme la administración.

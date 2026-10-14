@@ -66,7 +66,7 @@ export default function Footer(): React.JSX.Element {
         </div>
       </div>
       <div className="border-t border-line/60 py-4 text-center text-xs text-tertiary dark:border-mauve/40 dark:text-mauve-soft">
-        Copa 5 - Complejo Deportivo · Demo de reservas y torneos
+        Copa 5 - Complejo Deportivo · Demo de reservas y torneos - Desarrollo Pañal
       </div>
     </footer>
   )

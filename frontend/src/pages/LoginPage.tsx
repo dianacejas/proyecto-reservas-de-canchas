@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/useAuth'
 import { getErrorMessage } from '../api/client'
+import { TextInput } from '../components/common/fields'
 
 type Mode = 'login' | 'register'
 
@@ -89,48 +90,29 @@ export default function LoginPage(): React.JSX.Element {
 
       <div className="space-y-4 rounded-2xl border border-line bg-cream p-6 shadow-surface dark:border-mauve dark:bg-coffee-elev">
         {!isLogin && (
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium text-coffee/80 dark:text-mauve-soft" htmlFor="auth-name">
-              Nombre y apellido
-            </label>
-            <input
-              id="auth-name"
-              type="text"
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              placeholder="Ej: Juan Pérez"
-              className="min-h-11 w-full rounded-lg border border-line bg-cream px-3 py-2 text-sm text-coffee outline-none transition-colors focus:border-lime dark:border-mauve dark:bg-coffee-elev dark:text-[#f3efe8]"
-            />
-          </div>
+          <TextInput
+            label="Nombre y apellido"
+            value={name}
+            onValueChange={setName}
+            placeholder="Ej: Juan Pérez"
+          />
         )}
 
-        <div className="space-y-1.5">
-          <label className="text-sm font-medium text-coffee/80 dark:text-mauve-soft" htmlFor="auth-email">
-            Email
-          </label>
-          <input
-            id="auth-email"
-            type="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            placeholder="tu@email.com"
-            className="min-h-11 w-full rounded-lg border border-line bg-cream px-3 py-2 text-sm text-coffee outline-none transition-colors focus:border-lime dark:border-mauve dark:bg-coffee-elev dark:text-[#f3efe8]"
-          />
-        </div>
+        <TextInput
+          label="Email"
+          type="email"
+          value={email}
+          onValueChange={setEmail}
+          placeholder="tu@email.com"
+        />
 
-        <div className="space-y-1.5">
-          <label className="text-sm font-medium text-coffee/80 dark:text-mauve-soft" htmlFor="auth-password">
-            Contraseña
-          </label>
-          <input
-            id="auth-password"
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            placeholder="Mínimo 6 caracteres"
-            className="min-h-11 w-full rounded-lg border border-line bg-cream px-3 py-2 text-sm text-coffee outline-none transition-colors focus:border-lime dark:border-mauve dark:bg-coffee-elev dark:text-[#f3efe8]"
-          />
-        </div>
+        <TextInput
+          label="Contraseña"
+          type="password"
+          value={password}
+          onValueChange={setPassword}
+          placeholder="Mínimo 6 caracteres"
+        />
 
         {error !== null && (
           <Alert status="danger">

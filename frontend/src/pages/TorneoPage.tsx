@@ -201,7 +201,14 @@ export default function TorneoPage(): React.JSX.Element {
         <TournamentRegistrationModal tournamentId={id} onClose={() => setShowRegistration(false)} />
       )}
 
-      {isAdmin && id !== undefined && <AdminPanel tournamentId={id} />}
+      {isAdmin && id !== undefined && (
+        <AdminPanel
+          tournamentId={id}
+          tournamentName={tournament.name}
+          tournamentStatus={tournament.status}
+        />
+      )}
+
     </div>
   )
 }

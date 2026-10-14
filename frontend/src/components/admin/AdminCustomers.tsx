@@ -5,6 +5,7 @@ import { listAdminCustomers } from '../../api'
 import { getErrorMessage } from '../../api/client'
 import ErrorState from '../common/ErrorState'
 import Loading from '../common/Loading'
+import { TextInput } from '../common/fields'
 import type { AdminCustomer } from '../../types'
 import { formatCurrency } from '../../utils/payments'
 import { formatDayShort } from '../../utils/date'
@@ -75,16 +76,14 @@ export default function AdminCustomers(): React.JSX.Element {
             {enRiesgo} con riesgos
           </Chip>
         </div>
-        <div className="relative w-full sm:w-72">
-          <input
-            id="customer-search"
-            type="search"
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Buscar por nombre o teléfono…"
-            className="min-h-11 w-full rounded-lg border border-line bg-cream px-3 py-2 text-sm text-coffee outline-none transition-colors focus:border-lime dark:border-mauve dark:bg-coffee-elev dark:text-[#f3efe8]"
-          />
-        </div>
+        <TextInput
+          aria-label="Buscar clientes por nombre o teléfono"
+          type="search"
+          className="w-full sm:w-72"
+          value={search}
+          onValueChange={setSearch}
+          placeholder="Buscar por nombre o teléfono…"
+        />
       </div>
 
       {customers.length === 0 ? (

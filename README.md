@@ -95,16 +95,17 @@ cd backend
 npm run seed
 ```
 
-El seed define usuarios de desarrollo con contraseñas fijas. Son credenciales
-públicas de ejemplo, pensadas solo para `localhost`:
+El seed crea usuarios de desarrollo con emails de ejemplo, pensados solo para
+`localhost`:
 
-| Rol     | Email de ejemplo     | Contraseña de ejemplo |
-| ------- | -------------------- | --------------------- |
-| `admin` | `admin@ejemplo.com`  | `<cambiar>`           |
-| `cliente` | `cliente@ejemplo.com` | `<cambiar>`         |
+| Rol       | Email de ejemplo       |
+| --------- | ---------------------- |
+| `admin`   | `admin@ejemplo.com`    |
+| `cliente` | `cliente@ejemplo.com`  |
 
-> Para tu entorno local, cambiá esos valores en `backend/src/seed.ts` antes de
-> correrlo. No los subas al repositorio.
+> Las credenciales se toman de `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD`,
+> `SEED_CLIENT_EMAIL` y `SEED_CLIENT_PASSWORD`. Si no definís las contraseñas,
+> el seed genera una aleatoria por ejecución y la muestra por consola.
 
 ### 4. Ejecutar
 

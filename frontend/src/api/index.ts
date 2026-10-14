@@ -59,7 +59,19 @@ export interface FieldInput {
 }
 
 export interface TournamentInput {
-  name: string
+  name?: string
+  status?: 'inscripcion' | 'en_curso' | 'finalizado'
+}
+
+export interface CreateMatchInput {
+  tournamentId: string
+  group: string
+  matchday: number
+  fase: 'grupos' | 'octavos' | 'cuartos' | 'semifinal' | 'final'
+  homeTeamId: string
+  awayTeamId: string
+  homeGoals?: number | null
+  awayGoals?: number | null
 }
 
 export function login(input: LoginInput): Promise<AuthResponse> {
@@ -158,6 +170,13 @@ export function createTournament(input: TournamentInput): Promise<Tournament> {
   })
 }
 
+export function updateTournament(id: string, input: TournamentInput): Promise<Tournament> {
+  return apiRequest<Tournament>(`/tournaments/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(input),
+  })
+}
+
 export function deleteTournament(id: string): Promise<Tournament> {
   return apiRequest<Tournament>(`/tournaments/${id}`, { method: 'DELETE' })
 }
@@ -172,6 +191,20 @@ export function getStandings(id: string): Promise<GroupStandings[]> {
 
 export function getMatchdays(id: string): Promise<Matchday[]> {
   return apiRequest<Matchday[]>(`/tournaments/${id}/matches`)
+}
+
+export function createMatch(input: CreateMatchInput): Promise<Match> {
+  return apiRequest<Match>('/matches', {
+    method: 'POST',
+    body: JSON.stringify({ ...input, status: 'programado', homeGoals: null, awayGoals: null }),
+  })
+}
+
+export function updateTeamPlayers(teamId: string, players: { name: string; number: number }[]): Promise<Team> {
+  return apiRequest<Team>(`/teams/${teamId}`, {
+    method: 'PUT',
+    body: JSON.stringify({ players }),
+  })
 }
 
 export function getTournamentStats(id: string): Promise<TournamentStats> {

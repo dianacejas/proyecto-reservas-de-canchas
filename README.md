@@ -14,6 +14,8 @@ panel de administración protegido por rol.
 - **Node.js 24.x**
 - **npm** (incluido con Node.js)
 - **MongoDB** escuchando en `127.0.0.1:27017`.
+- **Redis** (opcional): solo si querés compartir el rate limiting entre
+  instancias o reinicios (`REDIS_URL`).
 
 ## Estructura
 
@@ -21,7 +23,7 @@ panel de administración protegido por rol.
 proyecto-canchas/
 ├── backend/    # API Express (puerto 4000) — TypeScript
 │   ├── src/
-│   │   ├── config/       # conexión a MongoDB y validación de entorno con zod
+│   │   ├── config/       # conexión a MongoDB/Redis y validación de entorno con zod
 │   │   ├── controllers/  # auth, reservas, canchas, partidos, pagos, …
 │   │   ├── middleware/   # autenticación, validación, rate limiting, sanitización y errores
 │   │   ├── models/       # esquemas de Mongoose
@@ -65,8 +67,11 @@ cp .env.example .env   # en Windows: copy .env.example .env
 | `JWT_EXPIRES_IN_DAYS`         | Vigencia del token                                      | `7`                                      |
 | `PAYMENT_PROVIDER`            | `sandbox` (simulada) o `mercadopago`                   | `sandbox`                                |
 | `MERCADO_PAGO_ACCESS_TOKEN`   | Access token de Mercado Pago (solo si `mercadopago`)   | (vacío: el pago online queda deshabilitado) |
-| `MERCADO_PAGO_WEBHOOK_SECRET` | Clave para validar la firma del webhook de pagos       | (vacío: no se valida la firma)           |
+| `MERCADO_PAGO_WEBHOOK_SECRET` | Clave para validar la firma del webhook de pagos (obligatoria en producción si `PAYMENT_PROVIDER=mercadopago`) | (vacío: no se valida la firma) |
 | `WEB_BASE_URL`                | Origen del frontend, para los links de retorno del pago | `http://localhost:5173`                 |
+| `CORS_ORIGINS`                | Orígenes permitidos por CORS, separados por coma (si se omite, solo `WEB_BASE_URL`) | (vacío) |
+| `TRUST_PROXY`                 | Saltos de proxy a confiar para resolver la IP real (si se omite, ninguno) | (vacío) |
+| `REDIS_URL`                   | Redis para compartir el rate limiting entre instancias (si se omite, memoria) | (vacío) |
 | `SMTP_HOST`                   | Host SMTP para emails de confirmación                  | (vacío: envío deshabilitado)             |
 | `SMTP_PORT`                   | Puerto SMTP                                            | `587`                                    |
 | `SMTP_SECURE`                 | `true` para TLS implícito (puerto 465)                 | `false`                                  |
@@ -90,16 +95,17 @@ cd backend
 npm run seed
 ```
 
-El seed define usuarios de desarrollo con contraseñas fijas. Son credenciales
-públicas de ejemplo, pensadas solo para `localhost`:
+El seed crea usuarios de desarrollo con emails de ejemplo, pensados solo para
+`localhost`:
 
-| Rol     | Email de ejemplo     | Contraseña de ejemplo |
-| ------- | -------------------- | --------------------- |
-| `admin` | `admin@ejemplo.com`  | `<cambiar>`           |
-| `cliente` | `cliente@ejemplo.com` | `<cambiar>`         |
+| Rol       | Email de ejemplo       |
+| --------- | ---------------------- |
+| `admin`   | `admin@ejemplo.com`    |
+| `cliente` | `cliente@ejemplo.com`  |
 
-> Para tu entorno local, cambiá esos valores en `backend/src/seed.ts` antes de
-> correrlo. No los subas al repositorio.
+> Las credenciales se toman de `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD`,
+> `SEED_CLIENT_EMAIL` y `SEED_CLIENT_PASSWORD`. Si no definís las contraseñas,
+> el seed genera una aleatoria por ejecución y la muestra por consola.
 
 ### 4. Ejecutar
 
@@ -166,13 +172,14 @@ El backend monta los recursos bajo `/api`:
 
 ## Pagos
 
-El flujo crea la reserva en estado `pending` y, según `PAYMENT_PROVIDER`:
+El flujo crea la reserva en estado `pendiente` y, según `PAYMENT_PROVIDER`:
 
-- `sandbox`: devuelve un identificador de preferencia simulado y marca la reserva
-  como confirmada, útil para desarrollo sin credenciales.
-- `mercadopago`: crea la preferencia con el SDK oficial y redirige al
-  `initPoint`. El servidor **recalcula el total** del lado del servidor; el
-  importe del cliente no se toma como fuente de verdad.
+- `sandbox`: crea un pago simulado y devuelve una URL de confirmación
+  (`/pago/sandbox/:paymentId/confirmar`); al confirmarla, la reserva pasa a
+  confirmada. Útil para desarrollo sin credenciales.
+- `mercadopago`: crea la preferencia contra la API de Mercado Pago y devuelve el
+  `initPoint` para redirigir al checkout. El servidor **recalcula el total** del
+  lado del servidor; el importe del cliente no se toma como fuente de verdad.
 
 Si no hay `MERCADO_PAGO_ACCESS_TOKEN`, el pago online queda deshabilitado y el
 resto del flujo sigue funcionando. Nunca subes un token de producción al
@@ -181,7 +188,9 @@ repositorio.
 Cuando Mercado Pago confirma un pago notifica al endpoint `POST /api/payments/webhook`.
 El servidor verifica la firma `x-signature` (si `MERCADO_PAGO_WEBHOOK_SECRET`
 está configurado), consulta el pago a la API de Mercado Pago y, si está
-aprobado, marca el pago como pagado y confirma la reserva.
+aprobado, marca el pago como pagado y confirma la reserva. En producción, con
+`PAYMENT_PROVIDER=mercadopago`, el secreto es obligatorio: el servidor no
+arranca si falta, para no aceptar webhooks sin firma.
 
 Al confirmarse un pago se envía (si SMTP está configurado) un email con el
 comprobante de la reserva: código, cancha, fecha, horario, importe abonado y
@@ -192,12 +201,23 @@ confirmación.
 
 - `.env` está ignorado por Git; solo se versiona `.env.example`.
 - `JWT_SECRET` es obligatoria y no tiene valor por defecto.
+- **CORS**: solo se permiten los orígenes de `CORS_ORIGINS` (o `WEB_BASE_URL`);
+  el resto recibe un `403`. Se deshabilita `X-Powered-By` y se agregan cabeceras
+  de seguridad con Helmet.
+- **Errores**: un JSON inválido en el cuerpo responde `400`; los errores de las
+  rutas protegidas devuelven `401`/`403`. Nunca se expone un stack trace de
+  Node.js al cliente.
 - Las contraseñas se almacenan con hash, nunca en claro.
 - El rol se valida en el servidor: los endpoints de administración rechazan
   tokens sin `role: admin`, sin confiar en lo que la UI oculta.
 - **Rate limiting**: login y registro están limitados a `AUTH_RATE_LIMIT_MAX`
   intentos por minuto y por IP; la creación de reservas, a
-  `BOOKING_RATE_LIMIT_MAX` por cada 15 minutos.
+  `BOOKING_RATE_LIMIT_MAX` por cada 15 minutos. Los contadores viven en memoria
+  por defecto; con `REDIS_URL` se comparten entre todas las instancias y
+  sobreviven a los reinicios.
+- **IP detrás de proxy**: si hay un reverse proxy delante (Nginx, Cloudflare),
+  configurar `TRUST_PROXY` con el número de saltos para que el rate limiting
+  cuente por cliente y no por la IP del proxy.
 - **Sanitización NoSQL**: un middleware descarta claves con operadores (`$gt`,
   `$ne`, …) o puntos en `body`, `params` y `query` antes de que lleguen a
   Mongoose.

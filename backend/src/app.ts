@@ -1,12 +1,46 @@
 import express from 'express'
 import cors from 'cors'
+import helmet from 'helmet'
 import apiRouter from './routes/index.js'
+import { env } from './config/env.js'
 import { errorHandler, notFoundHandler } from './middleware/error.js'
 import { sanitizeInput } from './middleware/sanitize.js'
+import { AppError } from './utils/AppError.js'
 
 export const app = express()
 
-app.use(cors())
+// Confía en el proxy para resolver la IP real del cliente (X-Forwarded-For),
+// de modo que el rate limiting cuente por cliente y no por la IP del proxy.
+// Sin TRUST_PROXY, Express no confía en ningún proxy (seguro por defecto).
+if (env.TRUST_PROXY !== undefined && env.TRUST_PROXY.length > 0) {
+  const hops = Number(env.TRUST_PROXY)
+  app.set('trust proxy', Number.isNaN(hops) ? env.TRUST_PROXY : hops)
+}
+
+// Oculta la cabecera X-Powered-By y agrega cabeceras de seguridad. El CORP se
+// abre a cross-origin porque la API se consume desde el origen del frontend.
+app.disable('x-powered-by')
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }))
+
+// CORS restringido: solo los origenes configurados pueden leer las respuestas.
+const allowedOrigins = (env.CORS_ORIGINS ?? env.WEB_BASE_URL)
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter((origin) => origin.length > 0)
+
+app.use(
+  cors({
+    origin(origin, callback) {
+      // Requests sin cabecera Origin (curl, health checks, server-to-server).
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true)
+        return
+      }
+      callback(new AppError(403, 'Origen no permitido por CORS'))
+    },
+  })
+)
+
 app.use(express.json({ limit: '100kb' }))
 
 // Corta payloads con operadores de Mongo ($ne, $gt) o rutas con punto antes

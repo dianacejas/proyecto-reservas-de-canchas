@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto'
 import mongoose from 'mongoose'
 import { connectDB } from './config/db.js'
 import { Booking, Field, Match, Team, Tournament, User } from './models/index.js'
@@ -27,17 +28,22 @@ async function seed(): Promise<void> {
     User.deleteMany({}),
   ])
 
-  const [admin, cliente] = await User.create([
+  const seedAdminEmail = process.env.SEED_ADMIN_EMAIL ?? 'admin@ejemplo.com'
+  const seedAdminPassword = process.env.SEED_ADMIN_PASSWORD ?? randomBytes(12).toString('hex')
+  const seedClientEmail = process.env.SEED_CLIENT_EMAIL ?? 'cliente@ejemplo.com'
+  const seedClientPassword = process.env.SEED_CLIENT_PASSWORD ?? randomBytes(12).toString('hex')
+
+  await User.create([
     {
       name: 'Administrador',
-      email: 'admin@canchas.com',
-      passwordHash: hashPassword('admin123'),
+      email: seedAdminEmail,
+      passwordHash: hashPassword(seedAdminPassword),
       role: 'admin',
     },
     {
       name: 'Juan Pérez',
-      email: 'juan@canchas.com',
-      passwordHash: hashPassword('juan123'),
+      email: seedClientEmail,
+      passwordHash: hashPassword(seedClientPassword),
       role: 'cliente',
     },
   ])
@@ -170,7 +176,9 @@ async function seed(): Promise<void> {
     usuarios: await User.countDocuments(),
   }
   console.log('Seed completado:', summary)
-  console.log('Usuarios de prueba — admin:', admin.email, '/ admin123 | cliente:', cliente.email, '/ juan123')
+  console.log('Usuarios de prueba creados:')
+  console.log(`  admin:   ${seedAdminEmail} / ${seedAdminPassword}`)
+  console.log(`  cliente: ${seedClientEmail} / ${seedClientPassword}`)
   await mongoose.disconnect()
 }
 

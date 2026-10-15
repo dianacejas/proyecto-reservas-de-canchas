@@ -128,27 +128,51 @@ function ArrowIcon(): React.JSX.Element {
   )
 }
 
-/** Marca de agua: trofeo gigante en la esquina inferior derecha. */
+/** Marca de agua: balón tenue + trofeo en trazo blanco, en la esquina derecha. */
 function TrophyWatermark(): React.JSX.Element {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="0.9"
-      strokeLinecap="round"
-      strokeLinejoin="round"
+    <div
       aria-hidden="true"
-      focusable="false"
-      className="pointer-events-none absolute -right-6 -bottom-10 size-56 -rotate-12 text-white/5 sm:size-72 md:-right-8 md:size-80"
+      className="pointer-events-none absolute -right-8 -bottom-12 z-10 -rotate-12 select-none sm:-right-12 sm:-bottom-16"
     >
-      <path d="M6 3h12v6a6 6 0 0 1-12 0V3Z" />
-      <path d="M6 5H3v2a4 4 0 0 0 4 4" />
-      <path d="M18 5h3v2a4 4 0 0 1-4 4" />
-      <path d="M10 15h4v4h-4z" />
-      <path d="M8 21h8" />
-      <path d="M8 21l1-2h6l1 2" />
-    </svg>
+      {/* Balón de fútbol: marca de agua muy suave por detrás del trofeo. */}
+      <svg
+        viewBox="0 0 100 100"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        focusable="false"
+        className="absolute -top-24 -left-24 size-48 text-white/10 sm:size-60"
+      >
+        <circle cx="50" cy="50" r="42" />
+        <path d="M50 30 69 43.8 61.8 66.2 38.2 66.2 31 43.8Z" />
+        <path d="M50 30V8" />
+        <path d="M69 43.8 89.9 37" />
+        <path d="M61.8 66.2 74.7 84" />
+        <path d="M38.2 66.2 25.3 84" />
+        <path d="M31 43.8 10.1 37" />
+      </svg>
+
+      {/* Trofeo: trazo blanco translúcido. */}
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        strokeWidth="0.9"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        focusable="false"
+        className="relative size-56 stroke-white/60 sm:size-72 md:size-80"
+      >
+        <path d="M6 3h12v6a6 6 0 0 1-12 0V3Z" />
+        <path d="M6 5H3v2a4 4 0 0 0 4 4" />
+        <path d="M18 5h3v2a4 4 0 0 1-4 4" />
+        <path d="M10 15h4v4h-4z" />
+        <path d="M8 21h8" />
+        <path d="M8 21l1-2h6l1 2" />
+      </svg>
+    </div>
   )
 }
 
@@ -252,16 +276,16 @@ export default function TorneosPage(): React.JSX.Element {
             return (
               <Card.Root
                 key={tournament.id}
-                className="group relative overflow-hidden border border-white/10 shadow-xl transition-colors duration-300 hover:border-lime/50 hover:shadow-lime/10"
+                className="group relative overflow-hidden border border-[#2a3b25]/30 shadow-lg shadow-[#1b2618]/5 transition duration-300 hover:border-[#2a3b25]/50 hover:shadow-xl dark:border-white/10 dark:shadow-xl dark:shadow-black/40 dark:hover:border-lime/50 dark:hover:shadow-lime/10"
               >
                 <img
                   src={BACKDROP_SRC}
                   alt=""
                   aria-hidden="true"
                   decoding="async"
-                  className="absolute inset-0 size-full object-cover opacity-30 transition-transform duration-500 group-hover:scale-105"
+                  className="absolute inset-0 size-full object-cover opacity-40 transition-transform duration-500 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 z-10 bg-gradient-to-r from-coffee via-coffee/90 to-transparent" />
+                <div className="absolute inset-0 z-10 bg-gradient-to-br from-[#0c2314] via-[#759530] to-[#d5e4c3] dark:from-[#1a090d] dark:via-[#202e1d] dark:to-[#52414c]/40" />
                 <TrophyWatermark />
 
                 <Card.Content className="relative z-20 flex flex-col gap-4 p-5 sm:p-6 md:p-7">
@@ -269,7 +293,7 @@ export default function TorneosPage(): React.JSX.Element {
                     <Chip color={meta.color} size="sm" className="font-semibold">
                       {meta.label}
                     </Chip>
-                    <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-white/85 backdrop-blur-sm">
+                    <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-white backdrop-blur-sm dark:text-white/85">
                       Fútbol 5 · Grupos y Eliminación
                     </span>
                   </div>
@@ -278,7 +302,7 @@ export default function TorneosPage(): React.JSX.Element {
                     <h2 className="text-2xl font-black tracking-wide text-white md:text-3xl">
                       {tournament.name}
                     </h2>
-                    <p className="mt-1 text-sm text-white/60">
+                    <p className="mt-1 text-sm text-white dark:text-white/60">
                       Fase de grupos y eliminatorias por elimination directa.
                     </p>
                   </div>
@@ -287,20 +311,20 @@ export default function TorneosPage(): React.JSX.Element {
                     {facts.map((fact) => (
                       <li
                         key={fact.label}
-                        className="flex items-center gap-2 text-sm text-white/75"
+                        className="flex items-center gap-2 text-sm text-white dark:text-white/75"
                       >
-                        <span className="text-lime">{fact.icon}</span>
+                        <span className="text-[#c5d86d]">{fact.icon}</span>
                         {fact.label}
                       </li>
                     ))}
                   </ul>
 
                   <div className="mt-1 flex flex-wrap items-center gap-3">
-                    <span className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-lime px-6 text-sm font-bold uppercase tracking-[0.1em] text-coffee shadow-lg transition-colors duration-300 group-hover:bg-white sm:w-auto">
+                    <span className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-white px-6 text-sm font-bold uppercase tracking-[0.1em] text-neutral-900 shadow-lg transition-colors duration-300 group-hover:bg-[#c5d86d] sm:w-auto">
                       Explorar Torneo
                       <ArrowIcon />
                     </span>
-                    <span className="text-xs uppercase tracking-[0.14em] text-white/45">
+                    <span className="text-xs uppercase tracking-[0.14em] text-white/90 hover:text-white">
                       Fixture · Posiciones · Eliminatorias
                     </span>
                   </div>

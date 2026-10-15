@@ -1,73 +1,207 @@
 import { Link } from 'react-router-dom'
 import Logo from '../brand/Logo'
+import { WHATSAPP_HREF, WhatsAppIcon } from '../whatsapp/WhatsAppButton'
 
-const LEGEND = [
-  { color: 'bg-lime', label: 'Disponible' },
-  { color: 'bg-cinnamon', label: 'Pendiente de pago / confirmación' },
-  { color: 'bg-evergreen dark:bg-[#a3e635]', label: 'Confirmada' },
+/**
+ * Pie de página compacto del complejo: 3 bloques (marca + redes, navegación
+ * breve y garantía/ubicación) más una barra inferior de copyright y legales.
+ * En móvil (< sm) todo se apila centrado y simétrico; desde sm se distribuye
+ * en columnas compactas. Los datos de contacto extensos (mapa embebido, botón
+ * de WhatsApp) viven en la sección de ubicación y en el botón flotante, así
+ * que acá solo queda una referencia breve.
+ */
+
+interface NavItem {
+  label: string
+  to: string
+}
+
+interface SocialItem {
+  /** Texto alternativo / tooltip del botón (incluye el handle). */
+  label: string
+  href: string
+  icon: (props: { className?: string }) => React.JSX.Element
+}
+
+const NAV_LINKS: NavItem[] = [
+  { label: 'Reservar', to: '/#reservas' },
+  { label: 'Torneos', to: '/torneos' },
+  // La tabla de goleadores no tiene ruta propia: vive como pestaña dentro de
+  // cada torneo, así que el enlace lleva al listado de torneos.
+  { label: 'Goleadores', to: '/torneos' },
+  { label: 'Mis Turnos', to: '/mis-reservas' },
+  { label: 'Admin', to: '/admin' },
 ]
+
+const SOCIAL_LINKS: SocialItem[] = [
+  { label: 'Instagram — @copa5futbol', href: 'https://instagram.com', icon: InstagramIcon },
+  { label: 'TikTok — @copa5complejo', href: 'https://tiktok.com', icon: TikTokIcon },
+  { label: 'WhatsApp — Canal / Comunidad oficial', href: WHATSAPP_HREF, icon: WhatsAppIcon },
+]
+
+const ADDRESS = 'Av. Deportiva 1250, Cancha Central'
+const MAPS_URL = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ADDRESS)}`
+
+const HOVER_LIME = 'transition-colors hover:text-[#c5d86d]'
 
 export default function Footer(): React.JSX.Element {
   return (
-    <footer className="mt-10 border-t border-line/70 dark:border-mauve/50">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-10 sm:flex-row sm:items-start sm:justify-between">
-        <div className="max-w-sm space-y-4">
-          <Logo subtitle="Complejo Deportivo" />
-          <p className="text-sm leading-relaxed text-tertiary dark:text-mauve-soft">
-            Reserva tu cancha en minutos y seguí la tabla de los torneos de tu comunidad. Copa 5 es
-            el complejo deportivo de todos.
-          </p>
+    <footer className="mt-10 border-t border-neutral-200/80 bg-neutral-100/90 text-neutral-600 transition-colors dark:border-white/10 dark:bg-[#15070a] dark:text-neutral-400">
+      <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:py-8">
+        <div className="grid grid-cols-1 justify-items-center gap-6 text-center sm:grid-cols-2 sm:justify-items-start sm:gap-5 sm:text-left lg:grid-cols-3 lg:gap-8">
+          {/* Marca y redes */}
+          <div className="space-y-2.5">
+            <Logo subtitle="Canchas de fútbol 5 y torneos" />
+            <div className="flex items-center justify-center gap-3 sm:justify-start sm:gap-2">
+              {SOCIAL_LINKS.map((social) => {
+                const Icon = social.icon
+                return (
+                  <a
+                    key={social.label}
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={social.label}
+                    title={social.label}
+                    className="inline-flex items-center justify-center rounded-full border border-transparent bg-neutral-200/80 p-1.5 transition-all hover:bg-[#c5d86d] hover:text-neutral-900 dark:border-white/15 dark:bg-white/10 dark:text-neutral-200 dark:hover:border-transparent dark:hover:bg-[#c5d86d] dark:hover:text-neutral-900"
+                  >
+                    <Icon className="size-4" />
+                  </a>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Navegación compacta en dos columnas */}
+          <nav aria-label="Navegación del complejo">
+            <ul className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs font-medium sm:grid sm:grid-flow-col sm:grid-rows-3 sm:justify-start sm:gap-x-6 sm:gap-y-1">
+              {NAV_LINKS.map((item) => (
+                <li key={item.label}>
+                  <Link to={item.to} className={`inline-flex py-1 ${HOVER_LIME}`}>
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          {/* Garantía de pago y ubicación breve */}
+          <div className="flex flex-col items-center gap-1.5 text-xs text-neutral-500 dark:text-neutral-400 sm:col-span-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-6 sm:gap-y-1 sm:text-left lg:col-span-1">
+            <p className="inline-flex items-center gap-1.5">
+              <ShieldCheckIcon className="size-3.5 shrink-0" />
+              Pagos seguros con Mercado Pago
+            </p>
+            <a
+              href={MAPS_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`inline-flex items-center gap-1.5 ${HOVER_LIME}`}
+            >
+              <MapPinIcon className="size-3.5 shrink-0" />
+              {ADDRESS}
+            </a>
+          </div>
         </div>
 
-        <div className="space-y-3">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-tertiary dark:text-mauve-soft">
-            Leyenda de horarios
-          </p>
-          <ul className="space-y-2">
-            {LEGEND.map((item) => (
-              <li key={item.label} className="flex items-center gap-2.5 text-sm text-coffee dark:text-[#f3efe8]">
-                <span className={`size-3 rounded-full ${item.color}`} />
-                {item.label}
-              </li>
-            ))}
-          </ul>
+        {/* Copyright y legales en un solo renglón */}
+        <div className="mt-6 border-t border-neutral-200/70 pt-4 dark:border-white/5">
+          <div className="flex flex-col items-center justify-between gap-2 text-center text-[11px] sm:flex-row sm:text-left">
+            <p>© 2026 Copa 5. Todos los derechos reservados.</p>
+            {/* TODO: crear /reglamento y /politica-de-cancelacion cuando existan
+                las páginas legales; hoy caen en el 404. */}
+            <p className="flex items-center gap-3">
+              <Link to="/reglamento" className={HOVER_LIME}>
+                Reglamento
+              </Link>
+              <span aria-hidden="true" className="text-neutral-300 dark:text-white/20">
+                ·
+              </span>
+              <Link to="/politica-de-cancelacion" className={HOVER_LIME}>
+                Cancelaciones
+              </Link>
+            </p>
+          </div>
         </div>
-
-        <div className="space-y-3">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-tertiary dark:text-mauve-soft">
-            Navegación
-          </p>
-          <ul className="space-y-1 text-sm text-coffee dark:text-[#f3efe8]">
-            <li>
-              <Link
-                to="/"
-                className="inline-flex min-h-11 items-center hover:text-coffee/70 dark:hover:text-lime"
-              >
-                Reservas
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/torneos"
-                className="inline-flex min-h-11 items-center hover:text-coffee/70 dark:hover:text-lime"
-              >
-                Torneos
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/login"
-                className="inline-flex min-h-11 items-center hover:text-coffee/70 dark:hover:text-lime"
-              >
-                Iniciar sesión
-              </Link>
-            </li>
-          </ul>
-        </div>
-      </div>
-      <div className="border-t border-line/60 py-4 text-center text-xs text-tertiary dark:border-mauve/40 dark:text-mauve-soft">
-        Copa 5 - Complejo Deportivo · Demo de reservas y torneos - Desarrollo Pañal
       </div>
     </footer>
+  )
+}
+
+/* ---------------------------------------------------------------------------
+   Íconos (estilo lucide, SVG inline: el proyecto no depende de lucide-react)
+   ------------------------------------------------------------------------ */
+
+function MapPinIcon({ className }: { className?: string }): React.JSX.Element {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className ?? 'size-3.5'}
+      aria-hidden="true"
+    >
+      <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
+      <circle cx="12" cy="10" r="3" />
+    </svg>
+  )
+}
+
+function ShieldCheckIcon({ className }: { className?: string }): React.JSX.Element {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className ?? 'size-3.5'}
+      aria-hidden="true"
+    >
+      <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
+      <path d="m9 12 2 2 4-4" />
+    </svg>
+  )
+}
+
+function InstagramIcon({ className }: { className?: string }): React.JSX.Element {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className ?? 'size-4'}
+      aria-hidden="true"
+    >
+      <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+      <path d="M17.5 6.5h.01" />
+    </svg>
+  )
+}
+
+function TikTokIcon({ className }: { className?: string }): React.JSX.Element {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className ?? 'size-4'}
+      aria-hidden="true"
+    >
+      {/* Nota musical: tallo tangent a la cuerda + bandera, gesto del logo. */}
+      <path d="M14 4v12" />
+      <circle cx="10" cy="16" r="4" />
+      <path d="M14 4c2.6.6 4.7 2.6 5.4 5.2" />
+    </svg>
   )
 }

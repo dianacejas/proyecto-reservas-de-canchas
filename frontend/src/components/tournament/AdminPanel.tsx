@@ -253,7 +253,7 @@ function EquiposTab({
       {/* Formulario agregar equipo */}
       <div className="space-y-2">
         <h3 className="text-sm font-semibold text-coffee dark:text-[#f3efe8]">Agregar equipo</h3>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-3">
           <TextInput
             aria-label="Nombre del equipo"
             className="min-w-40 flex-1"

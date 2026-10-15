@@ -18,21 +18,29 @@ export const HIDE_NUMBER_SPINNER =
   '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
 
 const LABEL_CLASS = 'text-sm font-medium text-coffee/80 dark:text-mauve-soft'
-/** Mantiene el alto táctil (44px) que ya usaban los campos nativos de la app. */
-const FIELD_CLASS = 'min-h-11'
+/** Mantiene el alto táctil (44px) y un radio consistente en todos los controles. */
+const FIELD_CLASS = 'min-h-11 rounded-lg'
 /** El popover de HeroUI usa `bg-overlay` pero no fija color; se ancla al token. */
 const POPOVER_CLASS = 'text-overlay-foreground'
 /**
- * El trigger del Select hereda un fondo muy parecido al del panel y se pierde.
- * Se fija contraste y sombra propios para claro y oscuro.
+ * Superficie compartida por inputs, triggers de Select y ComboBoxes.
+ *
+ * HeroUI v3 nace sin borde (`--field-border-width: 0px`) y con un fondo casi
+ * idéntico al del panel, así que los campos se "disolvían" en el fondo. Aquí se
+ * pinta un borde nítido, fondo contrastado y foco lima, igual en claro y oscuro.
+ *
+ * Estas clases viven en la capa `utilities`, que Tailwind emite después de la
+ * capa `components` de HeroUI, así que ganan sin necesidad de `!important`.
  */
-const SELECT_TRIGGER_CLASS = [
+const FIELD_BOX_CLASS = [
   FIELD_CLASS,
-  'border border-neutral-300 bg-white text-neutral-900 shadow-sm transition-colors hover:bg-neutral-50',
-  'dark:border-white/15 dark:bg-[#241319] dark:text-white dark:shadow-md dark:shadow-black/40 dark:hover:bg-[#2e1921]',
+  'border shadow-sm transition-colors',
+  'border-neutral-300 bg-white text-neutral-900 hover:border-neutral-400',
+  'dark:border-white/20 dark:bg-[#241319]/80 dark:text-white dark:shadow-inner dark:hover:border-white/40',
+  'focus-within:border-[#c5d86d]',
 ].join(' ')
-/** Popover del Select con borde definido y sombra fuerte para despegarlo del fondo. */
-const SELECT_POPOVER_CLASS = [
+/** Popovers de Select/ComboBox: borde definido y sombra fuerte para despegarlos del fondo. */
+const DROPDOWN_POPOVER_CLASS = [
   POPOVER_CLASS,
   'border border-neutral-200 bg-white text-neutral-900 shadow-xl',
   'dark:border-white/10 dark:bg-[#1a090d] dark:text-white dark:shadow-xl dark:shadow-black/60',
@@ -88,7 +96,7 @@ export function TextInput({
         max={max}
         autoFocus={autoFocus}
         fullWidth
-        className={[FIELD_CLASS, isNumber ? HIDE_NUMBER_SPINNER : '', inputClassName]
+        className={[FIELD_BOX_CLASS, isNumber ? HIDE_NUMBER_SPINNER : '', inputClassName]
           .filter(Boolean)
           .join(' ')}
       />
@@ -145,13 +153,13 @@ export function SelectInput({
     >
       {label !== undefined && <Label className={LABEL_CLASS}>{label}</Label>}
       <Select.Trigger
-        className={[SELECT_TRIGGER_CLASS, triggerClassName].filter(Boolean).join(' ')}
+        className={[FIELD_BOX_CLASS, triggerClassName].filter(Boolean).join(' ')}
       >
         <Select.Value />
         <Select.Indicator />
       </Select.Trigger>
       <Select.Popover
-        className={[SELECT_POPOVER_CLASS, popoverClassName].filter(Boolean).join(' ')}
+        className={[DROPDOWN_POPOVER_CLASS, popoverClassName].filter(Boolean).join(' ')}
       >
         <ListBox>
           {options.map((option) => (
@@ -209,11 +217,11 @@ export function ComboBoxInput({
       aria-label={label === undefined ? ariaLabel : undefined}
     >
       {label !== undefined && <Label className={LABEL_CLASS}>{label}</Label>}
-      <ComboBox.InputGroup className={FIELD_CLASS}>
-        <Input placeholder={placeholder} fullWidth />
+      <ComboBox.InputGroup>
+        <Input className={FIELD_BOX_CLASS} placeholder={placeholder} fullWidth />
         <ComboBox.Trigger />
       </ComboBox.InputGroup>
-      <ComboBox.Popover className={POPOVER_CLASS}>
+      <ComboBox.Popover className={DROPDOWN_POPOVER_CLASS}>
         <ListBox>
           {options.map((option) => (
             <ListBox.Item key={option} id={option} textValue={option}>

@@ -74,7 +74,7 @@ export const listTournamentMatches = asyncHandler(async (req, res) => {
   if (query.matchday) filter.matchday = query.matchday
 
   const matches = await Match.find(filter)
-    .populate('homeTeamId awayTeamId', 'name')
+    .populate('homeTeamId awayTeamId', 'name players')
     .populate({
       path: 'bookingId',
       select: 'fieldId date startTime endTime status type',

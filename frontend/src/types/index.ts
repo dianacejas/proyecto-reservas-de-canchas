@@ -75,6 +75,8 @@ export interface Team {
 export interface TeamRef {
   id: string
   name: string
+  /** Presente cuando el backend popluea el plantel del equipo en el partido. */
+  players?: TeamPlayer[]
 }
 
 export interface MatchBookingRef {

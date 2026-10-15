@@ -19,7 +19,7 @@ export const listMatches = asyncHandler(async (req, res) => {
   if (query.fase) filter.fase = query.fase
 
   const matches = await Match.find(filter)
-    .populate('homeTeamId awayTeamId', 'name')
+    .populate('homeTeamId awayTeamId', 'name players')
     .populate({
       path: 'bookingId',
       select: 'fieldId date startTime endTime status type',
@@ -33,7 +33,7 @@ export const getMatch = asyncHandler(async (req, res) => {
   const { id } = req.validData.params as IdParams
   res.json({
     data: assertFound(
-      await Match.findById(id).populate('homeTeamId awayTeamId', 'name'),
+      await Match.findById(id).populate('homeTeamId awayTeamId', 'name players'),
       'Partido no encontrado'
     ),
   })

@@ -22,6 +22,44 @@ function teamRefName(team: string | TeamRef | null | undefined): string {
   return typeof team === 'object' ? team.name : 'Por definirse'
 }
 
+/**
+ * Un jugador puede llegar como string (`["Dani", "Leo"]`) o como objeto
+ * (`{ name, number }` / `{ _id, name }`). Se normaliza para no romper el mapeo.
+ */
+function entryName(entry: unknown): string {
+  if (typeof entry === 'string') return entry.trim()
+  if (entry !== null && typeof entry === 'object') {
+    const record = entry as Record<string, unknown>
+    const raw = record.name ?? record.nombre ?? record.playerName
+    if (typeof raw === 'string') return raw.trim()
+  }
+  return ''
+}
+
+/** Devuelve los nombres únicos y no vacíos de un plantel de formato desconocido. */
+function normalizeRoster(entries: unknown): string[] {
+  if (!Array.isArray(entries)) return []
+  const names = entries.map(entryName).filter((name) => name.length > 0)
+  return Array.from(new Set(names))
+}
+
+/**
+ * Resuelve el plantel de un equipo: primero el mapa `playersByTeam` (equipos del
+ * torneo) y, si viene vacío, cae al plantel poplueado dentro del propio partido.
+ */
+function resolveRoster(
+  team: string | TeamRef | null | undefined,
+  teamId: string | null,
+  playersByTeam: Record<string, Array<TeamPlayer | string>>
+): string[] {
+  if (teamId !== null) {
+    const fromMap = normalizeRoster(playersByTeam[teamId])
+    if (fromMap.length > 0) return fromMap
+  }
+  if (team !== null && typeof team === 'object') return normalizeRoster(team.players)
+  return []
+}
+
 function resizeScorers(list: string[], goals: number): string[] {
   if (list.length === goals) return list
   if (list.length > goals) return list.slice(0, goals)
@@ -40,7 +78,7 @@ export default function MatchResultModal({
   match: Match
   isPending: boolean
   error: string | null
-  playersByTeam?: Record<string, TeamPlayer[]>
+  playersByTeam?: Record<string, Array<TeamPlayer | string>>
   onClose: () => void
   onError: (err: string | null) => void
   onSubmit: (input: MatchResultSubmit) => void
@@ -97,10 +135,8 @@ export default function MatchResultModal({
     !awayMissing &&
     (!tieNeedsPen || penaltiesValid)
 
-  const homeRoster = homeId !== null ? (playersByTeam[homeId] ?? []) : []
-  const awayRoster = awayId !== null ? (playersByTeam[awayId] ?? []) : []
-  const homeSuggestions = Array.from(new Set(homeRoster.map((player) => player.name)))
-  const awaySuggestions = Array.from(new Set(awayRoster.map((player) => player.name)))
+  const homeSuggestions = resolveRoster(match.homeTeamId, homeId, playersByTeam)
+  const awaySuggestions = resolveRoster(match.awayTeamId, awayId, playersByTeam)
 
   function handleHomeChange(value: string): void {
     setHome(value)
@@ -301,6 +337,9 @@ export default function MatchResultModal({
   )
 }
 
+/** Valor centinela para la opción "escribir a mano" del selector de goleadores. */
+const MANUAL_SCORER_OPTION = '__manual__'
+
 function GoalScorerSection({
   teamName,
   scorers,
@@ -312,46 +351,77 @@ function GoalScorerSection({
   suggestions: string[]
   onChange: (index: number, name: string) => void
 }): React.JSX.Element {
-  // Si hay plantel cargado elegimos de la lista; sino, texto libre.
-  const useSelect = suggestions.length > 0
+  // Goles que se resuelven escribiendo el nombre a mano en vez de elegirlo.
+  const [manualSlots, setManualSlots] = useState<Record<number, boolean>>({})
+  const canPick = suggestions.length > 0
+
+  const options: SelectOption[] = [
+    ...suggestions.map((suggestion) => ({ key: suggestion, label: suggestion })),
+    { key: MANUAL_SCORER_OPTION, label: 'Otro / ingresar a mano' },
+  ]
+
+  function markManual(index: number, value: boolean): void {
+    setManualSlots((prev) => ({ ...prev, [index]: value }))
+  }
 
   return (
     <div className="space-y-2 rounded-lg border border-line bg-paper/70 p-3 dark:border-mauve dark:bg-mauve-deep/60">
       <p className="text-xs font-medium uppercase tracking-wide text-tertiary dark:text-mauve-soft">
         Goleadores · {teamName}
       </p>
+      {!canPick && (
+        <p className="text-xs text-tertiary dark:text-mauve-soft">
+          Este equipo todavía no tiene plantel cargado: escribí los nombres a mano.
+        </p>
+      )}
       <div className="space-y-2">
-        {scorers.map((name, index) => {
-          const options: SelectOption[] = [
-            ...suggestions.map((suggestion) => ({ key: suggestion, label: suggestion })),
-            // Opción manual si el nombre actual no está en el plantel
-            ...(name !== '' && !suggestions.includes(name)
-              ? [{ key: name, label: `${name} (ingresado manualmente)` }]
-              : []),
-          ]
+        {scorers.map((value, index) => {
+          const isManual =
+            !canPick || (manualSlots[index] ?? (value !== '' && !suggestions.includes(value)))
 
           return (
-            <div key={index} className="flex items-center gap-2">
-              <span className="w-16 shrink-0 text-xs font-semibold text-tertiary dark:text-mauve-soft">
-                Gol {index + 1}
-              </span>
-              {useSelect ? (
-                <SelectInput
-                  aria-label={`Goleador ${index + 1} de ${teamName}`}
-                  className="flex-1"
-                  placeholder="— Seleccionar jugador —"
-                  value={name}
-                  onValueChange={(value) => onChange(index, value)}
-                  options={options}
-                />
-              ) : (
-                <TextInput
-                  aria-label={`Goleador ${index + 1} de ${teamName}`}
-                  className="flex-1"
-                  value={name}
-                  onValueChange={(value) => onChange(index, value)}
-                  placeholder="Nombre del jugador"
-                />
+            <div key={index} className="space-y-1.5">
+              <div className="flex items-center gap-2">
+                <span className="w-16 shrink-0 text-xs font-semibold text-tertiary dark:text-mauve-soft">
+                  Gol {index + 1}
+                </span>
+                {canPick ? (
+                  <SelectInput
+                    aria-label={`Goleador ${index + 1} de ${teamName}`}
+                    className="flex-1"
+                    placeholder="— Seleccionar jugador —"
+                    value={isManual ? MANUAL_SCORER_OPTION : value}
+                    onValueChange={(next) => {
+                      if (next === MANUAL_SCORER_OPTION) {
+                        markManual(index, true)
+                        onChange(index, '')
+                      } else {
+                        markManual(index, false)
+                        onChange(index, next)
+                      }
+                    }}
+                    options={options}
+                  />
+                ) : (
+                  <TextInput
+                    aria-label={`Goleador ${index + 1} de ${teamName}`}
+                    className="flex-1"
+                    value={value}
+                    onValueChange={(next) => onChange(index, next)}
+                    placeholder="Nombre del goleador"
+                  />
+                )}
+              </div>
+              {canPick && isManual && (
+                <div className="pl-[4.5rem]">
+                  <TextInput
+                    aria-label={`Nombre del goleador ${index + 1} de ${teamName}`}
+                    className="w-full"
+                    value={value}
+                    onValueChange={(next) => onChange(index, next)}
+                    placeholder="Nombre del goleador"
+                  />
+                </div>
               )}
             </div>
           )

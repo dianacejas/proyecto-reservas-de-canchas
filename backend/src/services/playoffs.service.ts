@@ -228,7 +228,7 @@ function championOf(rounds: PlayoffRoundData[]): { teamId: string; teamName: str
 
 export async function getPlayoffBracket(tournamentId: string): Promise<PlayoffBracketData> {
   const matches = await Match.find({ tournamentId, fase: { $ne: 'grupos' } })
-    .populate('homeTeamId awayTeamId', 'name')
+    .populate('homeTeamId awayTeamId', 'name players')
     .sort({ matchday: 1, createdAt: 1 })
 
   const byFase = new Map<PlayoffFase, PlayoffMatchData[]>()

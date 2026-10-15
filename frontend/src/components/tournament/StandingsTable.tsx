@@ -20,7 +20,7 @@ export default function StandingsTable({
           Con `overflow` distinto de `visible` el navegador recorta el fondo de
           la tabla contra el radio; si el scroll queda en un wrapper externo, el
           `bg-cream` / `bg-coffee-elev` pinta las esquinas en angulo recto. */}
-      <div className="overflow-x-auto rounded-2xl border border-line shadow-surface dark:border-mauve">
+      <div className="overflow-x-auto rounded-xl border border-line shadow-surface dark:border-mauve">
         <table
           className="w-full border-collapse bg-cream text-sm sm:min-w-[36rem] dark:bg-coffee-elev"
           aria-label="Posiciones del grupo"

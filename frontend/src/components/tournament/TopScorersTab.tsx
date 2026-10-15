@@ -83,7 +83,7 @@ export default function TopScorersTab({ rows }: { rows: TopScorerRow[] }): React
       {/* Igual que en la tabla de posiciones: el scroll y el recorte de las
           esquinas viven en la misma caja, si no el fondo de la tabla pinta el
           angulo recto. */}
-      <div className="overflow-x-auto rounded-2xl border border-line shadow-surface dark:border-mauve">
+      <div className="overflow-x-auto rounded-xl border border-line shadow-surface dark:border-mauve">
         <table
           className="w-full border-collapse bg-cream text-sm dark:bg-coffee-elev"
           aria-label="Tabla de goleadores"

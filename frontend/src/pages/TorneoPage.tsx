@@ -17,7 +17,7 @@ import StandingsTable from '../components/tournament/StandingsTable'
 import TournamentRegistrationModal from '../components/tournament/TournamentRegistrationModal'
 import AdminPanel from '../components/tournament/AdminPanel'
 import { buildFixtureText, buildStandingsText } from '../utils/tournamentExport'
-import { PILL_TAB_CLASS } from '../utils/tabs'
+import { PILL_TAB_CLASS, PILL_TAB_LIST_CLASS } from '../utils/tabs'
 import type { GroupStandings, TournamentStatus } from '../types'
 
 const STATUS_META: Record<
@@ -116,7 +116,7 @@ export default function TorneoPage(): React.JSX.Element {
       </div>
 
       <Tabs.Root defaultSelectedKey="posiciones">
-        <Tabs.List className="gap-2">
+        <Tabs.List className={PILL_TAB_LIST_CLASS}>
           <Tabs.Tab id="posiciones" className={PILL_TAB_CLASS}>Posiciones</Tabs.Tab>
           <Tabs.Tab id="goleadores" className={PILL_TAB_CLASS}>Goleadores</Tabs.Tab>
           <Tabs.Tab id="sanciones" className={PILL_TAB_CLASS}>Sanciones</Tabs.Tab>
@@ -220,7 +220,7 @@ function renderStandings(groups: GroupStandings[]): React.JSX.Element {
   const groupsKey = groups.map((group) => group.group).join(',')
   return (
     <Tabs.Root key={groupsKey} defaultSelectedKey={groups[0].group}>
-      <Tabs.List className="gap-2">
+      <Tabs.List className={PILL_TAB_LIST_CLASS}>
         {groups.map((group) => (
           <Tabs.Tab key={group.group} id={group.group} className={PILL_TAB_CLASS}>
             {group.group}

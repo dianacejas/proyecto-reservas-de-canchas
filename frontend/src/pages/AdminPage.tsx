@@ -19,7 +19,7 @@ import ErrorState from '../components/common/ErrorState'
 import Loading from '../components/common/Loading'
 import { TextInput } from '../components/common/fields'
 import type { Field, Tournament, TournamentStatus } from '../types'
-import { PILL_TAB_CLASS } from '../utils/tabs'
+import { PILL_TAB_CLASS, PILL_TAB_LIST_CLASS } from '../utils/tabs'
 
 interface Notice {
   kind: 'success' | 'danger'
@@ -58,7 +58,7 @@ export default function AdminPage(): React.JSX.Element {
       )}
 
       <Tabs.Root defaultSelectedKey="agenda">
-        <Tabs.List className="gap-2">
+        <Tabs.List className={PILL_TAB_LIST_CLASS}>
           <Tabs.Tab id="agenda" className={PILL_TAB_CLASS}>Agenda</Tabs.Tab>
           <Tabs.Tab id="metricas" className={PILL_TAB_CLASS}>Métricas</Tabs.Tab>
           <Tabs.Tab id="clientes" className={PILL_TAB_CLASS}>Clientes</Tabs.Tab>

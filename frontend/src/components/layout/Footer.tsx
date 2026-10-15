@@ -42,7 +42,10 @@ const SOCIAL_LINKS: SocialItem[] = [
 const ADDRESS = 'Av. Deportiva 1250, Cancha Central'
 const MAPS_URL = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ADDRESS)}`
 
-const HOVER_LIME = 'transition-colors hover:text-[#c5d86d]'
+/* El lima de marca (#c5d86d) sobre el fondo claro (neutral-100) queda en ~1.4:1
+   de contraste: ilegible. En modo claro el hover pasa a neutral-900; en oscuro,
+   donde el lima si contrasta, se mantiene. */
+const HOVER_LIME = 'transition-colors hover:text-neutral-900 dark:hover:text-[#c5d86d]'
 
 export default function Footer(): React.JSX.Element {
   return (

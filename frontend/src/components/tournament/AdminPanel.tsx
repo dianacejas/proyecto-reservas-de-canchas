@@ -18,7 +18,7 @@ import MatchResultModal, { type MatchResultSubmit } from './MatchResultModal'
 import RegistrationRequests from './RegistrationRequests'
 import TeamCrest from './TeamCrest'
 import type { Match, Team, TeamPlayer, TeamRef, TournamentStatus } from '../../types'
-import { PILL_TAB_CLASS } from '../../utils/tabs'
+import { PILL_TAB_CLASS, PILL_TAB_LIST_CLASS } from '../../utils/tabs'
 
 /* ---------- helpers ---------- */
 
@@ -99,7 +99,7 @@ export default function AdminPanel({
       </div>
 
       <Tabs.Root defaultSelectedKey="config">
-        <Tabs.List className="gap-2">
+        <Tabs.List className={PILL_TAB_LIST_CLASS}>
           <Tabs.Tab id="config" className={PILL_TAB_CLASS}>Configuración</Tabs.Tab>
           <Tabs.Tab id="equipos" className={PILL_TAB_CLASS}>Equipos</Tabs.Tab>
           <Tabs.Tab id="fixture" className={PILL_TAB_CLASS}>Fixture</Tabs.Tab>

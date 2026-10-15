@@ -16,12 +16,16 @@ export default function StandingsTable({
   )
   return (
     <div className="space-y-3">
-      <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
-        {/* Sin overflow-hidden: el scroll vive en el wrapper de arriba. Si se
-            recorta aqui, las columnas de la derecha quedan inaccesibles. */}
-        <div className="min-w-0 rounded-2xl border border-line shadow-surface sm:min-w-[36rem] dark:border-mauve">
-          <table className="w-full border-collapse bg-cream text-sm dark:bg-coffee-elev" aria-label="Posiciones del grupo">
-          <thead className="rounded-t-2xl">
+      {/* El scroll horizontal y el recorte de esquinas viven en la MISMA caja.
+          Con `overflow` distinto de `visible` el navegador recorta el fondo de
+          la tabla contra el radio; si el scroll queda en un wrapper externo, el
+          `bg-cream` / `bg-coffee-elev` pinta las esquinas en angulo recto. */}
+      <div className="overflow-x-auto rounded-xl border border-line shadow-surface dark:border-mauve">
+        <table
+          className="w-full border-collapse bg-cream text-sm sm:min-w-[36rem] dark:bg-coffee-elev"
+          aria-label="Posiciones del grupo"
+        >
+          <thead>
             <tr className="border-b border-line text-left text-xs uppercase tracking-wider text-tertiary dark:border-mauve dark:text-mauve-soft">
               <th className="px-3 py-3 font-medium sm:px-4">#</th>
               <th className="px-3 py-3 font-medium sm:px-4">Equipo</th>
@@ -82,7 +86,6 @@ export default function StandingsTable({
             })}
           </tbody>
         </table>
-        </div>
       </div>
       {rows.length > 0 && (
         <p className="flex items-center gap-2 text-xs text-tertiary dark:text-mauve-soft">

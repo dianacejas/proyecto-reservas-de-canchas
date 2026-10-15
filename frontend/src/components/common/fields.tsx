@@ -22,6 +22,21 @@ const LABEL_CLASS = 'text-sm font-medium text-coffee/80 dark:text-mauve-soft'
 const FIELD_CLASS = 'min-h-11'
 /** El popover de HeroUI usa `bg-overlay` pero no fija color; se ancla al token. */
 const POPOVER_CLASS = 'text-overlay-foreground'
+/**
+ * El trigger del Select hereda un fondo muy parecido al del panel y se pierde.
+ * Se fija contraste y sombra propios para claro y oscuro.
+ */
+const SELECT_TRIGGER_CLASS = [
+  FIELD_CLASS,
+  'border border-neutral-300 bg-white text-neutral-900 shadow-sm transition-colors hover:bg-neutral-50',
+  'dark:border-white/15 dark:bg-[#241319] dark:text-white dark:shadow-md dark:shadow-black/40 dark:hover:bg-[#2e1921]',
+].join(' ')
+/** Popover del Select con borde definido y sombra fuerte para despegarlo del fondo. */
+const SELECT_POPOVER_CLASS = [
+  POPOVER_CLASS,
+  'border border-neutral-200 bg-white text-neutral-900 shadow-xl',
+  'dark:border-white/10 dark:bg-[#1a090d] dark:text-white dark:shadow-xl dark:shadow-black/60',
+].join(' ')
 
 type InputType = 'text' | 'number' | 'tel' | 'email' | 'password' | 'search' | 'url'
 
@@ -95,6 +110,10 @@ export interface SelectInputProps {
   options: SelectOption[]
   placeholder?: string
   className?: string
+  /** Clases extra para el trigger (se suman al contraste/sombra por defecto). */
+  triggerClassName?: string
+  /** Clases extra para el popover (se suman al borde/sombra por defecto). */
+  popoverClassName?: string
   'aria-label'?: string
   isDisabled?: boolean
   fullWidth?: boolean
@@ -108,6 +127,8 @@ export function SelectInput({
   options,
   placeholder,
   className,
+  triggerClassName,
+  popoverClassName,
   'aria-label': ariaLabel,
   isDisabled,
   fullWidth = true,
@@ -123,11 +144,15 @@ export function SelectInput({
       onSelectionChange={(key) => onValueChange(key === null ? '' : String(key))}
     >
       {label !== undefined && <Label className={LABEL_CLASS}>{label}</Label>}
-      <Select.Trigger className={FIELD_CLASS}>
+      <Select.Trigger
+        className={[SELECT_TRIGGER_CLASS, triggerClassName].filter(Boolean).join(' ')}
+      >
         <Select.Value />
         <Select.Indicator />
       </Select.Trigger>
-      <Select.Popover className={POPOVER_CLASS}>
+      <Select.Popover
+        className={[SELECT_POPOVER_CLASS, popoverClassName].filter(Boolean).join(' ')}
+      >
         <ListBox>
           {options.map((option) => (
             <ListBox.Item

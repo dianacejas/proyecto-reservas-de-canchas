@@ -394,21 +394,30 @@ function PlayersModal({
                 Los nombres de los jugadores se usan para registrar goles y tarjetas en los partidos.
               </p>
               <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="w-20 shrink-0 text-xs font-semibold uppercase tracking-wide text-tertiary dark:text-mauve-soft">
+                    N°
+                  </span>
+                  <span className="flex-1 text-xs font-semibold uppercase tracking-wide text-tertiary dark:text-mauve-soft">
+                    Nombre del jugador
+                  </span>
+                  <span className="w-8 shrink-0" aria-hidden="true" />
+                </div>
                 {players.map((p, i) => (
                   <div key={i} className="flex items-center gap-2">
                     <TextInput
-                      aria-label={`Número de jugador ${i + 1}`}
+                      aria-label={`Número de camiseta del jugador ${i + 1}`}
                       type="number"
                       min={0}
                       max={99}
-                      className="w-16"
+                      className="w-20 shrink-0"
                       inputClassName="text-center"
                       value={p.number}
                       onValueChange={(value) => updatePlayer(i, 'number', value)}
                       placeholder="#"
                     />
                     <TextInput
-                      aria-label={`Jugador ${i + 1}`}
+                      aria-label={`Nombre del jugador ${i + 1}`}
                       className="flex-1"
                       value={p.name}
                       onValueChange={(value) => updatePlayer(i, 'name', value)}
@@ -556,7 +565,7 @@ function FixtureTab({
       <div className="rounded-lg border border-line p-4 dark:border-mauve space-y-3">
         <div>
           <h3 className="text-sm font-semibold text-coffee dark:text-[#f3efe8]">
-            Generar fixture de grupos (Round Robin)
+            Generar fixture de grupos
           </h3>
           <p className="mt-0.5 text-xs text-tertiary dark:text-mauve-soft">
             Crea automáticamente todos los partidos para que cada equipo del grupo enfrente a todos los demás.
@@ -610,7 +619,8 @@ function FixtureTab({
               </Modal.Header>
               <Modal.Body>
                 <p className="text-sm text-tertiary dark:text-mauve-soft">
-                  Se crearán todos los partidos del <strong>Round Robin</strong> para el grupo <strong>{genGroup}</strong>. Esta acción no se puede deshacer automáticamente.
+                  Se crearán todos los partidos del grupo <strong>{genGroup}</strong> (cada equipo contra
+                  todos). Esta acción no se puede deshacer automáticamente.
                 </p>
               </Modal.Body>
               <Modal.Footer className="flex-col-reverse gap-2 sm:flex-row sm:justify-end">

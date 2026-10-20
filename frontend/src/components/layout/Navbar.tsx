@@ -1,5 +1,5 @@
 import { Button, Disclosure, DisclosureContent, DisclosureTrigger } from '@heroui/react'
-import { NavLink, Link, useLocation, useNavigate } from 'react-router-dom'
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../../auth/useAuth'
 import { useDarkMode } from '../../hooks/useDarkMode'
@@ -106,11 +106,7 @@ export default function Navbar(): React.JSX.Element {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const headerRef = useRef<HTMLElement | null>(null)
   const [headerHeight, setHeaderHeight] = useState(0)
-  /**
-   * En la home, "Reservas" es un ancla de la misma pagina, no una ruta: la
-   * pildora activa se decide por la seccion que ocupa el borde superior del
-   * viewport (debajo del header sticky), no por el pathname.
-   */
+  /** Sección activa en la home: "Reservas" es un ancla de la misma página. */
   const [activeSection, setActiveSection] = useState<'home' | 'reservas'>('home')
 
   // HeroUI envuelve el Disclosure en un div `relative` que mide solo el ancho
@@ -183,13 +179,15 @@ export default function Navbar(): React.JSX.Element {
 
   /**
    * "Inicio" apunta a la raiz. Si ya estamos en la home, evitamos la navegacion
-   * y subimos con scroll suave (asi no se pierde el hash ni se recarga la vista).
+   * y subimos con scroll suave (sin recargar la vista). De paso limpiamos el
+   * hash para que la URL coincida con lo que se ve: la parte superior.
    */
   function goToHome(event: React.MouseEvent<HTMLAnchorElement>): void {
     closeMenu()
     setActiveSection('home')
     if (location.pathname !== '/') return
     event.preventDefault()
+    if (location.hash !== '') navigate('/', { replace: true })
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 

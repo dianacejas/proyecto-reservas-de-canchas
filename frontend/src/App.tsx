@@ -1,6 +1,7 @@
 import { Route, Routes } from 'react-router-dom'
 import Footer from './components/layout/Footer'
 import Navbar from './components/layout/Navbar'
+import ScrollToTop from './components/common/ScrollToTop'
 import WhatsAppButton from './components/whatsapp/WhatsAppButton'
 import { RequireAdmin, RequireClient } from './components/common/AuthGuards'
 import AdminPage from './pages/AdminPage'
@@ -16,6 +17,7 @@ import TorneosPage from './pages/TorneosPage'
 export default function App(): React.JSX.Element {
   return (
     <div className="flex min-h-svh w-full max-w-full flex-col overflow-x-hidden bg-paper text-coffee transition-colors dark:bg-coffee dark:text-[#f3efe8]">
+      <ScrollToTop />
       <Navbar />
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:py-8">
         <Routes>

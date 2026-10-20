@@ -3,8 +3,8 @@ import Logo from '../brand/Logo'
 import { WHATSAPP_HREF, WhatsAppIcon } from '../whatsapp/WhatsAppButton'
 
 /**
- * Pie de página compacto del complejo: 3 bloques (marca + redes, navegación
- * breve y garantía/ubicación) más una barra inferior de copyright y legales.
+ * Pie de página compacto del complejo: 3 bloques (marca, navegación breve y
+ * garantía/ubicación + redes) más una barra inferior de copyright y legales.
  * En móvil (< sm) todo se apila centrado y simétrico; desde sm se distribuye
  * en columnas compactas. Los datos de contacto extensos (mapa embebido, botón
  * de WhatsApp) viven en la sección de ubicación y en el botón flotante, así
@@ -52,27 +52,9 @@ export default function Footer(): React.JSX.Element {
     <footer className="mt-10 border-t border-neutral-200/80 bg-neutral-100/90 text-neutral-600 transition-colors dark:border-white/10 dark:bg-[#15070a] dark:text-neutral-400">
       <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:py-8">
         <div className="grid grid-cols-1 justify-items-center gap-6 text-center sm:grid-cols-2 sm:justify-items-start sm:gap-5 sm:text-left lg:grid-cols-3 lg:gap-8">
-          {/* Marca y redes */}
-          <div className="space-y-2.5">
+          {/* Marca */}
+          <div>
             <Logo subtitle="Canchas de fútbol 5 y torneos" />
-            <div className="flex items-center justify-center gap-3 sm:justify-start sm:gap-2">
-              {SOCIAL_LINKS.map((social) => {
-                const Icon = social.icon
-                return (
-                  <a
-                    key={social.label}
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={social.label}
-                    title={social.label}
-                    className="inline-flex items-center justify-center rounded-full border border-transparent bg-neutral-200/80 p-1.5 transition-all hover:bg-[#c5d86d] hover:text-neutral-900 dark:border-white/15 dark:bg-white/10 dark:text-neutral-200 dark:hover:border-transparent dark:hover:bg-[#c5d86d] dark:hover:text-neutral-900"
-                  >
-                    <Icon className="size-4" />
-                  </a>
-                )
-              })}
-            </div>
           </div>
 
           {/* Navegación compacta en dos columnas */}
@@ -88,21 +70,43 @@ export default function Footer(): React.JSX.Element {
             </ul>
           </nav>
 
-          {/* Garantía de pago y ubicación breve */}
-          <div className="flex flex-col items-center gap-1.5 text-xs text-neutral-500 dark:text-neutral-400 sm:col-span-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-6 sm:gap-y-1 sm:text-left lg:col-span-1">
-            <p className="inline-flex items-center gap-1.5">
-              <ShieldCheckIcon className="size-3.5 shrink-0" />
-              Pagos seguros con Mercado Pago
-            </p>
-            <a
-              href={MAPS_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`inline-flex items-center gap-1.5 ${HOVER_LIME}`}
-            >
-              <MapPinIcon className="size-3.5 shrink-0" />
-              {ADDRESS}
-            </a>
+          {/* Pagos, ubicación y redes, agrupados en el extremo derecho */}
+          <div className="flex flex-col items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400 sm:col-span-2 sm:items-end lg:col-span-1">
+            <div className="flex flex-col items-center gap-1.5 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-6 sm:gap-y-1">
+              <p className="inline-flex items-center gap-1.5">
+                <ShieldCheckIcon className="size-3.5 shrink-0" />
+                Pagos seguros con Mercado Pago
+              </p>
+              <a
+                href={MAPS_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`inline-flex items-center gap-1.5 ${HOVER_LIME}`}
+              >
+                <MapPinIcon className="size-3.5 shrink-0" />
+                {ADDRESS}
+              </a>
+            </div>
+
+            {/* Redes: centradas en mobile, alineadas a la derecha desde sm */}
+            <div className="flex items-center justify-center gap-3 sm:justify-end">
+              {SOCIAL_LINKS.map((social) => {
+                const Icon = social.icon
+                return (
+                  <a
+                    key={social.label}
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={social.label}
+                    title={social.label}
+                    className="inline-flex items-center justify-center rounded-full border border-transparent bg-neutral-200/80 p-1.5 transition-colors hover:bg-[#c5d86d] hover:text-neutral-900 dark:border-white/15 dark:bg-white/10 dark:text-neutral-200 dark:hover:border-transparent dark:hover:bg-[#c5d86d] dark:hover:text-neutral-900"
+                  >
+                    <Icon className="size-4" />
+                  </a>
+                )
+              })}
+            </div>
           </div>
         </div>
 
@@ -110,8 +114,6 @@ export default function Footer(): React.JSX.Element {
         <div className="mt-6 border-t border-neutral-200/70 pt-4 dark:border-white/5">
           <div className="flex flex-col items-center justify-between gap-2 text-center text-[11px] sm:flex-row sm:text-left">
             <p>© 2026 Copa 5. Todos los derechos reservados.</p>
-            {/* TODO: crear /reglamento y /politica-de-cancelacion cuando existan
-                las páginas legales; hoy caen en el 404. */}
             <p className="flex items-center gap-3">
               <Link to="/reglamento" className={HOVER_LIME}>
                 Reglamento

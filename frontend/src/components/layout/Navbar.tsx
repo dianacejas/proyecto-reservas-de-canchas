@@ -1,5 +1,5 @@
 import { Button, Disclosure, DisclosureContent, DisclosureTrigger } from '@heroui/react'
-import { NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../../auth/useAuth'
 import { useDarkMode } from '../../hooks/useDarkMode'
@@ -106,6 +106,8 @@ export default function Navbar(): React.JSX.Element {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const headerRef = useRef<HTMLElement | null>(null)
   const [headerHeight, setHeaderHeight] = useState(0)
+  /** Sección activa en la home: "Reservas" es un ancla de la misma página. */
+  const [activeSection, setActiveSection] = useState<'home' | 'reservas'>('home')
 
   // HeroUI envuelve el Disclosure en un div `relative` que mide solo el ancho
   // del trigger, asi que un panel `absolute inset-x-0` queda angosto y se
@@ -134,26 +136,80 @@ export default function Navbar(): React.JSX.Element {
     return () => timers.forEach(clearTimeout)
   }, [location.pathname, location.hash])
 
+  // En la home, "Reservas" es un ancla en la misma pagina: la pildora activa
+  // se decide por la seccion que ocupa el borde superior del viewport (debajo
+  // del header sticky) y no por la ruta. Se recalcula con scroll/resize usando
+  // rAF para no encadenar renders en cada evento.
+  useEffect(() => {
+    if (location.pathname !== '/') return
+    const update = (): void => {
+      const target = document.getElementById('reservas')
+      if (target === null) {
+        setActiveSection('home')
+        return
+      }
+      const rect = target.getBoundingClientRect()
+      const offset = headerHeight + 8
+      setActiveSection(rect.top <= offset && rect.bottom > offset ? 'reservas' : 'home')
+    }
+    let frame = 0
+    const schedule = (): void => {
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(update)
+    }
+    // Primera medicion diferida: setState sincrono dentro del effect dispara
+    // renders en cascada (react/set-state-in-effect).
+    schedule()
+    window.addEventListener('scroll', schedule, { passive: true })
+    window.addEventListener('resize', schedule)
+    // La grilla de reservas se monta despues de resolver la query de canchas:
+    // recalculamos un par de veces para no quedar con el estado inicial.
+    const timers = [setTimeout(schedule, 150), setTimeout(schedule, 500)]
+    return () => {
+      cancelAnimationFrame(frame)
+      window.removeEventListener('scroll', schedule)
+      window.removeEventListener('resize', schedule)
+      timers.forEach(clearTimeout)
+    }
+  }, [location.pathname, headerHeight])
+
   function closeMenu(): void {
     setIsMenuOpen(false)
   }
 
   /**
+   * "Inicio" apunta a la raiz. Si ya estamos en la home, evitamos la navegacion
+   * y subimos con scroll suave (sin recargar la vista). De paso limpiamos el
+   * hash para que la URL coincida con lo que se ve: la parte superior.
+   */
+  function goToHome(event: React.MouseEvent<HTMLAnchorElement>): void {
+    closeMenu()
+    setActiveSection('home')
+    if (location.pathname !== '/') return
+    event.preventDefault()
+    if (location.hash !== '') navigate('/', { replace: true })
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  /**
    * "Reservas" apunta al ancla de la grilla.
    *
-   * En la home no dejamos que Link navegue: su `to="/"` borraria el hash y
-   * cancelaria el desplazamiento, asi que hacemos scroll puro. Desde otra
-   * ruta dejamos que Link vaya a /#reservas y el effect de hash completa el
-   * scroll cuando la grilla ya esta montada.
+   * En la home no dejamos que Link navegue: agregar el hash no scrollea por si
+   * solo, asi que hacemos scroll puro. Desde otra ruta dejamos que Link vaya a
+   * /#reservas y el effect de hash completa el scroll cuando la grilla ya esta
+   * montada.
    */
   function goToReservas(event: React.MouseEvent<HTMLAnchorElement>): void {
     closeMenu()
+    setActiveSection('reservas')
     if (location.pathname !== '/') return
     event.preventDefault()
     document.getElementById('reservas')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
-  const reservasTarget = location.pathname === '/' ? '/' : '/#reservas'
+  const isOnHome = location.pathname === '/'
+  const isReservasActive = isOnHome && activeSection === 'reservas'
+  const isHomeActive = isOnHome && activeSection === 'home'
 
   return (
     <header
@@ -168,9 +224,22 @@ export default function Navbar(): React.JSX.Element {
         </div>
 
         <div className="hidden items-center gap-1 md:flex">
-          <NavLink to={reservasTarget} end className={navLinkClass} onClick={goToReservas}>
+          <Link
+            to="/"
+            aria-current={isHomeActive ? 'page' : undefined}
+            className={navLinkClass({ isActive: isHomeActive })}
+            onClick={goToHome}
+          >
+            Inicio
+          </Link>
+          <Link
+            to="/#reservas"
+            aria-current={isReservasActive ? 'page' : undefined}
+            className={navLinkClass({ isActive: isReservasActive })}
+            onClick={goToReservas}
+          >
             Reservas
-          </NavLink>
+          </Link>
           {isAuthenticated && !isAdmin && (
             <NavLink to="/mis-reservas" className={navLinkClass}>
               Mis Reservas
@@ -256,9 +325,22 @@ export default function Navbar(): React.JSX.Element {
               className="fixed inset-x-0 z-40 w-full max-w-full border-b border-neutral-200 bg-white/95 px-6 pb-6 pt-4 text-neutral-900 shadow-xl backdrop-blur-md dark:border-white/10 dark:bg-[#1a090d]/95 dark:text-white"
             >
               <nav className="flex w-full flex-col gap-4" aria-label="Navegación principal">
-                <NavLink to={reservasTarget} end className={drawerLinkClass} onClick={goToReservas}>
+                <Link
+                  to="/"
+                  aria-current={isHomeActive ? 'page' : undefined}
+                  className={drawerLinkClass({ isActive: isHomeActive })}
+                  onClick={goToHome}
+                >
+                  Inicio
+                </Link>
+                <Link
+                  to="/#reservas"
+                  aria-current={isReservasActive ? 'page' : undefined}
+                  className={drawerLinkClass({ isActive: isReservasActive })}
+                  onClick={goToReservas}
+                >
                   Reservas
-                </NavLink>
+                </Link>
                 {isAuthenticated && !isAdmin && (
                   <NavLink to="/mis-reservas" className={drawerLinkClass} onClick={closeMenu}>
                     Mis Reservas

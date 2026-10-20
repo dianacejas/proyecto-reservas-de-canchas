@@ -155,6 +155,8 @@ npm run dev
 | `/torneos/:id` | Detalle: posiciones, fixture, playoffs y panel admin |
 | `/admin`       | Panel de administración (solo rol `admin`)       |
 | `/login`       | Ingreso / registro                              |
+| `/reglamento`  | Reglamento del complejo (texto de ejemplo)       |
+| `/politica-de-cancelacion` | Política de cancelación y reembolsos (texto de ejemplo) |
 
 Cualquier otra ruta muestra una pantalla 404 temática con un botón para volver al inicio.
 

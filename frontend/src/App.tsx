@@ -7,6 +7,8 @@ import AdminPage from './pages/AdminPage'
 import LoginPage from './pages/LoginPage'
 import MyBookingsPage from './pages/MyBookingsPage'
 import NotFoundView from './pages/NotFoundView'
+import PoliticaCancelacionPage from './pages/PoliticaCancelacionPage'
+import ReglamentoPage from './pages/ReglamentoPage'
 import ReservasPage from './pages/ReservasPage'
 import TorneoPage from './pages/TorneoPage'
 import TorneosPage from './pages/TorneosPage'
@@ -37,6 +39,8 @@ export default function App(): React.JSX.Element {
           />
           <Route path="/torneos" element={<TorneosPage />} />
           <Route path="/torneos/:id" element={<TorneoPage />} />
+          <Route path="/reglamento" element={<ReglamentoPage />} />
+          <Route path="/politica-de-cancelacion" element={<PoliticaCancelacionPage />} />
           <Route path="*" element={<NotFoundView />} />
         </Routes>
       </main>

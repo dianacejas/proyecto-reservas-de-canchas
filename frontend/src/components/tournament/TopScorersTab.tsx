@@ -50,7 +50,7 @@ export default function TopScorersTab({ rows }: { rows: TopScorerRow[] }): React
           return (
             <div
               key={`${row.playerName}-${row.teamId}`}
-              className={`flex flex-col items-center gap-2 rounded-2xl border border-line bg-cream px-4 py-5 text-center shadow-surface dark:border-mauve dark:bg-coffee-elev ${tone.glow}`}
+              className={`flex flex-col items-center gap-2 rounded-xl border border-line bg-cream px-4 py-5 text-center shadow-surface dark:border-mauve dark:bg-coffee-elev ${tone.glow}`}
             >
               <span className="text-2xl leading-none" aria-hidden="true">
                 {MEDALS[index]}

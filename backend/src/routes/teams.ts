@@ -16,6 +16,7 @@ router.get('/', validate(listTeamsQuerySchema, 'query'), listTeams)
 router.post('/', adminRequired, validate(createTeamSchema), createTeam)
 router.get('/:id', validate(idParamsSchema, 'params'), getTeam)
 router.put('/:id', adminRequired, validate(idParamsSchema, 'params'), validate(updateTeamSchema), updateTeam)
+router.patch('/:id', adminRequired, validate(idParamsSchema, 'params'), validate(updateTeamSchema), updateTeam)
 router.delete('/:id', adminRequired, validate(idParamsSchema, 'params'), removeTeam)
 
 export default router

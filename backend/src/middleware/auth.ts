@@ -16,7 +16,22 @@ declare global {
   }
 }
 
+function parseCookies(cookieHeader?: string): Record<string, string> {
+  const cookies: Record<string, string> = {}
+  if (!cookieHeader) return cookies
+  for (const item of cookieHeader.split(';')) {
+    const [name, ...val] = item.split('=')
+    if (name) {
+      cookies[name.trim()] = decodeURIComponent(val.join('=').trim())
+    }
+  }
+  return cookies
+}
+
 export function parseBearerToken(req: Request): string | undefined {
+  const cookies = parseCookies(req.headers.cookie)
+  if (cookies.token) return cookies.token
+
   const header = req.headers.authorization
   if (!header || !header.startsWith('Bearer ')) return undefined
   const token = header.slice('Bearer '.length).trim()

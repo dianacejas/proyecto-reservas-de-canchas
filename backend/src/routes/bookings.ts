@@ -7,6 +7,7 @@ import {
   listBookings,
   listMyBookings,
   removeBooking,
+  streamBookings,
   updateBooking,
 } from '../controllers/booking.controller.js'
 import { adminRequired, authOptional, authRequired } from '../middleware/auth.js'
@@ -22,10 +23,12 @@ import {
 
 const router = Router()
 
+router.get('/stream', streamBookings)
 router.get('/', validate(listBookingsQuerySchema, 'query'), listBookings)
 router.get('/mine', authRequired, listMyBookings)
 router.post('/', bookingCreateLimiter, authOptional, validate(createBookingSchema), createBooking)
 router.patch('/:id/cancel', authRequired, validate(idParamsSchema, 'params'), cancelMyBooking)
+router.post('/:id/cancel', authRequired, validate(idParamsSchema, 'params'), cancelMyBooking)
 router.get('/:id', validate(idParamsSchema, 'params'), getBooking)
 router.put('/:id', adminRequired, validate(idParamsSchema, 'params'), validate(updateBookingSchema), updateBooking)
 router.delete('/:id', adminRequired, validate(idParamsSchema, 'params'), removeBooking)

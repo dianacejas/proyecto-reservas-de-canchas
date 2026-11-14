@@ -158,3 +158,130 @@ export async function getTournamentTopScorers(tournamentId: string): Promise<Top
     goalsCount: row.goalsCount,
   }))
 }
+
+export interface PlayerStatsResult {
+  playerName: string
+  teamId: string
+  teamName: string
+  matchesPlayed: number
+  goalsCount: number
+  yellowCards: number
+  redCards: number
+  rank: number | null
+}
+
+export async function getPlayerStats(
+  tournamentId: string,
+  playerIdentifier: string
+): Promise<PlayerStatsResult> {
+  const tId = new Types.ObjectId(tournamentId)
+  const isObjectId = /^[0-9a-fA-F]{24}$/.test(playerIdentifier)
+
+  // 1. Buscar el equipo y jugador correspondiente
+  let team = isObjectId
+    ? await Team.findOne({ tournamentId: tId, 'players._id': new Types.ObjectId(playerIdentifier) })
+    : null
+
+  let resolvedPlayerName = ''
+
+  if (team && isObjectId) {
+    const p = (team.players as Array<{ _id?: Types.ObjectId; name: string; number: number }>).find(
+      (item) => item._id?.toString() === playerIdentifier
+    )
+    if (p) {
+      resolvedPlayerName = p.name
+    }
+  }
+
+  if (!resolvedPlayerName) {
+    // Si no vino por _id, buscamos por nombre exacto/case-insensitive en los equipos del torneo
+    const decodedName = decodeURIComponent(playerIdentifier).trim()
+    const foundTeam = await Team.findOne({
+      tournamentId: tId,
+      'players.name': { $regex: new RegExp(`^${decodedName}$`, 'i') },
+    })
+
+    if (foundTeam) {
+      team = foundTeam
+      const p = (foundTeam.players as Array<{ name: string; number: number }>).find(
+        (item) => item.name.toLowerCase() === decodedName.toLowerCase()
+      )
+      resolvedPlayerName = p ? p.name : decodedName
+    } else {
+      resolvedPlayerName = decodedName
+    }
+  }
+
+  // Si aún no encontramos equipo en el plantel, buscamos en los eventos de partidos
+  if (!team) {
+    const matchWithEvent = await Match.findOne({
+      tournamentId: tId,
+      'events.playerName': { $regex: new RegExp(`^${resolvedPlayerName}$`, 'i') },
+    })
+    if (matchWithEvent) {
+      const ev = matchWithEvent.events.find(
+        (e) => e.playerName.toLowerCase() === resolvedPlayerName.toLowerCase()
+      )
+      if (ev) {
+        team = await Team.findById(ev.teamId)
+      }
+    }
+  }
+
+  const teamIdStr = team?._id.toString() ?? ''
+  const teamNameStr = team?.name ?? 'Sin equipo'
+
+  // 2. Partidos disputados (partidos del equipo finalizados o donde participó en eventos)
+  let matchesPlayed = 0
+  if (team) {
+    matchesPlayed = await Match.countDocuments({
+      tournamentId: tId,
+      status: 'finalizado',
+      $or: [{ homeTeamId: team._id }, { awayTeamId: team._id }],
+    })
+  } else {
+    matchesPlayed = await Match.countDocuments({
+      tournamentId: tId,
+      status: 'finalizado',
+      'events.playerName': { $regex: new RegExp(`^${resolvedPlayerName}$`, 'i') },
+    })
+  }
+
+  // 3. Eventos acumulados de este jugador en el torneo
+  const matches = await Match.find({
+    tournamentId: tId,
+    status: 'finalizado',
+    'events.playerName': { $regex: new RegExp(`^${resolvedPlayerName}$`, 'i') },
+  }).select('events')
+
+  let goalsCount = 0
+  let yellowCards = 0
+  let redCards = 0
+
+  for (const match of matches) {
+    for (const ev of match.events) {
+      if (ev.playerName.toLowerCase() === resolvedPlayerName.toLowerCase()) {
+        if (ev.type === 'goal') goalsCount++
+        else if (ev.type === 'yellow_card') yellowCards++
+        else if (ev.type === 'red_card') redCards++
+      }
+    }
+  }
+
+  // 4. Posición / Ranking en la tabla de goleadores
+  const topScorers = await getTournamentTopScorers(tournamentId)
+  const rankingEntry = topScorers.find(
+    (s) => s.playerName.toLowerCase() === resolvedPlayerName.toLowerCase()
+  )
+
+  return {
+    playerName: resolvedPlayerName,
+    teamId: teamIdStr,
+    teamName: teamNameStr,
+    matchesPlayed,
+    goalsCount,
+    yellowCards,
+    redCards,
+    rank: rankingEntry ? rankingEntry.rank : null,
+  }
+}

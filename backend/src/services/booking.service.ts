@@ -1,18 +1,69 @@
 import { env } from '../config/env.js'
-import { Booking, Field, Match, type BookingDoc } from '../models/index.js'
+import { Booking, Field, Match, User, type BookingDoc } from '../models/index.js'
 import type { CreateAdminBookingInput, UpdateBookingInput } from '../schemas/index.js'
 import { AppError } from '../utils/AppError.js'
 import { assertFound } from '../utils/assertFound.js'
 import { dayStart } from '../utils/time.js'
 
-function slotHours(startTime: string, endTime: string): number {
+export function calculateSlotHours(startTime: string, endTime: string): number {
   const [startHour, startMinute] = startTime.split(':').map(Number)
   const [endHour, endMinute] = endTime.split(':').map(Number)
   return Math.max((endHour * 60 + endMinute - (startHour * 60 + startMinute)) / 60, 0)
 }
 
-function slotTotal(pricePerHour: number, startTime: string, endTime: string): number {
-  return Math.round(pricePerHour * slotHours(startTime, endTime))
+function slotHours(startTime: string, endTime: string): number {
+  return calculateSlotHours(startTime, endTime)
+}
+
+export function isPeakTime(
+  date: Date,
+  startTime: string,
+  peakHours: string[] = ['19:00', '20:00', '21:00', '22:00', '23:00']
+): boolean {
+  const d = new Date(date)
+  const dayOfWeek = d.getUTCDay()
+  const isWeekend = dayOfWeek === 0 || dayOfWeek === 6
+  if (isWeekend) return true
+
+  const startHour = startTime.slice(0, 5)
+  if (peakHours.includes(startHour)) return true
+  const [hour] = startHour.split(':').map(Number)
+  return hour >= 19
+}
+
+export function resolveFieldPricePerHour(
+  field: {
+    pricePerHour: number
+    standardPricePerHour?: number | null
+    peakPricePerHour?: number | null
+    peakHours?: string[] | null
+  },
+  date: Date,
+  startTime: string
+): number {
+  const isPeak = isPeakTime(date, startTime, field.peakHours ?? undefined)
+  if (isPeak && field.peakPricePerHour && field.peakPricePerHour > 0) {
+    return field.peakPricePerHour
+  }
+  if (!isPeak && field.standardPricePerHour && field.standardPricePerHour > 0) {
+    return field.standardPricePerHour
+  }
+  return field.pricePerHour
+}
+
+function slotTotal(
+  field: {
+    pricePerHour: number
+    standardPricePerHour?: number | null
+    peakPricePerHour?: number | null
+    peakHours?: string[] | null
+  },
+  date: Date,
+  startTime: string,
+  endTime: string
+): number {
+  const price = resolveFieldPricePerHour(field, date, startTime)
+  return Math.round(price * slotHours(startTime, endTime))
 }
 
 function dateKey(date: Date): string {
@@ -21,6 +72,18 @@ function dateKey(date: Date): string {
 
 function pendingExpiryFrom(now: Date = new Date()): Date {
   return new Date(now.getTime() + env.PENDING_TTL_MINUTES * 60 * 1000)
+}
+
+function handleBookingConflictError(err: unknown): never {
+  if (
+    typeof err === 'object' &&
+    err !== null &&
+    'code' in err &&
+    (err as { code: unknown }).code === 11000
+  ) {
+    throw new AppError(409, 'El horario solicitado ya se encuentra reservado')
+  }
+  throw err
 }
 
 export interface SlotInput {
@@ -76,20 +139,24 @@ export async function createPublicBooking(body: CreatePublicBookingInput): Promi
   const conflict = await findConflictingBooking(slot)
   if (conflict) throw new AppError(409, 'El horario solicitado ya se encuentra reservado')
 
-  const totalAmount = slotTotal(field.pricePerHour, body.startTime, body.endTime)
+  const totalAmount = slotTotal(field, body.date, body.startTime, body.endTime)
 
-  return Booking.create({
-    ...slot,
-    userId: body.userId,
-    clientInfo: body.clientInfo,
-    status: 'pendiente',
-    type: 'amistoso',
-    totalAmount,
-    depositAmount: 0,
-    remainingBalance: totalAmount,
-    paymentType: 'full',
-    expiresAt: pendingExpiryFrom(),
-  })
+  try {
+    return await Booking.create({
+      ...slot,
+      userId: body.userId,
+      clientInfo: body.clientInfo,
+      status: 'pendiente',
+      type: 'amistoso',
+      totalAmount,
+      depositAmount: 0,
+      remainingBalance: totalAmount,
+      paymentType: 'full',
+      expiresAt: pendingExpiryFrom(),
+    })
+  } catch (err) {
+    handleBookingConflictError(err)
+  }
 }
 
 export async function createTournamentBooking(
@@ -103,12 +170,16 @@ export async function createTournamentBooking(
   const conflict = await findConflictingBooking(normalized)
   if (conflict) throw new AppError(409, 'El horario asignado al partido ya se encuentra reservado')
 
-  return Booking.create({
-    ...normalized,
-    clientInfo: { name: tournamentName ?? 'Reserva de torneo', phone: '000000' },
-    status: 'confirmada',
-    type: 'torneo',
-  })
+  try {
+    return await Booking.create({
+      ...normalized,
+      clientInfo: { name: tournamentName ?? 'Reserva de torneo', phone: '000000' },
+      status: 'confirmada',
+      type: 'torneo',
+    })
+  } catch (err) {
+    handleBookingConflictError(err)
+  }
 }
 
 export async function createAdminBooking(body: CreateAdminBookingInput): Promise<BookingDoc> {
@@ -124,21 +195,25 @@ export async function createAdminBooking(body: CreateAdminBookingInput): Promise
   const conflict = await findConflictingBooking(slot)
   if (conflict) throw new AppError(409, 'El horario seleccionado ya se encuentra reservado')
 
-  if (body.kind === 'bloqueo') {
-    return Booking.create({
-      ...slot,
-      clientInfo: { name: body.clientInfo?.name ?? 'Bloqueo operativo', phone: '000000' },
-      status: 'confirmada',
-      type: 'mantenimiento',
-    })
-  }
+  try {
+    if (body.kind === 'bloqueo') {
+      return await Booking.create({
+        ...slot,
+        clientInfo: { name: body.clientInfo?.name ?? 'Bloqueo operativo', phone: '000000' },
+        status: 'confirmada',
+        type: 'mantenimiento',
+      })
+    }
 
-  return Booking.create({
-    ...slot,
-    clientInfo: body.clientInfo as CreateAdminBookingInput['clientInfo'],
-    status: 'confirmada',
-    type: 'amistoso',
-  })
+    return await Booking.create({
+      ...slot,
+      clientInfo: body.clientInfo as CreateAdminBookingInput['clientInfo'],
+      status: 'confirmada',
+      type: 'amistoso',
+    })
+  } catch (err) {
+    handleBookingConflictError(err)
+  }
 }
 
 export async function updateBookingById(
@@ -174,36 +249,67 @@ export async function updateBookingById(
   if (body.status !== undefined && body.status !== 'pendiente') {
     booking.set('expiresAt', null)
   }
-  await booking.save()
+  try {
+    await booking.save()
+  } catch (err) {
+    handleBookingConflictError(err)
+  }
   return booking
 }
 
-export async function listBookingsForUser(userId: string): Promise<BookingDoc[]> {
-  return Booking.find({ userId })
+export async function listBookingsForUser(userId: string): Promise<unknown[]> {
+  const bookings = await Booking.find({ userId })
     .populate('fieldId', 'name type pricePerHour')
     .sort({ date: 1, startTime: 1 })
+    .lean()
+  return bookings.map((b) => ({
+    ...b,
+    id: b._id.toString(),
+    fieldId:
+      typeof b.fieldId === 'object' && b.fieldId !== null && '_id' in b.fieldId
+        ? { ...b.fieldId, id: String((b.fieldId as { _id: unknown })._id) }
+        : b.fieldId,
+  }))
 }
 
-export async function cancelClientBooking(userId: string, bookingId: string): Promise<BookingDoc> {
+export async function cancelClientBooking(
+  userId: string,
+  bookingId: string,
+  isAdmin = false
+): Promise<BookingDoc> {
   const booking = assertFound(await Booking.findById(bookingId), 'Reserva no encontrada')
 
-  if (booking.userId?.toString() !== userId) {
+  if (!isAdmin && booking.userId?.toString() !== userId) {
     throw new AppError(403, 'No podés cancelar una reserva que no es tuya')
   }
   if (booking.status !== 'pendiente' && booking.status !== 'confirmada') {
     throw new AppError(409, 'La reserva ya no se puede cancelar')
   }
 
-  const turnStart = new Date(`${dateKey(booking.date)}T${booking.startTime}:00`)
-  const hoursLeft = (turnStart.getTime() - Date.now()) / 3_600_000
-  if (hoursLeft <= env.CANCEL_WINDOW_HOURS) {
-    throw new AppError(
-      409,
-      `Solo podés cancelar con más de ${env.CANCEL_WINDOW_HOURS} horas de anticipación`
-    )
+  const turnStart = new Date(`${dateKey(booking.date)}T${booking.startTime}:00-03:00`)
+  const diffHours = (turnStart.getTime() - Date.now()) / 3_600_000
+
+  if (diffHours >= 24) {
+    booking.set({
+      status: 'cancelada',
+      expiresAt: null,
+      activeSlotKey: null,
+      creditNote: booking.depositAmount,
+      retainedDeposit: false,
+    })
+    if (booking.userId && booking.depositAmount > 0) {
+      await User.updateOne({ _id: booking.userId }, { $inc: { creditBalance: booking.depositAmount } })
+    }
+  } else {
+    booking.set({
+      status: 'cancelada',
+      expiresAt: null,
+      activeSlotKey: null,
+      creditNote: 0,
+      retainedDeposit: true,
+    })
   }
 
-  booking.set({ status: 'cancelada', expiresAt: null })
   await booking.save()
   await Match.updateMany({ bookingId: booking._id }, { $set: { bookingId: null } })
   return booking

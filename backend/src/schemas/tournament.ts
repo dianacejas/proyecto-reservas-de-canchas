@@ -23,3 +23,10 @@ export const listTournamentsQuerySchema = z.object({
 })
 
 export type ListTournamentsQuery = z.infer<typeof listTournamentsQuerySchema>
+
+export const playerStatsParamsSchema = z.object({
+  tournamentId: z.string().trim().min(1, 'ID de torneo requerido'),
+  playerId: z.string().trim().min(1, 'ID o nombre de jugador requerido'),
+})
+
+export type PlayerStatsParams = z.infer<typeof playerStatsParamsSchema>

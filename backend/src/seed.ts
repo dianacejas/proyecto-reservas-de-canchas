@@ -1,4 +1,5 @@
 import { randomBytes } from 'node:crypto'
+import { fileURLToPath } from 'node:url'
 import mongoose from 'mongoose'
 import { connectDB } from './config/db.js'
 import { Booking, Field, Match, Team, Tournament, User } from './models/index.js'
@@ -16,47 +17,29 @@ function nextDay(daysFromNow: number): Date {
   return new Date(Date.now() + daysFromNow * 24 * 60 * 60 * 1000)
 }
 
-async function seed(): Promise<void> {
-  await connectDB()
-
+export async function runResetSeed(): Promise<Record<string, number>> {
   await Promise.all([
-    Field.deleteMany({}),
     Booking.deleteMany({}),
     Team.deleteMany({}),
     Match.deleteMany({}),
     Tournament.deleteMany({}),
-    User.deleteMany({}),
   ])
 
-  const seedAdminEmail = process.env.SEED_ADMIN_EMAIL ?? 'admin@ejemplo.com'
-  const seedAdminPassword = process.env.SEED_ADMIN_PASSWORD ?? randomBytes(12).toString('hex')
-  const seedClientEmail = process.env.SEED_CLIENT_EMAIL ?? 'cliente@ejemplo.com'
-  const seedClientPassword = process.env.SEED_CLIENT_PASSWORD ?? randomBytes(12).toString('hex')
+  let canchas = await Field.find({ isActive: true })
+  if (canchas.length < 2) {
+    await Field.deleteMany({})
+    canchas = await Field.create([
+      { name: 'Cancha Alpha', pricePerHour: 120000, isActive: true },
+      { name: 'Cancha Beta', pricePerHour: 140000, isActive: true },
+    ])
+  }
 
-  await User.create([
-    {
-      name: 'Administrador',
-      email: seedAdminEmail,
-      passwordHash: hashPassword(seedAdminPassword),
-      role: 'admin',
-    },
-    {
-      name: 'Juan Pérez',
-      email: seedClientEmail,
-      passwordHash: hashPassword(seedClientPassword),
-      role: 'cliente',
-    },
-  ])
-
-  const [canchaAlpha, canchaBeta] = await Field.create([
-    { name: 'Cancha Alpha', pricePerHour: 120000 },
-    { name: 'Cancha Beta', pricePerHour: 140000 },
-  ])
-
-  const torneo = await Tournament.create({ name: 'Copa Fin de Semana 2026' })
-  const tournamentId = torneo._id.toString()
+  const [canchaAlpha, canchaBeta] = canchas
   const campoAId = canchaAlpha._id.toString()
   const campoBId = canchaBeta._id.toString()
+
+  const torneo = await Tournament.create({ name: 'Copa Fin de Semana 2026', status: 'en_curso' })
+  const tournamentId = torneo._id.toString()
 
   const groupANames = ['Los Gladiadores', 'FC Rayos', 'Deportivo Norte', 'Atlético Sur']
   const groupBNames = ['Real Viento', 'Storm Fútbol', 'Academia Cruz', 'Club Estrella']
@@ -167,22 +150,59 @@ async function seed(): Promise<void> {
     clientInfo: { name: 'Daniel Pérez', phone: '3001234567' },
   })
 
-  const summary = {
+  return {
     canchas: await Field.countDocuments(),
     torneos: await Tournament.countDocuments(),
     equipos: await Team.countDocuments(),
     partidos: await Match.countDocuments(),
     reservas: await Booking.countDocuments(),
-    usuarios: await User.countDocuments(),
   }
-  console.log('Seed completado:', summary)
+}
+
+async function cliSeed(): Promise<void> {
+  await connectDB()
+
+  await Promise.all([
+    Field.deleteMany({}),
+    Booking.deleteMany({}),
+    Team.deleteMany({}),
+    Match.deleteMany({}),
+    Tournament.deleteMany({}),
+    User.deleteMany({}),
+  ])
+
+  const seedAdminEmail = process.env.SEED_ADMIN_EMAIL ?? 'admin@ejemplo.com'
+  const seedAdminPassword = process.env.SEED_ADMIN_PASSWORD ?? randomBytes(12).toString('hex')
+  const seedClientEmail = process.env.SEED_CLIENT_EMAIL ?? 'cliente@ejemplo.com'
+  const seedClientPassword = process.env.SEED_CLIENT_PASSWORD ?? randomBytes(12).toString('hex')
+
+  await User.create([
+    {
+      name: 'Administrador',
+      email: seedAdminEmail,
+      passwordHash: hashPassword(seedAdminPassword),
+      role: 'admin',
+    },
+    {
+      name: 'Juan Pérez',
+      email: seedClientEmail,
+      passwordHash: hashPassword(seedClientPassword),
+      role: 'cliente',
+    },
+  ])
+
+  const summary = await runResetSeed()
+  console.log('Seed completado:', { ...summary, usuarios: await User.countDocuments() })
   console.log('Usuarios de prueba creados:')
   console.log(`  admin:   ${seedAdminEmail} / ${seedAdminPassword}`)
   console.log(`  cliente: ${seedClientEmail} / ${seedClientPassword}`)
   await mongoose.disconnect()
 }
 
-seed().catch((err) => {
-  console.error('Error durante el seed:', err)
-  process.exit(1)
-})
+// Ejecutar si se llama directamente con node/tsx
+if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+  cliSeed().catch((err) => {
+    console.error('Error durante el seed:', err)
+    process.exit(1)
+  })
+}

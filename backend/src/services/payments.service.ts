@@ -1,8 +1,12 @@
 import { env } from '../config/env.js'
-import { Booking, Field, Payment, type PaymentDoc } from '../models/index.js'
+import { Booking, Field, Payment, ProcessedPayment, type PaymentDoc } from '../models/index.js'
 import { AppError } from '../utils/AppError.js'
 import { assertFound } from '../utils/assertFound.js'
 import { sendBookingConfirmationEmail } from './email.service.js'
+import { broadcastBookingStream } from './bookingSse.service.js'
+import { calculateSlotHours, resolveFieldPricePerHour } from './booking.service.js'
+
+export { calculateSlotHours }
 
 export type PaymentType = 'deposit' | 'full'
 
@@ -18,17 +22,35 @@ export interface CheckoutResult {
   depositPercent: number
 }
 
-function slotTotal(pricePerHour: number, startTime: string, endTime: string): number {
-  const [startHour, startMinute] = startTime.split(':').map(Number)
-  const [endHour, endMinute] = endTime.split(':').map(Number)
-  const hours = Math.max((endHour * 60 + endMinute - (startHour * 60 + startMinute)) / 60, 0)
-  return Math.round(pricePerHour * hours)
+export function calculateSlotTotal(
+  pricePerHour: number,
+  startTime: string,
+  endTime: string
+): number {
+  return Math.round(pricePerHour * calculateSlotHours(startTime, endTime))
 }
 
-async function bookingTotal(booking: { fieldId: unknown; startTime: string; endTime: string }): Promise<number> {
+export function calculatePaymentBreakdown(
+  totalAmount: number,
+  depositPercent: number,
+  paymentType: PaymentType = 'full'
+): { amount: number; depositAmount: number; remainingBalance: number } {
+  const depositAmount =
+    paymentType === 'deposit' ? Math.round((totalAmount * depositPercent) / 100) : totalAmount
+  const remainingBalance = totalAmount - depositAmount
+  return { amount: depositAmount, depositAmount, remainingBalance }
+}
+
+async function bookingTotal(booking: {
+  fieldId: unknown
+  date: Date
+  startTime: string
+  endTime: string
+}): Promise<number> {
   const field = await Field.findOne({ _id: booking.fieldId, isActive: true })
   if (!field) throw new AppError(404, 'La cancha asociada no está disponible')
-  return slotTotal(field.pricePerHour, booking.startTime, booking.endTime)
+  const price = resolveFieldPricePerHour(field, booking.date, booking.startTime)
+  return calculateSlotTotal(price, booking.startTime, booking.endTime)
 }
 
 async function createMercadoPagoPreference(amount: number, paymentId: string): Promise<{ id: string; init_point: string }> {
@@ -93,10 +115,8 @@ export async function createCheckout(
   }
 
   const totalAmount = await bookingTotal(booking)
-  const depositAmount =
-    paymentType === 'deposit' ? Math.round((totalAmount * env.DEPOSIT_PERCENT) / 100) : totalAmount
-  const remainingBalance = totalAmount - depositAmount
-  const amount = depositAmount
+  const breakdown = calculatePaymentBreakdown(totalAmount, env.DEPOSIT_PERCENT, paymentType)
+  const { amount, depositAmount, remainingBalance } = breakdown
 
   booking.set({ totalAmount, depositAmount, remainingBalance, paymentType })
   await booking.save()
@@ -136,18 +156,54 @@ export async function createCheckout(
 }
 
 /**
- * Marca el pago como pagado, confirma la reserva y dispara el comprobante por
- * email. Los llamadores verifican antes que el pago no esté ya en un estado
- * terminal para no reenviar el email.
+ * Marca el pago como pagado de forma estrictamente atómica, confirma la reserva
+ * y dispara el comprobante por email únicamente si la transición ocurrió en esta
+ * invocación, garantizando idempotencia ante reintentos de webhooks o llamadas duplicadas.
  */
-async function settlePayment(payment: Pick<PaymentDoc, 'bookingId' | '_id'>): Promise<void> {
-  await Payment.updateOne({ _id: payment._id }, { $set: { status: 'pagado' } })
-  await Booking.updateOne(
-    { _id: payment.bookingId },
-    { $set: { status: 'confirmada', expiresAt: null } }
+async function settlePayment(
+  payment: Pick<PaymentDoc, 'bookingId' | '_id' | 'paymentType' | 'amount'>,
+  mpPaymentId?: string
+): Promise<PaymentDoc | null> {
+  const updated = await Payment.findOneAndUpdate(
+    { _id: payment._id, status: { $ne: 'pagado' } },
+    { $set: { status: 'pagado' } },
+    { new: true }
   )
+  if (!updated) return null
+
+  const booking = await Booking.findById(payment.bookingId)
+  if (booking) {
+    const depositToDeduct =
+      payment.paymentType === 'deposit'
+        ? (booking.depositAmount || payment.amount)
+        : (booking.totalAmount || payment.amount)
+    const remainingBalance = Math.max(0, (booking.totalAmount || 0) - depositToDeduct)
+    const paymentStatus = payment.paymentType === 'deposit' ? 'senia_pagada' : 'liquidada'
+
+    await Booking.updateOne(
+      { _id: payment.bookingId },
+      { $set: { status: 'confirmada', expiresAt: null, remainingBalance, paymentStatus } }
+    )
+
+    broadcastBookingStream({
+      courtId: booking.fieldId.toString(),
+      date: new Date(booking.date).toISOString().slice(0, 10),
+      timeSlot: `${booking.startTime}-${booking.endTime}`,
+      status: 'confirmada',
+    })
+
+    if (mpPaymentId) {
+      await ProcessedPayment.findOneAndUpdate(
+        { paymentId: mpPaymentId },
+        { $setOnInsert: { paymentId: mpPaymentId, bookingId: booking._id, status: 'approved' } },
+        { upsert: true }
+      )
+    }
+  }
+
   // Fire-and-forget: el envío del email nunca debe bloquear ni romper el pago.
   void sendBookingConfirmationEmail(payment.bookingId.toString())
+  return updated
 }
 
 export async function confirmSandboxPayment(paymentId: string): Promise<PaymentDoc> {
@@ -160,8 +216,8 @@ export async function confirmSandboxPayment(paymentId: string): Promise<PaymentD
     throw new AppError(409, 'El pago ya no está vigente')
   }
 
-  await settlePayment(payment)
-  return payment
+  const settled = await settlePayment(payment)
+  return settled ?? payment
 }
 
 export interface MercadoPagoPayment {
@@ -195,6 +251,7 @@ export async function fetchMercadoPagoPayment(paymentId: string): Promise<Mercad
 export async function confirmMercadoPagoPayment(
   mercadoPagoPayment: MercadoPagoPayment
 ): Promise<PaymentDoc | null> {
+  const mpPaymentId = String(mercadoPagoPayment.id)
   if (mercadoPagoPayment.status !== 'approved') return null
 
   const reference = mercadoPagoPayment.external_reference
@@ -202,11 +259,18 @@ export async function confirmMercadoPagoPayment(
 
   const payment = await Payment.findById(reference)
   if (!payment) return null
-  if (payment.status === 'pagado') return payment
+  if (payment.status === 'pagado') {
+    await ProcessedPayment.findOneAndUpdate(
+      { paymentId: mpPaymentId },
+      { $setOnInsert: { paymentId: mpPaymentId, bookingId: payment.bookingId, status: mercadoPagoPayment.status } },
+      { upsert: true }
+    )
+    return payment
+  }
   if (payment.status === 'cancelado' || payment.status === 'fallido') return null
 
-  await settlePayment(payment)
-  return payment
+  const settled = await settlePayment(payment, mpPaymentId)
+  return settled ?? payment
 }
 
 export async function getPaymentInfo(paymentId: string): Promise<PaymentDoc> {

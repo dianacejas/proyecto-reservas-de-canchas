@@ -6,6 +6,7 @@ const userSchema = new Schema(
     email: { type: String, required: true, trim: true, lowercase: true, unique: true, index: true },
     passwordHash: { type: String, required: true },
     role: { type: String, enum: ['admin', 'cliente'], default: 'cliente' },
+    creditBalance: { type: Number, default: 0 },
   },
   {
     timestamps: true,

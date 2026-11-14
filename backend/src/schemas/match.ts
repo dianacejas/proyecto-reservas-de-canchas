@@ -35,6 +35,7 @@ const matchFields = {
   homePenalties: z.number().int().min(0).nullable(),
   awayPenalties: z.number().int().min(0).nullable(),
   status: matchStatusSchema,
+  mvpPlayer: z.string().trim().nullable().optional(),
   bookingId: objectIdSchema.nullable(),
   nextMatchId: objectIdSchema.nullable(),
 }
@@ -100,6 +101,7 @@ export const updateMatchScoreSchema = z
     awayGoals: z.number().int().min(0),
     homePenalties: z.number().int().min(0).optional(),
     awayPenalties: z.number().int().min(0).optional(),
+    mvpPlayer: z.string().trim().nullable().optional(),
     ...eventsField,
   })
   .superRefine((score, ctx) => {

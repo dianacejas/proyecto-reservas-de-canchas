@@ -30,6 +30,7 @@ const matchSchema = new Schema(
     awayPenalties: { type: Number, min: 0, default: null },
     status: { type: String, enum: ['programado', 'finalizado'], default: 'programado' },
     events: { type: [matchEventSchema], default: [] },
+    mvpPlayer: { type: String, trim: true, default: null },
     bookingId: { type: Schema.Types.ObjectId, ref: 'Booking', default: null },
     nextMatchId: { type: Schema.Types.ObjectId, ref: 'Match', default: null },
   },

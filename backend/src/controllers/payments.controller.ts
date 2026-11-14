@@ -1,6 +1,7 @@
 import { createHmac, timingSafeEqual } from 'node:crypto'
 import type { Request } from 'express'
 import { env } from '../config/env.js'
+import { ProcessedPayment } from '../models/index.js'
 import type { CheckoutInput, PaymentIdParams } from '../schemas/index.js'
 import { asyncHandler } from '../utils/asyncHandler.js'
 import {
@@ -13,17 +14,17 @@ import {
 
 export const checkout = asyncHandler(async (req, res) => {
   const body = req.validData.body as CheckoutInput
-  res.status(201).json({ data: await createCheckout(body.bookingId, body.paymentType) })
+  res.status(201).json({ success: true, data: await createCheckout(body.bookingId, body.paymentType) })
 })
 
 export const confirmSandbox = asyncHandler(async (req, res) => {
   const { paymentId } = req.validData.params as PaymentIdParams
-  res.json({ data: await confirmSandboxPayment(paymentId) })
+  res.json({ success: true, data: await confirmSandboxPayment(paymentId) })
 })
 
 export const getPayment = asyncHandler(async (req, res) => {
   const { paymentId } = req.validData.params as PaymentIdParams
-  res.json({ data: await getPaymentInfo(paymentId) })
+  res.json({ success: true, data: await getPaymentInfo(paymentId) })
 })
 
 /** Extrae el id del pago desde el body (formato nuevo) o el query (IPN viejo). */
@@ -81,6 +82,12 @@ export const handleWebhook = asyncHandler(async (req, res) => {
 
   if (!isValidSignature(req, paymentId)) {
     res.status(401).json({ error: { message: 'Firma del webhook inválida' } })
+    return
+  }
+
+  const alreadyProcessed = await ProcessedPayment.findOne({ paymentId })
+  if (alreadyProcessed) {
+    res.status(200).json({ status: 'already_processed', message: 'Pago ya procesado' })
     return
   }
 

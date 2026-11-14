@@ -5,6 +5,7 @@ import {
   createTournament,
   generatePlayoffsController,
   getPlayoffBracketController,
+  getPlayerStatsController,
   getTopScorersController,
   getTournament,
   getTournamentStandings,
@@ -44,6 +45,7 @@ router.get('/:id/playoffs', validate(idParamsSchema, 'params'), getPlayoffBracke
 router.post('/:id/playoffs', adminRequired, validate(idParamsSchema, 'params'), validate(generatePlayoffsSchema), generatePlayoffsController)
 router.get('/:id/stats', validate(idParamsSchema, 'params'), getTournamentStatsController)
 router.get('/:id/top-scorers', validate(idParamsSchema, 'params'), getTopScorersController)
+router.get('/:tournamentId/players/:playerId/stats', getPlayerStatsController)
 router.get(
   '/:id/registrations',
   adminRequired,
@@ -72,6 +74,7 @@ router.post(
 )
 router.get('/:id', validate(idParamsSchema, 'params'), getTournament)
 router.put('/:id', adminRequired, validate(idParamsSchema, 'params'), validate(updateTournamentSchema), updateTournament)
+router.patch('/:id', adminRequired, validate(idParamsSchema, 'params'), validate(updateTournamentSchema), updateTournament)
 router.delete('/:id', adminRequired, validate(idParamsSchema, 'params'), removeTournament)
 
 export default router

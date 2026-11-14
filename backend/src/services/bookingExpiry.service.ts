@@ -14,7 +14,7 @@ export async function cancelExpiredPendingBookings(now: Date = new Date()): Prom
   await Match.updateMany({ bookingId: { $in: ids } }, { $set: { bookingId: null } })
   const result = await Booking.updateMany(
     { _id: { $in: ids } },
-    { $set: { status: 'cancelada', expiresAt: null } }
+    { $set: { status: 'cancelada', expiresAt: null, activeSlotKey: null } }
   )
 
   return result.modifiedCount

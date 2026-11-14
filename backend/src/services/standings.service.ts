@@ -19,6 +19,14 @@ export interface GroupStandings {
   rows: StandingRow[]
 }
 
+export interface MatchRecord {
+  homeTeamId: string | null
+  awayTeamId: string | null
+  homeGoals?: number | null
+  awayGoals?: number | null
+  status?: string
+}
+
 interface TeamStats {
   name: string
   played: number
@@ -30,18 +38,13 @@ interface TeamStats {
   points: number
 }
 
-export async function getGroupStandings(
-  tournamentId: string,
-  group: string
-): Promise<GroupStandings> {
-  const [teams, matches] = await Promise.all([
-    Team.find({ tournamentId, group }),
-    Match.find({ tournamentId, group, status: 'finalizado' }),
-  ])
-
+export function computeStandings(
+  teams: { id: string; name: string }[],
+  matches: MatchRecord[]
+): StandingRow[] {
   const stats = new Map<string, TeamStats>()
   for (const team of teams) {
-    stats.set(team._id.toString(), {
+    stats.set(team.id, {
       name: team.name,
       played: 0,
       won: 0,
@@ -54,7 +57,8 @@ export async function getGroupStandings(
   }
 
   for (const match of matches) {
-    if (match.homeTeamId === null || match.homeTeamId === undefined || match.awayTeamId === null || match.awayTeamId === undefined) continue
+    if (match.status !== undefined && match.status !== 'finalizado') continue
+    if (match.homeTeamId === null || match.awayTeamId === null) continue
     const homeKey = match.homeTeamId.toString()
     const awayKey = match.awayTeamId.toString()
     const home = stats.get(homeKey)
@@ -84,11 +88,11 @@ export async function getGroupStandings(
     }
   }
 
-  const rows: StandingRow[] = [...stats.entries()]
+  return [...stats.entries()]
     .sort(
       ([aKey, a], [bKey, b]) =>
         b.points - a.points ||
-        (b.goalsFor - b.goalsAgainst) - (a.goalsFor - a.goalsAgainst) ||
+        b.goalsFor - b.goalsAgainst - (a.goalsFor - a.goalsAgainst) ||
         b.goalsFor - a.goalsFor ||
         aKey.localeCompare(bKey)
     )
@@ -105,6 +109,25 @@ export async function getGroupStandings(
       goalDifference: s.goalsFor - s.goalsAgainst,
       points: s.points,
     }))
+}
 
-  return { group, rows }
+export async function getGroupStandings(
+  tournamentId: string,
+  group: string
+): Promise<GroupStandings> {
+  const [teams, matches] = await Promise.all([
+    Team.find({ tournamentId, group }),
+    Match.find({ tournamentId, group, status: 'finalizado' }),
+  ])
+
+  const formattedTeams = teams.map((t) => ({ id: t._id.toString(), name: t.name }))
+  const formattedMatches: MatchRecord[] = matches.map((m) => ({
+    homeTeamId: m.homeTeamId ? m.homeTeamId.toString() : null,
+    awayTeamId: m.awayTeamId ? m.awayTeamId.toString() : null,
+    homeGoals: m.homeGoals ?? null,
+    awayGoals: m.awayGoals ?? null,
+    status: m.status,
+  }))
+
+  return { group, rows: computeStandings(formattedTeams, formattedMatches) }
 }

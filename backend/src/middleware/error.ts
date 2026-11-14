@@ -8,18 +8,30 @@ export function notFoundHandler(req: Request, _res: Response, next: NextFunction
 
 export function errorHandler(err: unknown, _req: Request, res: Response, _next: NextFunction): void {
   if (err instanceof AppError) {
-    res.status(err.statusCode).json({ error: { message: err.message, details: err.details } })
+    res.status(err.statusCode).json({
+      success: false,
+      message: err.message,
+      error: { message: err.message, details: err.details },
+    })
     return
   }
 
   if (err instanceof mongoose.Error.ValidationError) {
     const details = Object.fromEntries(Object.entries(err.errors).map(([key, e]) => [key, e.message]))
-    res.status(400).json({ error: { message: 'Datos inválidos', details } })
+    res.status(400).json({
+      success: false,
+      message: 'Datos inválidos',
+      error: { message: 'Datos inválidos', details },
+    })
     return
   }
 
   if (err instanceof mongoose.Error.CastError) {
-    res.status(400).json({ error: { message: 'ID inválido' } })
+    res.status(400).json({
+      success: false,
+      message: 'ID inválido',
+      error: { message: 'ID inválido' },
+    })
     return
   }
 
@@ -30,12 +42,18 @@ export function errorHandler(err: unknown, _req: Request, res: Response, _next: 
     err instanceof SyntaxError &&
     (err as { type?: unknown }).type === 'entity.parse.failed'
   ) {
-    res.status(400).json({ error: { message: 'JSON inválido en el cuerpo de la petición' } })
+    res.status(400).json({
+      success: false,
+      message: 'JSON inválido en el cuerpo de la petición',
+      error: { message: 'JSON inválido en el cuerpo de la petición' },
+    })
     return
   }
 
   if (err && typeof err === 'object' && (err as { code?: unknown }).code === 11000) {
     res.status(409).json({
+      success: false,
+      message: 'Conflicto: el recurso ya existe',
       error: {
         message: 'Conflicto: el recurso ya existe',
         details: (err as { keyPattern?: unknown }).keyPattern,
@@ -45,5 +63,9 @@ export function errorHandler(err: unknown, _req: Request, res: Response, _next: 
   }
 
   console.error(err)
-  res.status(500).json({ error: { message: 'Error interno del servidor' } })
+  res.status(500).json({
+    success: false,
+    message: 'Error interno del servidor',
+    error: { message: 'Error interno del servidor' },
+  })
 }

@@ -38,6 +38,7 @@ app.use(
       }
       callback(new AppError(403, 'Origen no permitido por CORS'))
     },
+    credentials: true,
   })
 )
 

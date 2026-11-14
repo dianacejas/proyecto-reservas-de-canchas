@@ -26,28 +26,31 @@ export const listMatches = asyncHandler(async (req, res) => {
       populate: { path: 'fieldId', select: 'name type' },
     })
     .sort({ matchday: 1, group: 1 })
-  res.json({ data: matches })
+    .lean()
+  res.json({ success: true, data: matches.map(m => ({ ...m, id: m._id.toString() })) })
 })
 
 export const getMatch = asyncHandler(async (req, res) => {
   const { id } = req.validData.params as IdParams
+  const match = assertFound(
+    await Match.findById(id).populate('homeTeamId awayTeamId', 'name players').lean(),
+    'Partido no encontrado'
+  )
   res.json({
-    data: assertFound(
-      await Match.findById(id).populate('homeTeamId awayTeamId', 'name players'),
-      'Partido no encontrado'
-    ),
+    success: true,
+    data: { ...match, id: match._id.toString() },
   })
 })
 
 export const createMatchController = asyncHandler(async (req, res) => {
   const body = req.validData.body as CreateMatchInput
-  res.status(201).json({ data: await createMatch(body) })
+  res.status(201).json({ success: true, data: await createMatch(body) })
 })
 
 export const updateMatch = asyncHandler(async (req, res) => {
   const { id } = req.validData.params as IdParams
   const body = req.validData.body as UpdateMatchInput
-  res.json({ data: await updateMatchById(id, body) })
+  res.json({ success: true, data: await updateMatchById(id, body) })
 })
 
 export const updateMatchScore = asyncHandler(async (req, res) => {
@@ -58,12 +61,13 @@ export const updateMatchScore = asyncHandler(async (req, res) => {
     awayGoals: body.awayGoals,
     homePenalties: body.homePenalties ?? null,
     awayPenalties: body.awayPenalties ?? null,
+    mvpPlayer: body.mvpPlayer ?? null,
     events: body.events ?? [],
   }
-  res.json({ data: await updateMatchById(id, input) })
+  res.json({ success: true, data: await updateMatchById(id, input) })
 })
 
 export const removeMatch = asyncHandler(async (req, res) => {
   const { id } = req.validData.params as IdParams
-  res.json({ data: await deleteMatchById(id) })
+  res.json({ success: true, data: await deleteMatchById(id) })
 })

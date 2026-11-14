@@ -4,16 +4,22 @@ export type PaymentType = 'deposit' | 'full'
 export type TournamentStatus = 'inscripcion' | 'en_curso' | 'finalizado'
 export type MatchStatus = 'programado' | 'finalizado'
 export type MatchFase = 'grupos' | 'octavos' | 'cuartos' | 'semifinal' | 'final'
-export type MatchEventType = 'goal' | 'yellow_card' | 'red_card'
+export type MatchEventType = 'goal' | 'gol' | 'penal' | 'yellow_card' | 'red_card'
 export type RegistrationStatus = 'pendiente_aprobacion' | 'aprobada' | 'rechazada'
 
 export interface Field {
   id: string
   name: string
   type: string
+  sport?: string
   pricePerHour: number
   imageUrl?: string
   isActive: boolean
+  active?: boolean
+  isCovered?: boolean
+  dimensions?: string
+  lighting?: string
+  features?: string[]
   createdAt: string
   updatedAt: string
 }
@@ -112,6 +118,7 @@ export interface Match {
   events: MatchEvent[]
   bookingId: MatchBookingRef | null
   nextMatchId: string | null
+  mvpPlayer?: string | null
   createdAt: string
   updatedAt: string
 }
@@ -296,4 +303,43 @@ export interface AdminCustomer {
   tasaCancelacion: number
   totalRecaudado: number
   ultimaReserva: string | null
+}
+
+export type CommunityNoticeType = 'falta_uno' | 'desafio_rival'
+export type CommunityNoticeStatus = 'abierto' | 'completado'
+
+export interface CommunityNotice {
+  id: string
+  type: CommunityNoticeType
+  title: string
+  description: string
+  date: string
+  timeSlot: string
+  courtName?: string
+  contactPhone: string
+  positionNeeded?: string
+  status: CommunityNoticeStatus
+  createdAt: string
+}
+
+export interface CreateCommunityNoticeInput {
+  type: CommunityNoticeType
+  title: string
+  description: string
+  date: string
+  timeSlot: string
+  courtName?: string
+  contactPhone: string
+  positionNeeded?: string
+}
+
+export interface PlayerStatsResult {
+  playerName: string
+  teamId: string
+  teamName: string
+  matchesPlayed: number
+  goalsCount: number
+  yellowCards: number
+  redCards: number
+  rank: number | null
 }

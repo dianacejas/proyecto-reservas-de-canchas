@@ -5,6 +5,8 @@ import type {
   Booking,
   BookingStatus,
   CheckoutResult,
+  CommunityNotice,
+  CreateCommunityNoticeInput,
   CreateRegistrationInput,
   DailyMetrics,
   Field,
@@ -14,6 +16,7 @@ import type {
   Matchday,
   Payment,
   PaymentType,
+  PlayerStatsResult,
   PlayoffBracket,
   Team,
   TopScorerRow,
@@ -303,4 +306,55 @@ export function confirmSandboxPayment(paymentId: string): Promise<Payment> {
   return apiRequest<Payment>(`/payments/sandbox/${paymentId}/confirm`, {
     method: 'POST',
   })
+}
+
+export const queryKeys = {
+  fields: () => ['fields'] as const,
+  bookings: () => ['bookings'] as const,
+  myBookings: () => ['my-bookings'] as const,
+  communityNotices: () => ['community', 'notices'] as const,
+  playerStats: (tournamentId: string, playerId: string) =>
+    ['tournaments', tournamentId, 'players', playerId, 'stats'] as const,
+}
+
+export interface UpdateCourtInput extends FieldInput {
+  isCovered?: boolean
+  dimensions?: string
+  lighting?: string
+  active?: boolean
+}
+
+export function updateCourt(id: string, input: UpdateCourtInput): Promise<Field> {
+  return apiRequest<Field>(`/fields/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(input),
+  })
+}
+
+export function listCommunityNotices(): Promise<CommunityNotice[]> {
+  return apiRequest<CommunityNotice[]>('/community/notices')
+}
+
+export function createCommunityNotice(
+  input: CreateCommunityNoticeInput
+): Promise<CommunityNotice> {
+  return apiRequest<CommunityNotice>('/community/notices', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  })
+}
+
+export function closeCommunityNotice(id: string): Promise<CommunityNotice> {
+  return apiRequest<CommunityNotice>(`/community/notices/${id}/close`, {
+    method: 'PATCH',
+  })
+}
+
+export function getPlayerStats(
+  tournamentId: string,
+  playerId: string
+): Promise<PlayerStatsResult> {
+  return apiRequest<PlayerStatsResult>(
+    `/tournaments/${tournamentId}/players/${playerId}/stats`
+  )
 }

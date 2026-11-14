@@ -29,19 +29,19 @@ export default {
         cinnamon: '#c57b57',
 
         // Superficies y neutros de la app
-        paper: '#f6f1ea',
-        cream: '#fdfbf8',
-        line: '#e8dfd4',
-        coffeeElev: '#2a1b23',
-        mauveDeep: '#35262d',
+        paper: '#f4f2ee',
+        cream: '#ffffff',
+        line: '#e7e5e4',
+        coffeeElev: '#171717',
+        mauveDeep: '#262626',
 
         // Alias semánticos (compatibilidad con roles UI)
         primary: '#c5d86d',
-        'primary-foreground': '#1a090d',
+        'primary-foreground': '#0a0a0a',
         secondary: '#c57b57',
         'secondary-foreground': '#26130b',
-        tertiary: '#52414c',
-        'tertiary-foreground': '#f3efe8',
+        tertiary: '#737373',
+        'tertiary-foreground': '#f5f5f5',
       },
       borderRadius: {
         field: 'calc(var(--radius) * 1.5)',

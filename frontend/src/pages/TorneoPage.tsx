@@ -90,7 +90,7 @@ export default function TorneoPage(): React.JSX.Element {
       <div>
         <Link
           to="/torneos"
-          className="inline-flex min-h-11 items-center text-sm text-tertiary transition-colors hover:text-coffee dark:text-mauve-soft dark:hover:text-lime"
+          className="inline-flex min-h-11 items-center text-sm transition-colors text-mauve-soft hover:text-lime"
         >
           ← Torneos
         </Link>
@@ -133,7 +133,7 @@ export default function TorneoPage(): React.JSX.Element {
               onRetry={() => void standingsQuery.refetch()}
             />
           ) : standingsQuery.data !== undefined && standingsQuery.data.length === 0 ? (
-            <p className="py-8 text-center text-sm text-tertiary dark:text-mauve-soft">
+            <p className="py-8 text-center text-sm text-mauve-soft">
               No hay equipos inscriptos todavía.
             </p>
           ) : (

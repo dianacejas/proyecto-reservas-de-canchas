@@ -145,7 +145,7 @@ export default function MyBookingsView(): React.JSX.Element {
       </div>
 
       {list.length === 0 ? (
-        <p className="rounded-xl border border-line bg-cream p-6 text-center text-sm text-tertiary dark:border-mauve dark:bg-coffee-elev dark:text-mauve-soft">
+        <p className="rounded-xl border p-6 text-center text-sm border-mauve bg-coffee-elev text-mauve-soft">
           {tab === 'upcoming'
             ? 'No tenés turnos próximos. '
             : 'Todavía no hay reservas en tu historial. '}
@@ -162,12 +162,12 @@ export default function MyBookingsView(): React.JSX.Element {
             return (
               <li
                 key={booking.id}
-                className="space-y-4 rounded-xl border border-line bg-cream p-4 shadow-surface dark:border-mauve dark:bg-coffee-elev"
+                className="space-y-4 rounded-xl border p-4 shadow-surface border-mauve bg-coffee-elev"
               >
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
-                    <p className="font-semibold text-coffee dark:text-[#f3efe8]">{fieldName}</p>
-                    <p className="text-sm text-tertiary dark:text-mauve-soft">
+                    <p className="font-semibold text-[#f3efe8]">{fieldName}</p>
+                    <p className="text-sm text-mauve-soft">
                       {formatLong(bookingDay(booking.date))} · {booking.startTime} a {booking.endTime}
                     </p>
                   </div>
@@ -267,11 +267,11 @@ function Amount({
   isCurrency?: boolean
 }): React.JSX.Element {
   return (
-    <div className="rounded-lg border border-line bg-paper/70 px-3 py-2 dark:border-mauve dark:bg-mauve-deep/60">
-      <p className="text-xs text-tertiary dark:text-mauve-soft">{label}</p>
+    <div className="rounded-lg border bg-paper/70 px-3 py-2 border-mauve bg-mauve-deep/60">
+      <p className="text-xs text-mauve-soft">{label}</p>
       <p
         className={`font-semibold ${
-          highlight ? 'text-coffee dark:text-lime' : 'text-coffee dark:text-[#f3efe8]'
+          highlight ? 'text-lime' : 'text-[#f3efe8]'
         }`}
       >
         {isCurrency ? formatCurrency(Number(value)) : value}

@@ -20,8 +20,8 @@ interface LegalSectionProps {
 export function LegalSection({ title, children }: LegalSectionProps): React.JSX.Element {
   return (
     <section className="space-y-2">
-      <h2 className="text-base font-bold tracking-tight text-coffee dark:text-[#f3efe8]">{title}</h2>
-      <div className="space-y-2 text-sm leading-relaxed text-tertiary dark:text-mauve-soft">
+      <h2 className="text-base font-bold tracking-tight text-[#f3efe8]">{title}</h2>
+      <div className="space-y-2 text-sm leading-relaxed text-mauve-soft">
         {children}
       </div>
     </section>
@@ -46,19 +46,19 @@ export default function LegalPageLayout({
   return (
     <article className="mx-auto w-full max-w-3xl">
       <header>
-        <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-mauve/30 bg-lime/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-coffee dark:border-lime/30 dark:bg-lime/10 dark:text-lime">
+        <div className="mb-2 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] border-lime/30 bg-lime/10 text-lime">
           {eyebrow}
         </div>
         <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
-        <p className="mt-1 text-sm text-tertiary dark:text-mauve-soft">{intro}</p>
-        <p className="mt-2 text-xs text-neutral-500 dark:text-mauve-soft">
+        <p className="mt-1 text-sm text-mauve-soft">{intro}</p>
+        <p className="mt-2 text-xs text-mauve-soft">
           Última actualización: {updatedAt}
         </p>
       </header>
 
       <div
         role="note"
-        className="mt-5 flex items-start gap-2.5 rounded-xl border border-amber-300/70 bg-amber-50 p-3 text-xs leading-relaxed text-amber-900 dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-200"
+        className="mt-5 flex items-start gap-2.5 rounded-xl border p-3 text-xs leading-relaxed border-amber-400/30 bg-amber-400/10 text-amber-200"
       >
         <AlertIcon className="mt-0.5 size-4 shrink-0" />
         <p>
@@ -68,14 +68,14 @@ export default function LegalPageLayout({
         </p>
       </div>
 
-      <div className="mt-5 space-y-6 rounded-xl border border-line bg-cream p-5 shadow-surface dark:border-mauve dark:bg-coffee-elev sm:p-6">
+      <div className="mt-5 space-y-6 rounded-xl border p-5 shadow-surface border-mauve bg-coffee-elev sm:p-6">
         {children}
       </div>
 
       <div className="mt-6 text-xs">
         <Link
           to="/"
-          className="inline-flex items-center gap-1.5 text-neutral-500 transition-colors hover:text-neutral-900 dark:text-mauve-soft dark:hover:text-[#c5d86d]"
+          className="inline-flex items-center gap-1.5 transition-colors text-mauve-soft hover:text-[#c5d86d]"
         >
           <span aria-hidden="true">←</span>
           Volver al inicio

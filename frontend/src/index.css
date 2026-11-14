@@ -18,19 +18,19 @@
   --color-cinnamon: #c57b57;
 
   /* Superficies y neutros de la app */
-  --color-paper: #f6f1ea;
-  --color-cream: #fdfbf8;
-  --color-line: #e8dfd4;
-  --color-coffee-elev: #2a1b23;
-  --color-mauve-deep: #35262d;
+  --color-paper: #f4f2ee;
+  --color-cream: #ffffff;
+  --color-line: #e7e5e4;
+  --color-coffee-elev: #171717;
+  --color-mauve-deep: #262626;
 
   /* Alias semánticos */
   --color-primary: #c5d86d;
-  --color-primary-foreground: #1a090d;
+  --color-primary-foreground: #0a0a0a;
   --color-secondary: #c57b57;
   --color-secondary-foreground: #26130b;
-  --color-tertiary: #52414c;
-  --color-tertiary-foreground: #f3efe8;
+  --color-tertiary: #737373;
+  --color-tertiary-foreground: #f5f5f5;
 
   /* Animaciones de marca */
   --animate-fade-in-up: fade-in-up 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -63,12 +63,9 @@
 }
 
 html {
-  color-scheme: light;
-}
-
-html.dark,
-html[data-theme='dark'] {
   color-scheme: dark;
+  scroll-behavior: smooth;
+  scroll-padding-top: 100px;
 }
 
 html,
@@ -79,9 +76,9 @@ body,
 
 body {
   margin: 0;
-  /* Los scrollers internos (tabla de posiciones, bracket) son los unicos
-     autorizados a deslocar en horizontal. En el body cualquier desborde es
-     un bug de layout, asi que se corta. */
+  background-color: #0a0a0a;
+  color: #f5f5f5;
+  font-family: system-ui, -apple-system, sans-serif;
   overflow-x: hidden;
   -webkit-text-size-adjust: 100%;
 }
@@ -92,128 +89,68 @@ body {
 }
 
 /* ==========================================================================
-   Tema "Copa 5" — overrides de las variables semánticas de @heroui/styles.
-   Las variables se usan en cascada dentro de los componentes (vía @theme
-   inline) y el resto de derivados (-hover, -soft, background-secondary, etc.)
-   se recalculan automáticamente con color-mix sobre estas bases.
-   Se declaran SIN capa para ganar a `@layer theme` de HeroUI.
+   Tema "Copa 5" — Modo oscuro exclusivo (:root)
    ========================================================================== */
-
-/* ---- Modo claro ---- */
-:root {
-  /* Base */
-  --background: #f6f1ea;
-  --foreground: #1a090d;
-  --background-secondary: color-mix(in oklab, var(--foreground) 4%, var(--background) 96%);
-  --background-tertiary: color-mix(in oklab, var(--foreground) 8%, var(--background) 92%);
-
-  /* Superficies */
-  --surface: #fdfbf8;
-  --surface-foreground: #1a090d;
-  --surface-secondary: #f1ebe3;
-  --surface-secondary-foreground: #1a090d;
-  --surface-tertiary: #ece5dc;
-  --surface-tertiary-foreground: #1a090d;
-
-  /* Overlay (modales, popovers) */
-  --overlay: #fdfbf8;
-  --overlay-foreground: #1a090d;
-
-  --muted: #8a7d73;
-  --default: #e3d8cc;
-  --default-foreground: #2b1a12;
-  --default-hover: color-mix(in oklab, var(--foreground) 6%, var(--default) 94%);
-
-  /* Precisión de foco (oliva oscuro: legible sobre papel) */
-  --focus: #6b7826;
-
-  /* Acento lime (oscurecido para contraste AA sobre fondos claros) */
-  --accent: #b6c85c;
-  --accent-foreground: #1a090d;
-  --accent-hover: color-mix(in oklab, var(--accent-foreground) 8%, var(--accent) 92%);
-
-  /* Estados */
-  --success: #1f4426;
-  --success-foreground: #f4f0e8;
-  --warning: #c57b57;
-  --warning-foreground: #26130b;
-  --danger: #b8433d;
-  --danger-foreground: #fdfbf8;
-
-  /* Segment / tabs */
-  --segment: #c5d86d;
-  --segment-foreground: #1a090d;
-
-  /* Líneas y separadores */
-  --border: #e6dbcf;
-  --separator: #ece3d8;
-  --link: var(--focus);
-
-  /* Form fields */
-  --field-background: #ffffff;
-  --field-foreground: #241a12;
-  --field-placeholder: var(--muted);
-  --field-border: var(--border);
-
-  --backdrop: rgba(26, 9, 13, 0.45);
-}
-
-/* ---- Modo oscuro (por defecto) ---- */
+:root,
 .dark,
 [data-theme='dark'],
 :host(.dark),
 :host([data-theme='dark']) {
   /* Base */
-  --background: #1a090d;
-  --foreground: #f3efe8;
+  --background: #0a0a0a;
+  --foreground: #f5f5f5;
+  --background-secondary: color-mix(in oklab, var(--foreground) 4%, var(--background) 96%);
+  --background-tertiary: color-mix(in oklab, var(--foreground) 8%, var(--background) 92%);
 
-  /* Superficies (tonos mauve-oscuras derivadas de Coffee Bean) */
-  --surface: #2a1b23;
-  --surface-foreground: #f3efe8;
-  --surface-secondary: #35262d;
-  --surface-secondary-foreground: #f3efe8;
-  --surface-tertiary: #3b2c34;
-  --surface-tertiary-foreground: #f3efe8;
+  /* Superficies neutras carbón */
+  --surface: #171717;
+  --surface-foreground: #f5f5f5;
+  --surface-secondary: #262626;
+  --surface-secondary-foreground: #f5f5f5;
+  --surface-tertiary: #2e2e2e;
+  --surface-tertiary-foreground: #f5f5f5;
 
-  /* Overlay (modales) un paso más claro que las superficies */
-  --overlay: #33242c;
-  --overlay-foreground: #f3efe8;
+  /* Overlay (modales) */
+  --overlay: #171717;
+  --overlay-foreground: #f5f5f5;
 
-  --muted: #a89a9f;
-  --default: #52414c;
-  --default-foreground: #f3efe8;
+  --muted: #a3a3a3;
+  --default: #262626;
+  --default-foreground: #f5f5f5;
+  --default-hover: color-mix(in oklab, var(--foreground) 6%, var(--default) 94%);
 
-  /* Foco lime: contraste alto sobre coffee */
+  /* Foco lime: contraste alto sobre oscuro */
   --focus: #c5d86d;
 
-  /* Acento lime cream puro */
+  /* Acento lime institucional */
   --accent: #c5d86d;
-  --accent-foreground: #1a090d;
+  --accent-foreground: #0a0a0a;
+  --accent-hover: color-mix(in oklab, var(--accent-foreground) 8%, var(--accent) 92%);
 
   /* Estados */
-  --success: #a3e635;
-  --success-foreground: #14180c;
+  --success: #c5d86d;
+  --success-foreground: #0a0a0a;
   --warning: #c57b57;
-  --warning-foreground: #1a090d;
-  --danger: #c1514a;
-  --danger-foreground: #fdf8f0;
+  --warning-foreground: #0a0a0a;
+  --danger: #ef4444;
+  --danger-foreground: #fafafa;
 
   /* Segment / tabs (pestaña activa lime) */
   --segment: #c5d86d;
-  --segment-foreground: #1a090d;
+  --segment-foreground: #0a0a0a;
 
-  /* Líneas y separadores (Mauve Shadow) */
-  --border: #52414c;
-  --separator: #3b2b33;
+  /* Líneas y separadores */
+  --border: #262626;
+  --separator: #262626;
   --link: var(--accent);
 
   /* Form fields */
-  --field-background: #2a1b23;
-  --field-foreground: #f3efe8;
+  --field-background: #171717;
+  --field-foreground: #f5f5f5;
   --field-placeholder: var(--muted);
   --field-border: var(--border);
 
-  --backdrop: rgba(4, 1, 2, 0.6);
+  --backdrop: rgba(0, 0, 0, 0.65);
 }
 
 /* Backdrop de modales: fondo moteado suave */

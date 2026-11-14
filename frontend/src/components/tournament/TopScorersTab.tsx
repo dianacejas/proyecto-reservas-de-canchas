@@ -34,7 +34,7 @@ export default function TopScorersTab({ rows }: { rows: TopScorerRow[] }): React
 
   if (rows.length === 0) {
     return (
-      <p className="py-8 text-center text-sm text-tertiary dark:text-mauve-soft">
+      <p className="py-8 text-center text-sm text-mauve-soft">
         Todavía no hay goles registrados.
       </p>
     )
@@ -50,7 +50,7 @@ export default function TopScorersTab({ rows }: { rows: TopScorerRow[] }): React
           return (
             <div
               key={`${row.playerName}-${row.teamId}`}
-              className={`flex flex-col items-center gap-2 rounded-xl border border-line bg-cream px-4 py-5 text-center shadow-surface dark:border-mauve dark:bg-coffee-elev ${tone.glow}`}
+              className={`flex flex-col items-center gap-2 rounded-xl border border-neutral-800 bg-neutral-900/90 px-4 py-5 text-center shadow-surface ${tone.glow}`}
             >
               <span className="text-2xl leading-none" aria-hidden="true">
                 {MEDALS[index]}
@@ -62,12 +62,12 @@ export default function TopScorersTab({ rows }: { rows: TopScorerRow[] }): React
                 className={`w-full rounded-xl border p-1.5 ${tone.ring}`}
                 style={{ background: 'linear-gradient(to bottom, rgba(197,216,109,0.12), transparent)' }}
               >
-                <p className="truncate text-base font-extrabold leading-tight text-coffee dark:text-[#f3efe8]">
+                <p className="truncate text-base font-extrabold leading-tight text-[#f3efe8]">
                   {row.playerName}
                 </p>
                 <div className="mt-1 flex items-center justify-center gap-1.5">
                   <TeamCrest name={row.teamName} color={colorFor(row.teamName)} size="xs" />
-                  <span className="truncate text-xs font-medium text-coffee/70 dark:text-mauve-soft">
+                  <span className="truncate text-xs font-medium text-mauve-soft">
                     {row.teamName}
                   </span>
                 </div>
@@ -83,20 +83,20 @@ export default function TopScorersTab({ rows }: { rows: TopScorerRow[] }): React
       {/* Igual que en la tabla de posiciones: el scroll y el recorte de las
           esquinas viven en la misma caja, si no el fondo de la tabla pinta el
           angulo recto. */}
-      <div className="overflow-x-auto rounded-xl border border-line shadow-surface dark:border-mauve">
+      <div className="overflow-x-auto rounded-xl border shadow-surface border-mauve">
         <table
-          className="w-full border-collapse bg-cream text-sm dark:bg-coffee-elev"
+          className="w-full border-collapse text-sm bg-coffee-elev"
           aria-label="Tabla de goleadores"
         >
           <thead>
-            <tr className="border-b border-line text-left text-xs uppercase tracking-wider text-tertiary dark:border-mauve dark:text-mauve-soft">
+            <tr className="border-b text-left text-xs uppercase tracking-wider border-mauve text-mauve-soft">
               <th className="px-3 py-3 font-medium sm:px-4">#</th>
               <th className="px-3 py-3 font-medium sm:px-4">Jugador</th>
               <th className="px-3 py-3 font-medium sm:px-4">Equipo</th>
               <th className="px-3 py-3 text-center font-medium sm:px-4">Goles</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-line dark:divide-mauve/70">
+          <tbody className="divide-y divide-mauve/70">
             {rows.map((row, index) => {
               const isPodium = index < 3
               return (
@@ -104,8 +104,8 @@ export default function TopScorersTab({ rows }: { rows: TopScorerRow[] }): React
                   key={`${row.playerName}-${row.teamId}`}
                   className={
                     isPodium
-                      ? 'bg-lime/10 text-coffee dark:bg-lime/[0.12] dark:text-[#f3efe8]'
-                      : 'text-coffee dark:text-[#f3efe8]'
+                      ? 'bg-lime/[0.12] text-[#f3efe8]'
+                      : 'text-[#f3efe8]'
                   }
                 >
                   <td className="px-3 py-3 sm:px-4">
@@ -122,7 +122,7 @@ export default function TopScorersTab({ rows }: { rows: TopScorerRow[] }): React
                   <td className="px-3 py-3 sm:px-4">
                     <div className="flex items-center gap-2 sm:gap-3">
                       <TeamCrest name={row.teamName} color={colorFor(row.teamName)} size="xs" />
-                      <span className="min-w-0 truncate text-coffee/80 dark:text-mauve-soft">
+                      <span className="min-w-0 truncate text-mauve-soft">
                         {row.teamName}
                       </span>
                     </div>
@@ -130,8 +130,8 @@ export default function TopScorersTab({ rows }: { rows: TopScorerRow[] }): React
                   <td
                     className={`px-3 py-3 text-center text-base font-black tabular-nums ${
                       isPodium
-                        ? 'text-[#4d5a1e] dark:text-lime'
-                        : 'text-coffee dark:text-[#f3efe8]'
+                        ? 'text-lime'
+                        : 'text-[#f3efe8]'
                     }`}
                   >
                     {row.goalsCount}

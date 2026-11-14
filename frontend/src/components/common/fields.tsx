@@ -17,7 +17,7 @@ import type { ReactNode } from 'react'
 export const HIDE_NUMBER_SPINNER =
   '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
 
-const LABEL_CLASS = 'text-sm font-medium text-coffee/80 dark:text-mauve-soft'
+const LABEL_CLASS = 'text-sm font-medium text-mauve-soft'
 /** Mantiene el alto táctil (44px) y un radio consistente en todos los controles. */
 const FIELD_CLASS = 'min-h-11 rounded-lg'
 /** El popover de HeroUI usa `bg-overlay` pero no fija color; se ancla al token. */
@@ -36,14 +36,14 @@ const FIELD_BOX_CLASS = [
   FIELD_CLASS,
   'border shadow-sm transition-colors',
   'border-neutral-300 bg-white text-neutral-900 hover:border-neutral-400',
-  'dark:border-white/20 dark:bg-[#241319]/80 dark:text-white dark:shadow-inner dark:hover:border-white/40',
+  'border-white/20 bg-[#241319]/80 text-white shadow-inner hover:border-white/40',
   'focus-within:border-[#c5d86d]',
 ].join(' ')
 /** Popovers de Select/ComboBox: borde definido y sombra fuerte para despegarlos del fondo. */
 const DROPDOWN_POPOVER_CLASS = [
   POPOVER_CLASS,
   'border border-neutral-200 bg-white text-neutral-900 shadow-xl',
-  'dark:border-white/10 dark:bg-[#1a090d] dark:text-white dark:shadow-xl dark:shadow-black/60',
+  'border-white/10 bg-[#1a090d] text-white shadow-xl shadow-black/60',
 ].join(' ')
 
 type InputType = 'text' | 'number' | 'tel' | 'email' | 'password' | 'search' | 'url'

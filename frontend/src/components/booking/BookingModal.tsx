@@ -21,9 +21,9 @@ interface BookingModalProps {
 }
 
 const INFO_ROW =
-  'flex items-center justify-between gap-3 rounded-lg border border-line bg-paper/70 px-3 py-2 dark:border-mauve dark:bg-mauve-deep/60'
-const INFO_LABEL = 'text-tertiary dark:text-mauve-soft'
-const INFO_VALUE = 'font-medium capitalize text-coffee dark:text-[#f3efe8]'
+  'flex items-center justify-between gap-3 rounded-lg border bg-paper/70 px-3 py-2 border-mauve bg-mauve-deep/60'
+const INFO_LABEL = 'text-mauve-soft'
+const INFO_VALUE = 'font-medium capitalize text-[#f3efe8]'
 
 export default function BookingModal({
   field,
@@ -76,7 +76,7 @@ export default function BookingModal({
                   <>
                     <div className={INFO_ROW}>
                       <span className={INFO_LABEL}>Total estimado</span>
-                      <span className="font-semibold text-coffee dark:text-lime">
+                      <span className="font-semibold text-lime">
                         {formatCurrency(field.pricePerHour)}
                       </span>
                     </div>
@@ -105,7 +105,7 @@ export default function BookingModal({
                   onValueChange={setPhone}
                   placeholder="Ej: 11 5555 1234"
                 />
-                <p className="text-xs text-tertiary dark:text-mauve-soft">
+                <p className="text-xs text-mauve-soft">
                   La reserva queda en estado pendiente hasta que la confirme la administración.
                 </p>
               </div>

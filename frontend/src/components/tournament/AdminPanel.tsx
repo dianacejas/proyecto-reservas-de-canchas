@@ -88,12 +88,12 @@ export default function AdminPanel({
   }
 
   return (
-    <section className="space-y-4 rounded-2xl border border-line bg-cream p-5 shadow-surface dark:border-mauve dark:bg-coffee-elev">
+    <section className="space-y-4 rounded-2xl border p-5 shadow-surface border-mauve bg-coffee-elev">
       <div>
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-tertiary dark:text-mauve-soft">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-mauve-soft">
           Panel de administración
         </h2>
-        <p className="mt-0.5 text-xs text-tertiary dark:text-mauve-soft">
+        <p className="mt-0.5 text-xs text-mauve-soft">
           Gestioná equipos, fixture y resultados del torneo.
         </p>
       </div>
@@ -182,7 +182,7 @@ function ConfigTab({
             label: STATUS_LABEL[s],
           }))}
         />
-        <p className="text-xs text-tertiary dark:text-mauve-soft">
+        <p className="text-xs text-mauve-soft">
           Cambiá a <strong>Inscripción</strong> para aceptar solicitudes, <strong>En curso</strong> para empezar a jugar o <strong>Finalizado</strong> para cerrar el torneo.
         </p>
       </div>
@@ -252,7 +252,7 @@ function EquiposTab({
     <div className="mt-4 space-y-5">
       {/* Formulario agregar equipo */}
       <div className="space-y-2">
-        <h3 className="text-sm font-semibold text-coffee dark:text-[#f3efe8]">Agregar equipo</h3>
+        <h3 className="text-sm font-semibold text-[#f3efe8]">Agregar equipo</h3>
         <div className="flex flex-wrap gap-3">
           <TextInput
             aria-label="Nombre del equipo"
@@ -285,14 +285,14 @@ function EquiposTab({
 
       {/* Lista por grupo */}
       {(teamsQuery.data ?? []).length === 0 ? (
-        <p className="py-4 text-center text-sm text-tertiary dark:text-mauve-soft">
+        <p className="py-4 text-center text-sm text-mauve-soft">
           Todavía no hay equipos.
         </p>
       ) : (
         <div className="space-y-3">
           {groups.map(([group, count]) => (
-            <div key={group} className="rounded-lg border border-line p-3 dark:border-mauve">
-              <p className="text-xs font-semibold uppercase tracking-wide text-tertiary dark:text-mauve-soft">
+            <div key={group} className="rounded-lg border p-3 border-mauve">
+              <p className="text-xs font-semibold uppercase tracking-wide text-mauve-soft">
                 {group} ({count})
               </p>
               <ul className="mt-2 space-y-1.5">
@@ -300,10 +300,10 @@ function EquiposTab({
                   .filter((t) => t.group === group)
                   .map((t) => (
                     <li key={t.id} className="flex items-center justify-between gap-2 text-sm">
-                      <span className="flex items-center gap-2 text-coffee/80 dark:text-mauve-soft">
+                      <span className="flex items-center gap-2 text-mauve-soft">
                         <TeamCrest name={t.name} size="xs" />
                         {t.name}
-                        <span className="text-xs text-tertiary">
+                        <span className="text-xs text-neutral-400">
                           ({t.players.length} jugadores)
                         </span>
                       </span>
@@ -390,15 +390,15 @@ function PlayersModal({
           </Modal.Header>
           <Modal.Body>
             <div className="space-y-2">
-              <p className="text-xs text-tertiary dark:text-mauve-soft">
+              <p className="text-xs text-mauve-soft">
                 Los nombres de los jugadores se usan para registrar goles y tarjetas en los partidos.
               </p>
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <span className="w-20 shrink-0 text-xs font-semibold uppercase tracking-wide text-tertiary dark:text-mauve-soft">
+                  <span className="w-20 shrink-0 text-xs font-semibold uppercase tracking-wide text-mauve-soft">
                     N°
                   </span>
-                  <span className="flex-1 text-xs font-semibold uppercase tracking-wide text-tertiary dark:text-mauve-soft">
+                  <span className="flex-1 text-xs font-semibold uppercase tracking-wide text-mauve-soft">
                     Nombre del jugador
                   </span>
                   <span className="w-8 shrink-0" aria-hidden="true" />
@@ -562,18 +562,18 @@ function FixtureTab({
   return (
     <div className="mt-4 space-y-5">
       {/* Generar fixture automático */}
-      <div className="rounded-lg border border-line p-4 dark:border-mauve space-y-3">
+      <div className="rounded-lg border p-4 border-mauve space-y-3">
         <div>
-          <h3 className="text-sm font-semibold text-coffee dark:text-[#f3efe8]">
+          <h3 className="text-sm font-semibold text-[#f3efe8]">
             Generar fixture de grupos
           </h3>
-          <p className="mt-0.5 text-xs text-tertiary dark:text-mauve-soft">
+          <p className="mt-0.5 text-xs text-mauve-soft">
             Crea automáticamente todos los partidos para que cada equipo del grupo enfrente a todos los demás.
           </p>
         </div>
 
         {groups.length === 0 ? (
-          <p className="text-sm text-tertiary dark:text-mauve-soft">
+          <p className="text-sm text-mauve-soft">
             No hay equipos cargados. Primero agregá equipos desde la pestaña Equipos.
           </p>
         ) : (
@@ -618,7 +618,7 @@ function FixtureTab({
                 <Modal.CloseTrigger />
               </Modal.Header>
               <Modal.Body>
-                <p className="text-sm text-tertiary dark:text-mauve-soft">
+                <p className="text-sm text-mauve-soft">
                   Se crearán todos los partidos del grupo <strong>{genGroup}</strong> (cada equipo contra
                   todos). Esta acción no se puede deshacer automáticamente.
                 </p>
@@ -642,9 +642,9 @@ function FixtureTab({
 
       {/* Lista de partidos + cargar resultados */}
       <div className="space-y-2">
-        <h3 className="text-sm font-semibold text-coffee dark:text-[#f3efe8]">Resultados de partidos</h3>
+        <h3 className="text-sm font-semibold text-[#f3efe8]">Resultados de partidos</h3>
         {matches.length === 0 ? (
-          <p className="py-6 text-center text-sm text-tertiary dark:text-mauve-soft">
+          <p className="py-6 text-center text-sm text-mauve-soft">
             El fixture aún no fue generado. Usá el botón de arriba para crearlo.
           </p>
         ) : (
@@ -684,24 +684,24 @@ function ResultRow({ match, onEdit }: { match: Match; onEdit: () => void }): Rea
   const visitante = teamLabel(match.awayTeamId)
 
   return (
-    <li className="rounded-lg border border-line p-3 dark:border-mauve">
-      <p className="text-xs text-tertiary dark:text-mauve-soft">
+    <li className="rounded-lg border p-3 border-mauve">
+      <p className="text-xs text-mauve-soft">
         {match.group} · Jornada {match.matchday}
       </p>
       <div className="mt-1 flex flex-wrap items-center justify-between gap-2 text-sm">
         <span className="flex min-w-0 items-center gap-2">
           <TeamCrest name={local} size="xs" />
-          <span className="min-w-0 truncate text-coffee/80 dark:text-mauve-soft">{local}</span>
+          <span className="min-w-0 truncate text-mauve-soft">{local}</span>
         </span>
         <span
           className={`shrink-0 px-1 font-bold tabular-nums ${
-            finished ? 'text-coffee dark:text-[#f3efe8]' : 'text-tertiary/60 dark:text-mauve-soft'
+            finished ? 'text-[#f3efe8]' : 'text-mauve-soft'
           }`}
         >
           {finished ? `${match.homeGoals ?? 0} - ${match.awayGoals ?? 0}` : 'vs'}
         </span>
         <span className="flex min-w-0 items-center gap-2">
-          <span className="min-w-0 truncate text-coffee/80 dark:text-mauve-soft">{visitante}</span>
+          <span className="min-w-0 truncate text-mauve-soft">{visitante}</span>
           <TeamCrest name={visitante} size="xs" />
         </span>
         <Button variant={finished ? 'outline' : 'primary'} size="sm" onPress={onEdit}>

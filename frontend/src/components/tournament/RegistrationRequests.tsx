@@ -74,10 +74,10 @@ export default function RegistrationRequests({
   return (
     <div className="space-y-3">
       <div>
-        <h3 className="text-sm font-semibold text-coffee dark:text-[#f3efe8]">
+        <h3 className="text-sm font-semibold text-[#f3efe8]">
           Inscripciones ({pending.length} pendientes)
         </h3>
-        <p className="mt-0.5 text-xs text-tertiary dark:text-mauve-soft">
+        <p className="mt-0.5 text-xs text-mauve-soft">
           Aprobá los equipos para sumarlos a un grupo del torneo.
         </p>
       </div>
@@ -89,7 +89,7 @@ export default function RegistrationRequests({
       )}
 
       {registrations.length === 0 ? (
-        <p className="py-4 text-center text-sm text-tertiary dark:text-mauve-soft">
+        <p className="py-4 text-center text-sm text-mauve-soft">
           Todavía no hay inscripciones.
         </p>
       ) : (
@@ -132,19 +132,19 @@ function PendingRow({
   const [group, setGroup] = useState('Grupo A')
 
   return (
-    <li className="rounded-lg border border-line p-3 dark:border-mauve">
+    <li className="rounded-lg border p-3 border-mauve">
       <div className="flex flex-wrap items-center gap-2">
         <span
-          className="size-4 shrink-0 rounded-full border border-line dark:border-mauve"
+          className="size-4 shrink-0 rounded-full border border-mauve"
           style={{ backgroundColor: registration.color }}
           aria-hidden="true"
         />
-        <span className="font-semibold text-coffee dark:text-[#f3efe8]">{registration.teamName}</span>
+        <span className="font-semibold text-[#f3efe8]">{registration.teamName}</span>
         <Chip color="warning" size="sm">
           Pendiente
         </Chip>
       </div>
-      <p className="mt-1 text-xs text-tertiary dark:text-mauve-soft">
+      <p className="mt-1 text-xs text-mauve-soft">
         Capitán: {registration.captainName} · {registration.captainPhone} · {registration.players.length}{' '}
         jugadores
       </p>
@@ -175,8 +175,8 @@ function PendingRow({
 function ResolvedRow({ registration }: { registration: TournamentRegistration }): React.JSX.Element {
   const meta = STATUS_META[registration.status]
   return (
-    <li className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-line px-3 py-2 text-sm dark:border-mauve">
-      <span className="text-coffee/80 dark:text-mauve-soft">
+    <li className="flex flex-wrap items-center justify-between gap-2 rounded-lg border px-3 py-2 text-sm border-mauve">
+      <span className="text-mauve-soft">
         {registration.teamName}
         {registration.assignedGroup !== null && ` · ${registration.assignedGroup}`}
       </span>

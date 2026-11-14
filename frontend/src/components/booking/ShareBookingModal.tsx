@@ -35,10 +35,10 @@ export default function ShareBookingModal({
           </Modal.Header>
           <Modal.Body>
             <div className="space-y-4">
-              <p className="text-sm text-tertiary dark:text-mauve-soft">
+              <p className="text-sm text-mauve-soft">
                 Enviá los datos del partido a tu grupo de WhatsApp.
               </p>
-              <pre className="whitespace-pre-wrap rounded-xl border border-line bg-paper/70 p-4 text-sm text-coffee dark:border-mauve dark:bg-mauve-deep/60 dark:text-[#f3efe8]">
+              <pre className="whitespace-pre-wrap rounded-xl border bg-paper/70 p-4 text-sm border-mauve bg-mauve-deep/60 text-[#f3efe8]">
                 {message}
               </pre>
               {copied && (

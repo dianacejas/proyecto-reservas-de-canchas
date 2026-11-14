@@ -217,7 +217,7 @@ export default function MatchResultModal({
               <div className="grid grid-cols-[1fr_auto] items-center gap-3">
                 <span className="flex min-w-0 items-center gap-2 text-right">
                   <TeamCrest name={teamRefName(match.homeTeamId)} size="xs" />
-                  <span className="truncate font-medium text-coffee/80 dark:text-mauve-soft">
+                  <span className="truncate font-medium text-mauve-soft">
                     {teamRefName(match.homeTeamId)}
                   </span>
                 </span>
@@ -235,7 +235,7 @@ export default function MatchResultModal({
               <div className="grid grid-cols-[1fr_auto] items-center gap-3">
                 <span className="flex min-w-0 items-center gap-2 text-right">
                   <TeamCrest name={teamRefName(match.awayTeamId)} size="xs" />
-                  <span className="truncate font-medium text-coffee/80 dark:text-mauve-soft">
+                  <span className="truncate font-medium text-mauve-soft">
                     {teamRefName(match.awayTeamId)}
                   </span>
                 </span>
@@ -270,12 +270,12 @@ export default function MatchResultModal({
               )}
 
               {tieNeedsPen && (
-                <div className="space-y-2 rounded-lg border border-line bg-paper/70 p-3 dark:border-mauve dark:bg-mauve-deep/60">
-                  <p className="text-xs font-medium uppercase tracking-wide text-tertiary dark:text-mauve-soft">
+                <div className="space-y-2 rounded-lg border bg-paper/70 p-3 border-mauve bg-mauve-deep/60">
+                  <p className="text-xs font-medium uppercase tracking-wide text-mauve-soft">
                     Definición por penales
                   </p>
                   <div className="grid grid-cols-2 gap-2">
-                    <div className="space-y-1 text-xs text-coffee/70 dark:text-mauve-soft">
+                    <div className="space-y-1 text-xs text-mauve-soft">
                       <span className="block">{teamRefName(match.homeTeamId)}</span>
                       <TextInput
                         aria-label="Penales local"
@@ -288,7 +288,7 @@ export default function MatchResultModal({
                         placeholder="0"
                       />
                     </div>
-                    <div className="space-y-1 text-xs text-coffee/70 dark:text-mauve-soft">
+                    <div className="space-y-1 text-xs text-mauve-soft">
                       <span className="block">{teamRefName(match.awayTeamId)}</span>
                       <TextInput
                         aria-label="Penales visitante"
@@ -306,7 +306,7 @@ export default function MatchResultModal({
               )}
 
               {(homeMissing || awayMissing) && scoresValid && (
-                <p className="text-xs text-tertiary dark:text-mauve-soft">
+                <p className="text-xs text-mauve-soft">
                   Atribuí un goleador a cada gol para poder guardar el resultado.
                 </p>
               )}
@@ -365,12 +365,12 @@ function GoalScorerSection({
   }
 
   return (
-    <div className="space-y-2 rounded-lg border border-line bg-paper/70 p-3 dark:border-mauve dark:bg-mauve-deep/60">
-      <p className="text-xs font-medium uppercase tracking-wide text-tertiary dark:text-mauve-soft">
+    <div className="space-y-2 rounded-lg border bg-paper/70 p-3 border-mauve bg-mauve-deep/60">
+      <p className="text-xs font-medium uppercase tracking-wide text-mauve-soft">
         Goleadores · {teamName}
       </p>
       {!canPick && (
-        <p className="text-xs text-tertiary dark:text-mauve-soft">
+        <p className="text-xs text-mauve-soft">
           Este equipo todavía no tiene plantel cargado: escribí los nombres a mano.
         </p>
       )}
@@ -382,7 +382,7 @@ function GoalScorerSection({
           return (
             <div key={index} className="space-y-1.5">
               <div className="flex items-center gap-2">
-                <span className="w-16 shrink-0 text-xs font-semibold text-tertiary dark:text-mauve-soft">
+                <span className="w-16 shrink-0 text-xs font-semibold text-mauve-soft">
                   Gol {index + 1}
                 </span>
                 {canPick ? (

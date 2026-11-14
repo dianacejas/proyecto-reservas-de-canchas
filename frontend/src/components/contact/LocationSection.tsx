@@ -61,35 +61,35 @@ export default function LocationSection(): React.JSX.Element {
   return (
     <section className="space-y-4">
       <div className="flex flex-col gap-1">
-        <span className="inline-flex w-fit items-center rounded-full border border-mauve/30 bg-lime/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-coffee dark:border-lime/30 dark:bg-lime/10 dark:text-lime">
+        <span className="inline-flex w-fit items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] border-lime/30 bg-lime/10 text-lime">
           Ubicación y Contacto
         </span>
         <h2 className="text-lg font-bold tracking-tight">Encontrá la sede más cerca</h2>
-        <p className="text-sm text-tertiary dark:text-mauve-soft">
+        <p className="text-sm text-mauve-soft">
           Al recargar la página mostramos una de nuestras sedes de Córdoba Capital al azar.
         </p>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
-        <div className="relative min-h-72 overflow-hidden rounded-2xl border border-line shadow-surface dark:border-mauve">
+        <div className="relative min-h-72 overflow-hidden rounded-2xl border shadow-surface border-mauve">
           <iframe
             key={`${location.lat},${location.lng}`}
             src={mapsEmbedUrl(location)}
             title={`Mapa - ${location.name}`}
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
-            className="absolute inset-0 h-full w-full border-0 grayscale-[0.15] contrast-[1.03] dark:grayscale-[0.35] dark:brightness-[0.8]"
+            className="absolute inset-0 h-full w-full border-0 grayscale-[0.15] contrast-[1.03] grayscale-[0.35] brightness-[0.8]"
           />
         </div>
 
-        <div className="flex flex-col gap-4 rounded-2xl border border-line bg-cream p-6 shadow-surface dark:border-mauve dark:bg-coffee-elev lg:col-span-2">
+        <div className="flex flex-col gap-4 rounded-2xl border p-6 shadow-surface border-mauve bg-coffee-elev lg:col-span-2">
           <div>
             <h3 className="text-base font-bold">{location.name}</h3>
-            <p className="mt-1 flex items-start gap-2 text-sm text-tertiary dark:text-mauve-soft">
+            <p className="mt-1 flex items-start gap-2 text-sm text-mauve-soft">
               <PinIcon />
               {location.address}
             </p>
-            <p className="mt-2 flex items-start gap-2 text-sm text-tertiary dark:text-mauve-soft">
+            <p className="mt-2 flex items-start gap-2 text-sm text-mauve-soft">
               <ClockIcon />
               {location.hours}
             </p>
@@ -100,7 +100,7 @@ export default function LocationSection(): React.JSX.Element {
               href={directionsUrl(location)}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex min-h-11 items-center gap-2 rounded-full bg-lime px-4 py-2 text-sm font-semibold text-coffee transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
+              className="inline-flex min-h-11 items-center gap-2 rounded-full bg-lime px-4 py-2 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
             >
               <DirectionsIcon />
               Cómo llegar
@@ -109,7 +109,7 @@ export default function LocationSection(): React.JSX.Element {
               href={directionsUrl(location).replace('/dir/', '/maps/')}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex min-h-11 items-center gap-2 rounded-full border border-mauve/40 px-4 py-2 text-sm font-medium text-coffee transition-colors hover:border-lime dark:text-[#f3efe8]"
+              className="inline-flex min-h-11 items-center gap-2 rounded-full border border-mauve/40 px-4 py-2 text-sm font-medium transition-colors hover:border-lime text-[#f3efe8]"
             >
               Ver en Maps
             </a>

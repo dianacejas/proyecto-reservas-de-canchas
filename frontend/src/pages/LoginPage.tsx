@@ -56,7 +56,7 @@ export default function LoginPage(): React.JSX.Element {
     <div className="mx-auto max-w-md space-y-6 py-8">
       <header>
         <h1 className="text-2xl font-bold tracking-tight">{isLogin ? 'Ingresá' : 'Creá tu cuenta'}</h1>
-        <p className="mt-1 text-sm text-tertiary dark:text-mauve-soft">
+        <p className="mt-1 text-sm text-mauve-soft">
           {isLogin
             ? 'Iniciá sesión para pagar tus reservas online.'
             : 'Registrate para gestionar y pagar tus reservas.'}
@@ -88,7 +88,7 @@ export default function LoginPage(): React.JSX.Element {
         </Button>
       </div>
 
-      <div className="space-y-4 rounded-2xl border border-line bg-cream p-6 shadow-surface dark:border-mauve dark:bg-coffee-elev">
+      <div className="space-y-4 rounded-2xl border p-6 shadow-surface border-mauve bg-coffee-elev">
         {!isLogin && (
           <TextInput
             label="Nombre y apellido"
@@ -125,7 +125,7 @@ export default function LoginPage(): React.JSX.Element {
         </Button>
 
         {isLogin && (
-          <p className="text-xs text-tertiary dark:text-mauve-soft">
+          <p className="text-xs text-mauve-soft">
             Demo admin: admin@canchas.com · admin123 — Demo cliente: juan@canchas.com · juan123
           </p>
         )}

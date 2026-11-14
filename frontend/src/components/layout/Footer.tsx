@@ -45,11 +45,11 @@ const MAPS_URL = `https://www.google.com/maps/search/?api=1&query=${encodeURICom
 /* El lima de marca (#c5d86d) sobre el fondo claro (neutral-100) queda en ~1.4:1
    de contraste: ilegible. En modo claro el hover pasa a neutral-900; en oscuro,
    donde el lima si contrasta, se mantiene. */
-const HOVER_LIME = 'transition-colors hover:text-neutral-900 dark:hover:text-[#c5d86d]'
+const HOVER_LIME = 'transition-colors hover:text-[#c5d86d]'
 
 export default function Footer(): React.JSX.Element {
   return (
-    <footer className="mt-10 border-t border-neutral-200/80 bg-neutral-100/90 text-neutral-600 transition-colors dark:border-white/10 dark:bg-[#15070a] dark:text-neutral-400">
+    <footer className="mt-10 border-t transition-colors border-white/10 bg-[#15070a] text-neutral-400">
       <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:py-8">
         <div className="grid grid-cols-1 justify-items-center gap-6 text-center sm:grid-cols-2 sm:justify-items-start sm:gap-5 sm:text-left lg:grid-cols-3 lg:gap-8">
           {/* Marca */}
@@ -71,7 +71,7 @@ export default function Footer(): React.JSX.Element {
           </nav>
 
           {/* Pagos, ubicación y redes, agrupados en el extremo derecho */}
-          <div className="flex flex-col items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400 sm:col-span-2 sm:items-end lg:col-span-1">
+          <div className="flex flex-col items-center gap-2 text-xs text-neutral-400 sm:col-span-2 sm:items-end lg:col-span-1">
             <div className="flex flex-col items-center gap-1.5 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-6 sm:gap-y-1">
               <p className="inline-flex items-center gap-1.5">
                 <ShieldCheckIcon className="size-3.5 shrink-0" />
@@ -100,7 +100,7 @@ export default function Footer(): React.JSX.Element {
                     rel="noopener noreferrer"
                     aria-label={social.label}
                     title={social.label}
-                    className="inline-flex items-center justify-center rounded-full border border-transparent bg-neutral-200/80 p-1.5 transition-colors hover:bg-[#c5d86d] hover:text-neutral-900 dark:border-white/15 dark:bg-white/10 dark:text-neutral-200 dark:hover:border-transparent dark:hover:bg-[#c5d86d] dark:hover:text-neutral-900"
+                    className="inline-flex items-center justify-center rounded-full border border-transparent p-1.5 transition-colors border-white/15 bg-white/10 text-neutral-200 hover:border-transparent hover:bg-[#c5d86d] hover:text-neutral-900"
                   >
                     <Icon className="size-4" />
                   </a>
@@ -111,14 +111,14 @@ export default function Footer(): React.JSX.Element {
         </div>
 
         {/* Copyright y legales en un solo renglón */}
-        <div className="mt-6 border-t border-neutral-200/70 pt-4 dark:border-white/5">
+        <div className="mt-6 border-t pt-4 border-white/5">
           <div className="flex flex-col items-center justify-between gap-2 text-center text-[11px] sm:flex-row sm:text-left">
             <p>© 2026 Copa 5. Todos los derechos reservados.</p>
             <p className="flex items-center gap-3">
               <Link to="/reglamento" className={HOVER_LIME}>
                 Reglamento
               </Link>
-              <span aria-hidden="true" className="text-neutral-300 dark:text-white/20">
+              <span aria-hidden="true" className="text-white/20">
                 ·
               </span>
               <Link to="/politica-de-cancelacion" className={HOVER_LIME}>

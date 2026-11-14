@@ -114,7 +114,7 @@ export default function TournamentRegistrationModal({
                 <Chip color="success" size="md">
                   Inscripción enviada
                 </Chip>
-                <p className="text-sm text-tertiary dark:text-mauve-soft">
+                <p className="text-sm text-mauve-soft">
                   Tu equipo quedó pendiente de aprobación. Un administrador lo confirmará y lo asignará a
                   un grupo.
                 </p>
@@ -129,7 +129,7 @@ export default function TournamentRegistrationModal({
                 />
 
                 <div>
-                  <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-tertiary dark:text-mauve-soft">
+                  <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-mauve-soft">
                     Color del equipo
                   </label>
                   <div className="flex flex-wrap gap-2">
@@ -141,7 +141,7 @@ export default function TournamentRegistrationModal({
                         onClick={() => setForm({ ...form, color })}
                         className={`size-8 rounded-full border-2 transition-transform ${
                           form.color === color
-                            ? 'scale-110 border-coffee dark:border-[#f3efe8]'
+                            ? 'scale-110 border-coffee border-[#f3efe8]'
                             : 'border-transparent'
                         }`}
                         style={{ backgroundColor: color }}
@@ -168,7 +168,7 @@ export default function TournamentRegistrationModal({
 
                 <div>
                   <div className="mb-1 flex items-center justify-between">
-                    <label className="text-xs font-medium uppercase tracking-wide text-tertiary dark:text-mauve-soft">
+                    <label className="text-xs font-medium uppercase tracking-wide text-mauve-soft">
                       Jugadores ({form.players.length}/{MAX_PLAYERS})
                     </label>
                     <Button
@@ -183,7 +183,7 @@ export default function TournamentRegistrationModal({
                   <div className="space-y-2">
                     {form.players.map((player, index) => (
                       <div key={index} className="flex gap-2">
-                        <span className="flex w-8 shrink-0 items-center justify-center text-xs font-semibold text-tertiary dark:text-mauve-soft">
+                        <span className="flex w-8 shrink-0 items-center justify-center text-xs font-semibold text-mauve-soft">
                           {index + 1}
                         </span>
                         <TextInput

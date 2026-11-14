@@ -240,11 +240,11 @@ export default function TorneosPage(): React.JSX.Element {
     <div className="space-y-8">
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-mauve/30 bg-lime/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-coffee dark:border-lime/30 dark:bg-lime/10 dark:text-lime">
+          <div className="mb-2 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] border-lime/30 bg-lime/10 text-lime">
             Copa 5 · Competencia
           </div>
           <h1 className="text-2xl font-bold tracking-tight">Torneos</h1>
-          <p className="mt-1 text-sm text-tertiary dark:text-mauve-soft">
+          <p className="mt-1 text-sm text-mauve-soft">
             Seguí las posiciones y el fixture de cada torneo.
           </p>
         </div>
@@ -265,7 +265,7 @@ export default function TorneosPage(): React.JSX.Element {
       </header>
 
       {tournaments.length === 0 ? (
-        <p className="py-8 text-center text-sm text-tertiary dark:text-mauve-soft">
+        <p className="py-8 text-center text-sm text-mauve-soft">
           Todavía no hay torneos creados.
         </p>
       ) : (
@@ -276,7 +276,7 @@ export default function TorneosPage(): React.JSX.Element {
             return (
               <Card.Root
                 key={tournament.id}
-                className="group relative overflow-hidden border border-[#2a3b25]/30 shadow-lg shadow-[#1b2618]/5 transition duration-300 hover:border-[#2a3b25]/50 hover:shadow-xl dark:border-white/10 dark:shadow-xl dark:shadow-black/40 dark:hover:border-lime/50 dark:hover:shadow-lime/10"
+                className="group relative overflow-hidden border transition duration-300 border-white/10 shadow-xl shadow-black/40 hover:border-lime/50 hover:shadow-lime/10"
               >
                 <img
                   src={BACKDROP_SRC}
@@ -285,7 +285,7 @@ export default function TorneosPage(): React.JSX.Element {
                   decoding="async"
                   className="absolute inset-0 size-full object-cover opacity-40 transition-transform duration-500 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 z-10 bg-gradient-to-br from-[#0c2314] via-[#759530] to-[#d5e4c3] dark:from-[#1a090d] dark:via-[#202e1d] dark:to-[#52414c]/40" />
+                <div className="absolute inset-0 z-10 bg-gradient-to-br from-[#1a090d] via-[#202e1d] to-[#52414c]/40" />
                 <TrophyWatermark />
 
                 <Card.Content className="relative z-20 flex flex-col gap-4 p-5 sm:p-6 md:p-7">
@@ -293,7 +293,7 @@ export default function TorneosPage(): React.JSX.Element {
                     <Chip color={meta.color} size="sm" className="font-semibold">
                       {meta.label}
                     </Chip>
-                    <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-white backdrop-blur-sm dark:text-white/85">
+                    <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] backdrop-blur-sm text-white/85">
                       Fútbol 5 · Grupos y Eliminación
                     </span>
                   </div>
@@ -302,7 +302,7 @@ export default function TorneosPage(): React.JSX.Element {
                     <h2 className="text-2xl font-black tracking-wide text-white md:text-3xl">
                       {tournament.name}
                     </h2>
-                    <p className="mt-1 text-sm text-white dark:text-white/60">
+                    <p className="mt-1 text-sm text-white/60">
                       Fase de grupos y eliminatorias por elimination directa.
                     </p>
                   </div>
@@ -311,7 +311,7 @@ export default function TorneosPage(): React.JSX.Element {
                     {facts.map((fact) => (
                       <li
                         key={fact.label}
-                        className="flex items-center gap-2 text-sm text-white dark:text-white/75"
+                        className="flex items-center gap-2 text-sm text-white/75"
                       >
                         <span className="text-[#c5d86d]">{fact.icon}</span>
                         {fact.label}

@@ -38,8 +38,8 @@ export default function FieldPicker({
             <Card.Root
               className={`h-full cursor-pointer overflow-hidden border-2 transition-all duration-300 ${
                 selected
-                  ? 'border-lime bg-cream shadow-[0_0_30px_-10px_rgba(197,216,109,0.6)] dark:bg-coffee-elev'
-                  : 'border-transparent bg-cream shadow-surface hover:-translate-y-1 hover:border-mauve/50 hover:shadow-xl dark:bg-coffee-elev dark:hover:border-mauve'
+                  ? 'border-lime shadow-[0_0_30px_-10px_rgba(197,216,109,0.6)] bg-coffee-elev'
+                  : 'border-transparent shadow-surface hover:-translate-y-1 hover:shadow-xl bg-coffee-elev hover:border-mauve'
               }`}
               onClick={() => onSelect(field.id)}
             >
@@ -55,15 +55,15 @@ export default function FieldPicker({
               <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
                 <div className="min-w-0 flex-1 space-y-2">
                   <Card.Title className="text-base font-bold sm:text-lg">{field.name}</Card.Title>
-                  <span className="inline-flex items-center rounded-full border border-mauve/30 bg-lime/10 px-2.5 py-0.5 text-xs font-semibold text-coffee dark:border-lime/30 dark:bg-lime/10 dark:text-lime">
+                  <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-lime/30 bg-lime/10 text-lime">
                     {field.type}
                   </span>
                 </div>
                 <div className="shrink-0 text-right">
-                  <span className="text-xl font-extrabold tracking-tight text-coffee sm:text-2xl dark:text-[#f3efe8]">
+                  <span className="text-xl font-extrabold tracking-tight sm:text-2xl text-[#f3efe8]">
                     ${field.pricePerHour}
                   </span>
-                  <span className="block text-xs font-medium text-tertiary dark:text-mauve-soft">
+                  <span className="block text-xs font-medium text-mauve-soft">
                     / hora
                   </span>
                 </div>

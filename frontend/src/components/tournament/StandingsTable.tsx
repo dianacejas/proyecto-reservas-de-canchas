@@ -20,13 +20,13 @@ export default function StandingsTable({
           Con `overflow` distinto de `visible` el navegador recorta el fondo de
           la tabla contra el radio; si el scroll queda en un wrapper externo, el
           `bg-cream` / `bg-coffee-elev` pinta las esquinas en angulo recto. */}
-      <div className="overflow-x-auto rounded-xl border border-line shadow-surface dark:border-mauve">
+      <div className="overflow-x-auto rounded-xl border shadow-surface border-mauve">
         <table
-          className="w-full border-collapse bg-cream text-sm sm:min-w-[36rem] dark:bg-coffee-elev"
+          className="w-full border-collapse text-sm sm:min-w-[36rem] bg-coffee-elev"
           aria-label="Posiciones del grupo"
         >
           <thead>
-            <tr className="border-b border-line text-left text-xs uppercase tracking-wider text-tertiary dark:border-mauve dark:text-mauve-soft">
+            <tr className="border-b text-left text-xs uppercase tracking-wider border-mauve text-mauve-soft">
               <th className="px-3 py-3 font-medium sm:px-4">#</th>
               <th className="px-3 py-3 font-medium sm:px-4">Equipo</th>
               <th className="px-3 py-3 text-center font-medium sm:px-4">PJ</th>
@@ -39,7 +39,7 @@ export default function StandingsTable({
               <th className="px-3 py-3 text-center font-medium sm:px-4">Pts</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-line dark:divide-mauve/70">
+          <tbody className="divide-y divide-mauve/70">
             {rows.map((row) => {
               const qualified = row.position <= qualifying
               return (
@@ -47,8 +47,8 @@ export default function StandingsTable({
                   key={row.teamId}
                   className={
                     qualified
-                      ? 'bg-lime/10 text-coffee dark:bg-lime/[0.15] dark:text-[#f3efe8]'
-                      : 'text-coffee dark:text-[#f3efe8]'
+                      ? 'bg-lime/[0.15] text-[#f3efe8]'
+                      : 'text-[#f3efe8]'
                   }
                 >
                   <td className="px-3 py-3 sm:px-4">
@@ -60,7 +60,7 @@ export default function StandingsTable({
                   <td className="px-3 py-3 sm:px-4">
                     <div className="flex items-center gap-2 sm:gap-3">
                       <TeamCrest name={row.teamName} color={colorFor(row.teamName)} size="xs" />
-                      <span className="min-w-0 truncate font-semibold text-coffee dark:text-[#f3efe8]/90">
+                      <span className="min-w-0 truncate font-semibold text-[#f3efe8]/90">
                         {row.teamName}
                       </span>
                     </div>
@@ -75,7 +75,7 @@ export default function StandingsTable({
                   <td
                     className={
                       qualified
-                        ? 'px-3 py-3 text-center font-semibold text-[#4d5a1e] sm:px-4 dark:text-lime'
+                        ? 'px-3 py-3 text-center font-semibold sm:px-4 text-lime'
                         : 'px-3 py-3 text-center font-semibold sm:px-4'
                     }
                   >
@@ -88,7 +88,7 @@ export default function StandingsTable({
         </table>
       </div>
       {rows.length > 0 && (
-        <p className="flex items-center gap-2 text-xs text-tertiary dark:text-mauve-soft">
+        <p className="flex items-center gap-2 text-xs text-mauve-soft">
           <span className="size-2 rounded-full bg-lime" />
           Las {qualifying} primeras posiciones avanzan a la fase final.
         </p>

@@ -164,8 +164,8 @@ export default function PlayoffBracket({
             <MvpPodium mvp={mvp} />
           </div>
         )}
-        <div className="rounded-2xl border border-dashed border-line p-10 text-center dark:border-mauve/60">
-          <p className="text-sm text-tertiary dark:text-mauve-soft">
+        <div className="rounded-2xl border border-dashed p-10 text-center border-mauve/60">
+          <p className="text-sm text-mauve-soft">
             Todavía no hay cruces de fase final. Se arman automáticamente con los mejores de cada
             grupo.
           </p>
@@ -537,7 +537,7 @@ function TeamRow({
         : 'font-medium text-mauve-soft'
 
   const boxTone = isWinner
-    ? 'bg-lime text-coffee shadow-[0_0_18px_-4px_rgba(197,216,109,0.85)]'
+    ? 'bg-lime text-white shadow-[0_0_18px_-4px_rgba(197,216,109,0.85)]'
     : isLoser
       ? 'border border-white/10 text-mauve-soft/70'
       : state === 'pending'

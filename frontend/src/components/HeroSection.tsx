@@ -26,7 +26,7 @@ export default function HeroSection(): React.JSX.Element {
   return (
     <section
       aria-labelledby="hero-title"
-      className="relative overflow-hidden rounded-3xl border border-neutral-300/60 bg-[#1e2a1b] shadow-lg dark:border-white/10 dark:bg-[#1a090d]"
+      className="relative overflow-hidden rounded-3xl border shadow-lg border-white/10 bg-[#1a090d]"
     >
       {/* Imagen diurna de fondo + mascara de degradado */}
       <div className="absolute inset-0">
@@ -38,7 +38,7 @@ export default function HeroSection(): React.JSX.Element {
           fetchPriority="high"
           decoding="async"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#172214] via-[#1b2718]/90 via-40% to-transparent dark:from-[#1a090d] dark:via-[#1a090d]/90" />
+        <div className="absolute inset-0 bg-gradient-to-r to-transparent from-[#1a090d] via-[#1a090d]/90" />
       </div>
 
       {/* Contenido textual */}

@@ -60,18 +60,18 @@ export default function NotFoundView(): React.JSX.Element {
 
   return (
     <div className="flex min-h-[70vh] animate-fade-in-up flex-col items-center justify-center px-4 py-10 text-center">
-      <div className="w-full max-w-lg overflow-hidden rounded-3xl bg-[#1a090d] p-8 shadow-2xl ring-1 ring-[#c5d86d]/20">
+      <div className="w-full max-w-lg overflow-hidden rounded-3xl bg-neutral-900 p-8 shadow-2xl ring-1 ring-[#c5d86d]/20">
         <OffTargetIllustration />
 
         <span className="mt-6 inline-flex items-center gap-2 rounded-full border border-[#c5d86d]/30 bg-[#c5d86d]/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#c5d86d]">
           Error 404
         </span>
 
-        <h1 className="mt-4 text-2xl font-extrabold tracking-tight text-[#f3efe8] sm:text-3xl">
+        <h1 className="mt-4 text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
           ¡Pelota afuera! Página no encontrada
         </h1>
 
-        <p className="mx-auto mt-3 max-w-md text-sm text-[#a89a9f] sm:text-base">
+        <p className="mx-auto mt-3 max-w-md text-sm text-neutral-400 sm:text-base">
           La jugada no prosperó o el enlace al que intentás acceder ya no existe.
         </p>
 

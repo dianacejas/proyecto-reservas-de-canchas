@@ -66,12 +66,12 @@ export default function EditCourtModal({
   }
 
   return (
-    <Modal.Root isOpen={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Modal.Root isOpen={isOpen} onOpenChange={(open) => open || onClose()}>
       <Modal.Backdrop variant="blur" />
       <Modal.Container size="md">
-        <Modal.Dialog className="border border-white/10 bg-neutral-900">
+        <Modal.Dialog>
           <Modal.Header>
-            <Modal.Heading className="text-white">Editar Cancha</Modal.Heading>
+            <Modal.Heading>Editar Cancha</Modal.Heading>
             <Modal.CloseTrigger />
           </Modal.Header>
           <Modal.Body>
@@ -89,13 +89,13 @@ export default function EditCourtModal({
                   min={0}
                   value={price}
                   onValueChange={setPrice}
-                  placeholder="38000"
+                  placeholder="Ej: 38000"
                 />
                 <TextInput
                   label="Tipo de césped / Superficie"
                   value={type}
                   onValueChange={setType}
-                  placeholder="Sintético 60mm FIFA Pro"
+                  placeholder="Ej: Sintético 60mm FIFA Pro"
                 />
               </div>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -103,13 +103,13 @@ export default function EditCourtModal({
                   label="Dimensiones"
                   value={dimensions}
                   onValueChange={setDimensions}
-                  placeholder="30 x 18 mts"
+                  placeholder="Ej: 30 x 18 mts"
                 />
                 <TextInput
                   label="Iluminación"
                   value={lighting}
                   onValueChange={setLighting}
-                  placeholder="LED 500 Lux"
+                  placeholder="Ej: LED 500 Lux"
                 />
               </div>
               <TextInput
@@ -118,24 +118,27 @@ export default function EditCourtModal({
                 onValueChange={setImageUrl}
                 placeholder="https://.../cancha.jpg"
               />
+
               <div className="flex flex-col gap-2 pt-1">
                 <Checkbox isSelected={isCovered} onChange={setIsCovered}>
-                  <Checkbox.Control>
-                    <Checkbox.Indicator />
-                  </Checkbox.Control>
                   <Checkbox.Content className="text-sm text-neutral-200">
+                    <Checkbox.Control>
+                      <Checkbox.Indicator />
+                    </Checkbox.Control>
                     Cancha techada / cubierta
                   </Checkbox.Content>
                 </Checkbox>
+
                 <Checkbox isSelected={active} onChange={setActive}>
-                  <Checkbox.Control>
-                    <Checkbox.Indicator />
-                  </Checkbox.Control>
                   <Checkbox.Content className="text-sm text-neutral-200">
+                    <Checkbox.Control>
+                      <Checkbox.Indicator />
+                    </Checkbox.Control>
                     Cancha activa (disponible para reservas)
                   </Checkbox.Content>
                 </Checkbox>
               </div>
+
               {error !== null && (
                 <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-2.5 text-xs font-semibold text-red-400">
                   {error}
@@ -149,6 +152,7 @@ export default function EditCourtModal({
             </Button>
             <Button
               variant="primary"
+              size="sm"
               className="bg-[#c5d86d] font-bold text-neutral-950 hover:bg-[#b5c85d]"
               isDisabled={mutation.isPending}
               onPress={handleSubmit}

@@ -1,64 +1,81 @@
+import React from 'react';
+
 interface LogoProps {
-  className?: string
-  showText?: boolean
-  subtitle?: string
+  className?: string;
+  showText?: boolean;
+  subtitle?: string;
+  inverted?: boolean;
 }
 
-export default function Logo({
-  className,
+export const Logo: React.FC<LogoProps> = ({
+  className = 'h-9',
   showText = true,
-  subtitle = 'Complejo Deportivo',
-}: LogoProps): React.JSX.Element {
+  subtitle = 'COMPLEJO DEPORTIVO',
+}) => {
   return (
-    <span className="inline-flex items-center gap-2.5">
-      <span className="inline-flex shrink-0 items-center justify-center rounded-xl border p-1.5 transition-all duration-300 border-white/5 bg-[#1b0a0e]/50 hover:bg-[#1b0a0e]/70">
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          aria-hidden="true"
-          className={className ?? 'h-8 w-8 sm:h-9 sm:w-9'}
+    <div className={`flex items-center gap-2.5 select-none ${className}`}>
+      {/* Isotipo SVG Deportivo Vectorial */}
+      <svg
+        viewBox="0 0 32 32"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className="w-8 h-8 shrink-0"
+      >
+        {/* Cuerpo angular y moderno de la copa */}
+        <path
+          d="M7 4H25V12C25 17.5 21 21.5 16 22C11 21.5 7 17.5 7 12V4Z"
+          className="stroke-white"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        {/* Asas dinámicas */}
+        <path
+          d="M7 7H4C3.44772 7 3 7.44772 3 8V10C3 12.7614 5.23858 15 8 15"
+          className="stroke-white"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+        <path
+          d="M25 7H28C28.5523 7 29 7.44772 29 8V10C29 12.7614 26.7614 15 24 15"
+          className="stroke-white"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+        {/* Base y soporte */}
+        <path
+          d="M16 22V27M11 28H21"
+          className="stroke-white"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        {/* Número 5 institucional integrado con contraste perfecto */}
+        <text
+          x="16"
+          y="12.5"
+          textAnchor="middle"
+          dominantBaseline="central"
+          className="fill-[#c5d86d] font-black text-[10.5px] tracking-tighter"
+          style={{ fontFamily: 'system-ui, -apple-system, sans-serif', fontWeight: 900 }}
         >
-          <path
-            d="M6 4h12v4a6 6 0 0 1-12 0V4Z"
-            className="stroke-white"
-            strokeWidth="1.75"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M6 6H4a2 2 0 0 0 0 4h2M18 6h2a2 2 0 0 1 0 4h-2"
-            className="stroke-white"
-            strokeWidth="1.75"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M12 14v4M8 20h8"
-            className="stroke-white"
-            strokeWidth="1.75"
-            strokeLinecap="round"
-          />
-          <text
-            x="12"
-            y="12.5"
-            textAnchor="middle"
-            dominantBaseline="central"
-            className="fill-[#c5d86d] text-[10.5px] font-black"
-          >
-            5
-          </text>
-        </svg>
-      </span>
+          5
+        </text>
+      </svg>
+
+      {/* Tipografía de marca */}
       {showText && (
-        <span className="flex flex-col leading-none">
-          <span className="text-base font-extrabold tracking-tight text-white sm:text-lg">
+        <div className="flex flex-col justify-center">
+          <span className="text-xl font-black tracking-tight leading-none text-white">
             Copa 5
           </span>
-          <span className="mt-0.5 text-[10px] font-bold uppercase tracking-widest text-neutral-400 sm:text-[11px]">
+          <span className="text-[9px] font-bold tracking-[0.22em] uppercase mt-0.5 text-neutral-400">
             {subtitle}
           </span>
-        </span>
+        </div>
       )}
-    </span>
-  )
-}
+    </div>
+  );
+};
+
+export default Logo;

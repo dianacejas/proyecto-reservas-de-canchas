@@ -1,4 +1,4 @@
-﻿import { Alert, Button } from '@heroui/react'
+import { Alert, Button } from '@heroui/react'
 import { useState } from 'react'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/useAuth'
@@ -55,8 +55,8 @@ export default function LoginPage(): React.JSX.Element {
   return (
     <div className="mx-auto max-w-md space-y-6 py-8">
       <header>
-        <h1 className="text-2xl font-bold tracking-tight">{isLogin ? 'Ingresá' : 'Creá tu cuenta'}</h1>
-        <p className="mt-1 text-sm text-mauve-soft">
+        <h1 className="text-2xl font-bold tracking-tight text-white">{isLogin ? 'Ingresá' : 'Creá tu cuenta'}</h1>
+        <p className="mt-1 text-sm text-neutral-400">
           {isLogin
             ? 'Iniciá sesión para pagar tus reservas online.'
             : 'Registrate para gestionar y pagar tus reservas.'}
@@ -88,7 +88,7 @@ export default function LoginPage(): React.JSX.Element {
         </Button>
       </div>
 
-      <div className="space-y-4 rounded-2xl border p-6 shadow-surface border-mauve bg-coffee-elev">
+      <div className="space-y-4 rounded-2xl border p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] border-white/10 bg-neutral-900/60">
         {!isLogin && (
           <TextInput
             label="Nombre y apellido"
@@ -125,7 +125,7 @@ export default function LoginPage(): React.JSX.Element {
         </Button>
 
         {isLogin && (
-          <p className="text-xs text-mauve-soft">
+          <p className="text-xs text-neutral-400">
             Demo admin: admin@canchas.com · admin123 — Demo cliente: juan@canchas.com · juan123
           </p>
         )}

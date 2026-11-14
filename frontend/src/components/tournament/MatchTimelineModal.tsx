@@ -73,7 +73,7 @@ export default function MatchTimelineModal({
   )
 
   return (
-    <Modal.Root isOpen={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Modal.Root isOpen={isOpen} onOpenChange={(open) => open || onClose()}>
       <Modal.Backdrop variant="blur" />
       <Modal.Container size="md">
         <Modal.Dialog className="border border-white/10 bg-neutral-900">
@@ -83,28 +83,29 @@ export default function MatchTimelineModal({
             </Modal.Heading>
             <Modal.CloseTrigger />
           </Modal.Header>
+
           <Modal.Body className="space-y-5">
-            {/* Cabecera encuentro / Marcador */}
-            <div className="rounded-xl border border-white/10 bg-neutral-800/60 p-4 text-center">
-              <div className="mb-2 flex items-center justify-between text-xs text-neutral-400">
+            {/* Cabecera del encuentro / Marcador */}
+            <div className="rounded-xl border p-4 text-center border-white/10 bg-neutral-800/60">
+              <div className="flex items-center justify-between text-xs text-neutral-400 mb-2">
                 <span className="font-semibold uppercase tracking-wider">
-                  {match.fase === 'grupos'
-                    ? `Jornada ${match.matchday} · Grupo ${match.group}`
-                    : match.fase.toUpperCase()}
+                  {match.fase === 'grupos' ? `Jornada ${match.matchday} · Grupo ${match.group}` : match.fase.toUpperCase()}
                 </span>
                 <Chip size="sm" color={isFinished ? 'success' : 'default'}>
                   {isFinished ? 'Finalizado' : 'Programado'}
                 </Chip>
               </div>
+
               <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 py-1">
                 <div className="flex flex-col items-center gap-1.5 sm:flex-row sm:justify-end">
-                  <span className="text-sm font-black text-white sm:text-base">
+                  <span className="font-black text-sm sm:text-base text-white">
                     {homeLabel}
                   </span>
                   <TeamCrest name={homeLabel} size="md" />
                 </div>
+
                 <div className="px-3">
-                  <div className="text-2xl font-black tabular-nums text-white sm:text-3xl">
+                  <div className="text-2xl sm:text-3xl font-black text-white tabular-nums">
                     {isFinished ? `${match.homeGoals} – ${match.awayGoals}` : 'vs'}
                   </div>
                   {match.homePenalties !== null && match.awayPenalties !== null && (
@@ -113,15 +114,17 @@ export default function MatchTimelineModal({
                     </div>
                   )}
                 </div>
+
                 <div className="flex flex-col items-center gap-1.5 sm:flex-row sm:justify-start">
                   <TeamCrest name={awayLabel} size="md" />
-                  <span className="text-sm font-black text-white sm:text-base">
+                  <span className="font-black text-sm sm:text-base text-white">
                     {awayLabel}
                   </span>
                 </div>
               </div>
+
               {(dateStr || courtStr) && (
-                <div className="mt-3 flex flex-wrap justify-center gap-2 border-t border-white/10 pt-2.5 text-xs text-neutral-400">
+                <div className="mt-3 flex flex-wrap items-center justify-center gap-2 border-t pt-2.5 text-xs border-white/10 text-neutral-400">
                   {dateStr && (
                     <span className="inline-flex items-center gap-1">
                       <CalendarIcon className="size-3.5 text-neutral-400" />
@@ -146,35 +149,36 @@ export default function MatchTimelineModal({
 
             {/* Línea de Tiempo / Minuta */}
             <div>
-              <h4 className="mb-3 text-xs font-bold uppercase tracking-wider text-neutral-400">
-                Incidencias del Partido
+              <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-400 mb-3">
+                Línea de Tiempo del Partido
               </h4>
+
               {sortedEvents.length === 0 ? (
-                <p className="rounded-xl border border-dashed border-white/15 py-6 text-center text-sm text-neutral-400">
+                <p className="py-6 text-center text-xs text-neutral-400 border border-dashed rounded-xl border-white/15">
                   No hay incidencias ni goles registrados para este encuentro.
                 </p>
               ) : (
-                <div className="relative ml-4 space-y-3.5 border-l-2 border-white/10 pl-4">
+                <div className="relative border-l-2 border-[#c5d86d]/40 ml-4 pl-4 space-y-3.5">
                   {sortedEvents.map((event, idx) => {
                     const isHome = event.teamId === homeIdStr
-                    const isGoal =
-                      event.type === 'goal' ||
-                      event.type === 'gol' ||
-                      event.type === 'penal'
+                    const isGoal = event.type === 'goal' || event.type === 'gol' || event.type === 'penal'
+
                     return (
                       <div
                         key={`${event.playerName}-${idx}`}
                         className="relative flex items-center justify-between gap-3 text-sm"
                       >
                         {/* Dot indicador sobre la línea */}
-                        <span className="absolute -left-[23px] flex size-4 items-center justify-center rounded-full bg-[#c5d86d] text-[10px] font-black text-neutral-950 shadow-sm" />
+                        <span className="absolute -left-[23px] flex size-4 items-center justify-center rounded-full bg-[#c5d86d] text-[10px] text-neutral-950 font-black shadow-sm" />
 
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2">
                             {renderEventBadge(event.type)}
                             <span
-                              className={`truncate font-extrabold ${
-                                isGoal ? 'text-white' : 'text-neutral-300'
+                              className={`font-extrabold truncate ${
+                                isGoal
+                                  ? 'text-white'
+                                  : 'text-neutral-300'
                               }`}
                             >
                               {event.playerName}
@@ -185,14 +189,13 @@ export default function MatchTimelineModal({
                               </span>
                             )}
                           </div>
-                          <p className="mt-0.5 text-[11px] font-medium text-neutral-400">
+                          <p className="text-[11px] font-medium text-neutral-400 mt-0.5">
                             {isHome ? homeLabel : awayLabel}
                           </p>
                         </div>
-                        <span className="shrink-0 rounded-md bg-neutral-800 px-2 py-0.5 text-xs font-black tabular-nums text-neutral-200">
-                          {event.minute !== null && event.minute !== undefined
-                            ? `${event.minute}'`
-                            : '—'}
+
+                        <span className="shrink-0 rounded-md px-2 py-0.5 text-xs font-black tabular-nums bg-neutral-800 text-white">
+                          {event.minute !== null && event.minute !== undefined ? `${event.minute}'` : '—'}
                         </span>
                       </div>
                     )

@@ -10,6 +10,7 @@ export interface MatchResultSubmit {
   homePenalties?: number
   awayPenalties?: number
   events: MatchEvent[]
+  mvpPlayer?: string | null
 }
 
 function teamRefId(team: string | TeamRef | null | undefined): string | null {
@@ -100,6 +101,7 @@ export default function MatchResultModal({
       .filter((event) => event.type === 'goal' && event.teamId === awayId)
       .map((event) => event.playerName)
   )
+  const [mvp, setMvp] = useState(match.mvpPlayer ?? '')
 
   const parsedHome = home.trim() === '' ? null : Number(home)
   const parsedAway = away.trim() === '' ? null : Number(away)
@@ -195,6 +197,7 @@ export default function MatchResultModal({
       homeGoals,
       awayGoals,
       events: [...preservedCards, ...homeGoalEvents, ...awayGoalEvents],
+      mvpPlayer: mvp.trim() || null,
     }
     if (isTied && homePen.trim() !== '' && awayPen.trim() !== '') {
       input.homePenalties = Number(homePen)
@@ -217,7 +220,7 @@ export default function MatchResultModal({
               <div className="grid grid-cols-[1fr_auto] items-center gap-3">
                 <span className="flex min-w-0 items-center gap-2 text-right">
                   <TeamCrest name={teamRefName(match.homeTeamId)} size="xs" />
-                  <span className="truncate font-medium text-mauve-soft">
+                  <span className="truncate font-medium text-neutral-200">
                     {teamRefName(match.homeTeamId)}
                   </span>
                 </span>
@@ -235,7 +238,7 @@ export default function MatchResultModal({
               <div className="grid grid-cols-[1fr_auto] items-center gap-3">
                 <span className="flex min-w-0 items-center gap-2 text-right">
                   <TeamCrest name={teamRefName(match.awayTeamId)} size="xs" />
-                  <span className="truncate font-medium text-mauve-soft">
+                  <span className="truncate font-medium text-neutral-200">
                     {teamRefName(match.awayTeamId)}
                   </span>
                 </span>
@@ -270,12 +273,12 @@ export default function MatchResultModal({
               )}
 
               {tieNeedsPen && (
-                <div className="space-y-2 rounded-lg border bg-paper/70 p-3 border-mauve bg-mauve-deep/60">
-                  <p className="text-xs font-medium uppercase tracking-wide text-mauve-soft">
+                <div className="space-y-2 rounded-lg border p-3 border-white/10 bg-neutral-800/60">
+                  <p className="text-xs font-medium uppercase tracking-wide text-neutral-400">
                     Definición por penales
                   </p>
                   <div className="grid grid-cols-2 gap-2">
-                    <div className="space-y-1 text-xs text-mauve-soft">
+                    <div className="space-y-1 text-xs text-neutral-400">
                       <span className="block">{teamRefName(match.homeTeamId)}</span>
                       <TextInput
                         aria-label="Penales local"
@@ -288,7 +291,7 @@ export default function MatchResultModal({
                         placeholder="0"
                       />
                     </div>
-                    <div className="space-y-1 text-xs text-mauve-soft">
+                    <div className="space-y-1 text-xs text-neutral-400">
                       <span className="block">{teamRefName(match.awayTeamId)}</span>
                       <TextInput
                         aria-label="Penales visitante"
@@ -306,10 +309,17 @@ export default function MatchResultModal({
               )}
 
               {(homeMissing || awayMissing) && scoresValid && (
-                <p className="text-xs text-mauve-soft">
+                <p className="text-xs text-neutral-400">
                   Atribuí un goleador a cada gol para poder guardar el resultado.
                 </p>
               )}
+
+              <TextInput
+                label="Jugador del Partido (MVP, opcional)"
+                placeholder="Nombre del jugador destacado"
+                value={mvp}
+                onValueChange={setMvp}
+              />
 
               {error !== null && (
                 <Chip color="danger" size="sm" className="h-auto py-1">
@@ -365,12 +375,12 @@ function GoalScorerSection({
   }
 
   return (
-    <div className="space-y-2 rounded-lg border bg-paper/70 p-3 border-mauve bg-mauve-deep/60">
-      <p className="text-xs font-medium uppercase tracking-wide text-mauve-soft">
+    <div className="space-y-2 rounded-lg border p-3 border-white/10 bg-neutral-800/60">
+      <p className="text-xs font-medium uppercase tracking-wide text-neutral-400">
         Goleadores · {teamName}
       </p>
       {!canPick && (
-        <p className="text-xs text-mauve-soft">
+        <p className="text-xs text-neutral-400">
           Este equipo todavía no tiene plantel cargado: escribí los nombres a mano.
         </p>
       )}
@@ -382,7 +392,7 @@ function GoalScorerSection({
           return (
             <div key={index} className="space-y-1.5">
               <div className="flex items-center gap-2">
-                <span className="w-16 shrink-0 text-xs font-semibold text-mauve-soft">
+                <span className="w-16 shrink-0 text-xs font-semibold text-neutral-400">
                   Gol {index + 1}
                 </span>
                 {canPick ? (

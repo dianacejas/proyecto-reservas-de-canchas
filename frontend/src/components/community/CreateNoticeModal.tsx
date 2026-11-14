@@ -106,7 +106,7 @@ export default function CreateNoticeModal({
 
               <TextInput
                 label="Título del aviso"
-                placeholder="Ej: Nos falta arquero para hoy / Buscamos rival a las 20hs"
+                placeholder="Ej: Nos falta arquero para hoy / Buscamos rival para las 20hs"
                 value={title}
                 onValueChange={setTitle}
               />

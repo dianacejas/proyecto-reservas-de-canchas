@@ -5,17 +5,20 @@ import { useAuth } from '../../auth/useAuth'
 import Logo from '../brand/Logo'
 
 const navLinkClass = ({ isActive }: { isActive: boolean }): string =>
-  `inline-flex min-h-11 items-center rounded-full px-3.5 text-sm transition-colors ${
+  `inline-flex items-center text-sm font-semibold transition-all py-2 px-3 relative rounded-lg ${
     isActive
-      ? 'border border-[#c5d86d]/30 bg-[#c5d86d]/15 font-bold text-[#c5d86d]'
-      : 'font-medium text-neutral-300 hover:bg-white/5 hover:text-white'
+      ? 'border border-[#c5d86d]/30 bg-[#c5d86d]/15 text-[#c5d86d] font-bold shadow-[0_0_15px_rgba(197,216,109,0.12)]'
+      : 'border border-transparent text-neutral-400 hover:text-white'
   }`
 
+/**
+ * Enlaces del drawer movil con estilo minimalista SaaS.
+ */
 const drawerLinkClass = ({ isActive }: { isActive: boolean }): string =>
-  `flex w-full min-h-11 items-center rounded-xl px-4 py-2 text-lg transition-colors ${
+  `flex w-full items-center rounded-xl px-4 py-3 text-base font-semibold transition-all ${
     isActive
-      ? 'bg-[#c5d86d] font-bold text-neutral-950 shadow-surface'
-      : 'text-neutral-300 hover:bg-white/10 hover:text-white'
+      ? 'border border-[#c5d86d]/30 bg-[#c5d86d]/15 text-[#c5d86d] font-bold'
+      : 'border border-transparent text-neutral-300 hover:text-white'
   }`
 
 function MenuIcon({ open }: { open: boolean }): React.JSX.Element {
@@ -46,11 +49,21 @@ function MenuIcon({ open }: { open: boolean }): React.JSX.Element {
   )
 }
 
-function scrollToSection(sectionId: string, navbarHeight: number): void {
-  const el = document.getElementById(sectionId)
-  if (el === null) return
-  const y = el.getBoundingClientRect().top + window.scrollY - Math.max(navbarHeight, 80) - 8
-  window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' })
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>
+}
+
+function scrollToSection(sectionId: string, navbarHeight = 80): void {
+  const element = document.getElementById(sectionId)
+  if (!element) return
+  const elementPosition = element.getBoundingClientRect().top
+  const offsetPosition = elementPosition + window.pageYOffset - navbarHeight
+
+  window.scrollTo({
+    top: offsetPosition,
+    behavior: 'smooth',
+  })
 }
 
 export default function Navbar(): React.JSX.Element {
@@ -62,7 +75,29 @@ export default function Navbar(): React.JSX.Element {
   const [headerHeight, setHeaderHeight] = useState(0)
   /** Sección activa en la home: "Reservas" es un ancla de la misma página. */
   const [activeSection, setActiveSection] = useState<'home' | 'reservas'>('home')
+  const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null)
 
+  useEffect(() => {
+    const handleBeforeInstall = (e: Event): void => {
+      e.preventDefault()
+      setInstallPrompt(e as BeforeInstallPromptEvent)
+    }
+    window.addEventListener('beforeinstallprompt', handleBeforeInstall)
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstall)
+  }, [])
+
+  const handleInstallClick = async (): Promise<void> => {
+    if (!installPrompt) return
+    await installPrompt.prompt()
+    const choice = await installPrompt.userChoice
+    if (choice.outcome === 'accepted') {
+      setInstallPrompt(null)
+    }
+  }
+
+  // HeroUI envuelve el Disclosure en un div `relative` que mide solo el ancho
+  // del trigger, asi que un panel `absolute inset-x-0` queda angosto y se
+  // corta. Midiendo el header podemosPositionarlo respecto de la ventana.
   useEffect(() => {
     const el = headerRef.current
     if (el === null) return
@@ -73,30 +108,37 @@ export default function Navbar(): React.JSX.Element {
     return () => observer.disconnect()
   }, [])
 
+  // Al llegar con /#reservas desde otra ruta el scroll nativo no alcanza:
+  // el id se monta despues de resolver la query de canchas. Reintentamos
+  // con un par de timeouts.
   useEffect(() => {
     if (location.pathname !== '/' || location.hash !== '#reservas') return
-    const scroll = (): void => scrollToSection('reservas', headerHeight)
+    const navOffset = headerHeight > 0 ? headerHeight + 16 : 80
+    const scroll = (): void => {
+      setActiveSection('reservas')
+      scrollToSection('reservas', navOffset)
+    }
     scroll()
     const timers = [setTimeout(scroll, 120), setTimeout(scroll, 400)]
     return () => timers.forEach(clearTimeout)
   }, [location.pathname, location.hash, headerHeight])
 
-  // Scroll Spy con IntersectionObserver adelantado para marcar "Reservas" apenas
-  // entra en el tercio superior de la pantalla debajo del Navbar fijo.
+  // Scroll Spy con IntersectionObserver adelantado (rootMargin '-20% 0px -60% 0px')
   useEffect(() => {
     if (location.pathname !== '/') return
 
     let observer: IntersectionObserver | null = null
-    const attach = (): void => {
+
+    const attachObserver = (): boolean => {
       const target = document.getElementById('reservas')
-      if (target === null) return
+      if (!target) return false
       observer?.disconnect()
       observer = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
             if (entry.isIntersecting) {
               setActiveSection('reservas')
-            } else if (window.scrollY < target.offsetTop - Math.max(headerHeight, 80)) {
+            } else if (entry.boundingClientRect.top > window.innerHeight * 0.25) {
               setActiveSection('home')
             }
           })
@@ -107,15 +149,25 @@ export default function Navbar(): React.JSX.Element {
         }
       )
       observer.observe(target)
+      return true
     }
 
-    attach()
-    const timers = [setTimeout(attach, 200), setTimeout(attach, 600)]
+    const onScrollTopReset = (): void => {
+      if (window.scrollY < 120) {
+        setActiveSection('home')
+      }
+    }
+
+    attachObserver()
+    window.addEventListener('scroll', onScrollTopReset, { passive: true })
+    const timers = [setTimeout(attachObserver, 150), setTimeout(attachObserver, 500)]
+
     return () => {
       observer?.disconnect()
+      window.removeEventListener('scroll', onScrollTopReset)
       timers.forEach(clearTimeout)
     }
-  }, [location.pathname, headerHeight])
+  }, [location.pathname])
 
   function closeMenu(): void {
     setIsMenuOpen(false)
@@ -135,7 +187,7 @@ export default function Navbar(): React.JSX.Element {
     setActiveSection('reservas')
     if (location.pathname !== '/') return
     event.preventDefault()
-    scrollToSection('reservas', headerHeight)
+    scrollToSection('reservas', headerHeight > 0 ? headerHeight + 16 : 80)
   }
 
   const isOnHome = location.pathname === '/'
@@ -145,12 +197,12 @@ export default function Navbar(): React.JSX.Element {
   return (
     <header
       ref={headerRef}
-      className="fixed left-0 right-0 top-0 z-50 border-b border-white/10 bg-neutral-950/80 backdrop-blur-md transition-all duration-300"
+      className="fixed top-0 left-0 right-0 z-50 bg-neutral-950/80 backdrop-blur-md border-b border-white/10 transition-all duration-300"
     >
-      <nav className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3">
+      <nav className="mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-3.5">
         <div className="flex min-w-0 items-center gap-2">
           <NavLink to="/" end aria-label="Copa 5 - Inicio" className="shrink-0">
-            <Logo className="size-8 sm:h-9 sm:w-9" />
+            <Logo className="h-9 w-9 sm:h-10 sm:w-10" />
           </NavLink>
         </div>
 
@@ -190,9 +242,22 @@ export default function Navbar(): React.JSX.Element {
         </div>
 
         <div className="hidden items-center gap-2 md:flex">
+          {installPrompt && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="min-h-11 rounded-full border-lime/40 bg-lime/20 font-semibold text-[#c5d86d] hover:bg-lime/30"
+              onPress={() => {
+                void handleInstallClick()
+              }}
+            >
+              Instalar App
+            </Button>
+          )}
+
           {isAuthenticated && user !== null ? (
             <>
-              <span className="text-sm font-medium text-mauve-soft">
+              <span className="text-sm font-medium text-neutral-300">
                 {user.name.split(' ')[0]} {user.role === 'admin' ? '· Admin' : ''}
               </span>
               <Button
@@ -218,7 +283,7 @@ export default function Navbar(): React.JSX.Element {
           <Disclosure isExpanded={isMenuOpen} onExpandedChange={setIsMenuOpen}>
             <DisclosureTrigger
               aria-label={isMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
-              className="flex size-11 items-center justify-center rounded-xl border transition-colors hover:bg-lime/10 border-mauve bg-coffee-elev text-[#f3efe8]"
+              className="flex size-11 items-center justify-center rounded-xl border border-white/15 bg-neutral-900 text-neutral-100 transition-colors hover:bg-lime/10"
             >
               <MenuIcon open={isMenuOpen} />
             </DisclosureTrigger>
@@ -234,7 +299,7 @@ export default function Navbar(): React.JSX.Element {
 
             <DisclosureContent
               style={{ top: headerHeight }}
-              className="fixed inset-x-0 z-40 w-full max-w-full border-b px-6 pb-6 pt-4 shadow-xl backdrop-blur-md border-white/10 bg-[#1a090d]/95 text-white"
+              className="fixed inset-x-0 z-40 w-full max-w-full border-b border-white/10 bg-neutral-950/95 px-6 pb-6 pt-4 text-white shadow-xl backdrop-blur-md"
             >
               <nav className="flex w-full flex-col gap-4" aria-label="Navegación principal">
                 <Link
@@ -271,6 +336,19 @@ export default function Navbar(): React.JSX.Element {
                 )}
 
                 <div className="my-2 h-px bg-white/10" />
+
+                {installPrompt && (
+                  <Button
+                    variant="outline"
+                    className="min-h-11 w-full rounded-xl border-lime/40 bg-lime/20 font-semibold text-[#c5d86d] hover:bg-lime/30"
+                    onPress={() => {
+                      void handleInstallClick()
+                      closeMenu()
+                    }}
+                  >
+                    Instalar App
+                  </Button>
+                )}
 
                 {isAuthenticated && user !== null ? (
                   <>

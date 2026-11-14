@@ -1,40 +1,31 @@
 import { useMemo, useState } from 'react'
 import type { TopScorerRow } from '../../types'
 import { assignCrestColors } from '../../utils/crest'
+import { AwardIcon, MedalIcon, SoccerBallIcon, TrophyIcon } from '../common/Icons'
 import PlayerProfileModal from './PlayerProfileModal'
 import TeamCrest from './TeamCrest'
 
-const MEDALS = ['🥇', '🥈', '🥉']
-
 const PODIUM_TONES = [
   {
-    ring: 'border-[#e8c15a]/50',
-    glow: 'shadow-[0_0_26px_-10px_rgba(232,193,90,0.55)]',
-    label: 'text-[#e8c15a]',
-    goals: 'text-[#e8c15a]',
+    icon: (className: string) => <TrophyIcon className={className} />,
   },
   {
-    ring: 'border-[#cdd2dc]/40',
-    glow: 'shadow-[0_0_26px_-10px_rgba(205,210,220,0.5)]',
-    label: 'text-[#cdd2dc]',
-    goals: 'text-[#cdd2dc]',
+    icon: (className: string) => <MedalIcon className={className} />,
   },
   {
-    ring: 'border-[#d99a5b]/40',
-    glow: 'shadow-[0_0_26px_-10px_rgba(217,154,91,0.5)]',
-    label: 'text-[#d99a5b]',
-    goals: 'text-[#d99a5b]',
+    icon: (className: string) => <AwardIcon className={className} />,
   },
 ]
 
 export default function TopScorersTab({
   rows,
-  tournamentId = '',
+  tournamentId,
 }: {
   rows: TopScorerRow[]
   tournamentId?: string
 }): React.JSX.Element {
   const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null)
+
   const colorFor = useMemo(
     () => assignCrestColors(rows.map((row) => row.teamName)),
     [rows],
@@ -42,7 +33,7 @@ export default function TopScorersTab({
 
   if (rows.length === 0) {
     return (
-      <p className="py-8 text-center text-sm text-mauve-soft">
+      <p className="py-8 text-center text-sm text-neutral-400">
         Todavía no hay goles registrados.
       </p>
     )
@@ -52,59 +43,89 @@ export default function TopScorersTab({
 
   return (
     <div className="space-y-4">
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-3">
         {podium.map((row, index) => {
           const tone = PODIUM_TONES[index]
+          const isFirst = index === 0
           return (
             <div
               key={`${row.playerName}-${row.teamId}`}
-              className={`flex flex-col items-center gap-2 rounded-xl border border-neutral-800 bg-neutral-900/90 px-4 py-5 text-center shadow-surface ${tone.glow}`}
+              className={`relative flex flex-col justify-between overflow-hidden rounded-3xl border p-5 transition-all hover:-translate-y-0.5 ${
+                isFirst
+                  ? 'border-[#c5d86d] shadow-md bg-neutral-900/80'
+                  : 'shadow-sm border-white/10 bg-neutral-900/60'
+              }`}
             >
-              <span className="text-2xl leading-none" aria-hidden="true">
-                {MEDALS[index]}
-              </span>
-              <span className={`text-[10px] font-black uppercase tracking-[0.25em] ${tone.label}`}>
-                {index === 0 ? 'Máximo goleador' : `${index + 1}er goleador`}
-              </span>
-              <div
-                className={`w-full rounded-xl border p-1.5 ${tone.ring}`}
-                style={{ background: 'linear-gradient(to bottom, rgba(197,216,109,0.12), transparent)' }}
+              {/* Dorsal / Ranking gigante en marca de agua */}
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute right-3 top-1 select-none font-mono text-6xl font-black tracking-tighter text-white/[0.06]"
               >
-                <p className="truncate text-base font-extrabold leading-tight text-[#f3efe8]">
+                0{index + 1}
+              </span>
+
+              <div className="relative z-10 flex items-center gap-2.5">
+                <div
+                  className={`flex size-10 items-center justify-center rounded-xl ${
+                    isFirst
+                      ? 'bg-[#c5d86d] text-neutral-950'
+                      : 'bg-white/10 text-stone-300'
+                  }`}
+                  aria-hidden="true"
+                >
+                  {tone.icon('size-5')}
+                </div>
+                <span className="rounded-full bg-[#c5d86d]/15 px-2.5 py-0.5 text-xs font-extrabold text-[#c5d86d]">
+                  {index + 1}° Goleador
+                </span>
+              </div>
+
+              <div className="relative z-10 mt-4">
+                <button
+                  type="button"
+                  onClick={() => setSelectedPlayer(row.playerName)}
+                  className="block truncate text-left text-lg font-black text-white hover:text-[#c5d86d] cursor-pointer"
+                >
                   {row.playerName}
-                </p>
-                <div className="mt-1 flex items-center justify-center gap-1.5">
+                </button>
+                <div className="mt-1.5 flex items-center gap-2">
                   <TeamCrest name={row.teamName} color={colorFor(row.teamName)} size="xs" />
-                  <span className="truncate text-xs font-medium text-mauve-soft">
+                  <span className="truncate text-xs font-semibold text-neutral-400">
                     {row.teamName}
                   </span>
                 </div>
-                <p className={`mt-1.5 text-sm font-black tabular-nums ${tone.goals}`}>
-                  ⚽ {row.goalsCount} {row.goalsCount === 1 ? 'gol' : 'goles'}
-                </p>
+              </div>
+
+              <div className="relative z-10 mt-4 flex items-center justify-between border-t pt-3 border-white/10">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-neutral-400">
+                  Total Anotados
+                </span>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#c5d86d]/20 px-3 py-1 text-sm font-black tabular-nums text-[#c5d86d]">
+                  <SoccerBallIcon className="size-3.5" />
+                  <span>
+                    {row.goalsCount} {row.goalsCount === 1 ? 'gol' : 'goles'}
+                  </span>
+                </span>
               </div>
             </div>
           )
         })}
       </div>
 
-      {/* Igual que en la tabla de posiciones: el scroll y el recorte de las
-          esquinas viven en la misma caja, si no el fondo de la tabla pinta el
-          angulo recto. */}
-      <div className="overflow-x-auto rounded-xl border shadow-surface border-mauve">
+      <div className="overflow-x-auto rounded-xl border border-white/5">
         <table
-          className="w-full border-collapse text-sm bg-coffee-elev"
+          className="w-full border-collapse text-sm bg-neutral-900/60"
           aria-label="Tabla de goleadores"
         >
           <thead>
-            <tr className="border-b text-left text-xs uppercase tracking-wider border-mauve text-mauve-soft">
-              <th className="px-3 py-3 font-medium sm:px-4">#</th>
-              <th className="px-3 py-3 font-medium sm:px-4">Jugador</th>
-              <th className="px-3 py-3 font-medium sm:px-4">Equipo</th>
-              <th className="px-3 py-3 text-center font-medium sm:px-4">Goles</th>
+            <tr className="border-b text-left text-xs uppercase tracking-wider border-white/5 text-neutral-400">
+              <th className="px-3 py-2 font-medium sm:px-4">#</th>
+              <th className="px-3 py-2 font-medium sm:px-4">Jugador</th>
+              <th className="px-3 py-2 font-medium sm:px-4">Equipo</th>
+              <th className="px-3 py-2 text-center font-medium sm:px-4">Goles</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-mauve/70">
+          <tbody className="divide-y divide-white/5">
             {rows.map((row, index) => {
               const isPodium = index < 3
               return (
@@ -112,46 +133,40 @@ export default function TopScorersTab({
                   key={`${row.playerName}-${row.teamId}`}
                   className={
                     isPodium
-                      ? 'bg-lime/[0.12] text-[#f3efe8]'
-                      : 'text-[#f3efe8]'
+                      ? 'bg-[#c5d86d]/[0.12] text-white'
+                      : 'text-white'
                   }
                 >
-                  <td className="px-3 py-3 sm:px-4">
+                  <td className="px-3 py-2 sm:px-4 text-xs font-medium">
                     <span className="inline-flex items-center gap-1.5">
                       {isPodium && (
-                        <span className="text-sm leading-none" aria-hidden="true">
-                          {MEDALS[index]}
-                        </span>
+                        <span className="size-1.5 rounded-full bg-[#c5d86d]" />
                       )}
                       {row.rank}
                     </span>
                   </td>
-                  <td className="px-3 py-3 font-semibold sm:px-4">
-                    {tournamentId ? (
-                      <button
-                        type="button"
-                        onClick={() => setSelectedPlayer(row.playerName)}
-                        className="text-left transition-colors hover:text-[#c5d86d]"
-                      >
-                        {row.playerName}
-                      </button>
-                    ) : (
-                      row.playerName
-                    )}
+                  <td className="px-3 py-2 font-semibold sm:px-4">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedPlayer(row.playerName)}
+                      className="text-left font-semibold text-white hover:text-[#c5d86d] cursor-pointer"
+                    >
+                      {row.playerName}
+                    </button>
                   </td>
-                  <td className="px-3 py-3 sm:px-4">
+                  <td className="px-3 py-2 sm:px-4">
                     <div className="flex items-center gap-2 sm:gap-3">
                       <TeamCrest name={row.teamName} color={colorFor(row.teamName)} size="xs" />
-                      <span className="min-w-0 truncate text-mauve-soft">
+                      <span className="min-w-0 truncate text-xs text-neutral-400">
                         {row.teamName}
                       </span>
                     </div>
                   </td>
                   <td
-                    className={`px-3 py-3 text-center text-base font-black tabular-nums ${
+                    className={`px-3 py-2 text-center text-sm font-black tabular-nums ${
                       isPodium
-                        ? 'text-lime'
-                        : 'text-[#f3efe8]'
+                        ? 'text-[#c5d86d]'
+                        : 'text-white'
                     }`}
                   >
                     {row.goalsCount}
@@ -163,12 +178,14 @@ export default function TopScorersTab({
         </table>
       </div>
 
-      <PlayerProfileModal
-        isOpen={selectedPlayer !== null}
-        onClose={() => setSelectedPlayer(null)}
-        tournamentId={tournamentId}
-        playerId={selectedPlayer}
-      />
+      {tournamentId && (
+        <PlayerProfileModal
+          isOpen={selectedPlayer !== null}
+          onClose={() => setSelectedPlayer(null)}
+          tournamentId={tournamentId}
+          playerId={selectedPlayer}
+        />
+      )}
     </div>
   )
 }

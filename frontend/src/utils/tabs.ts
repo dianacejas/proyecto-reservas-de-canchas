@@ -1,9 +1,9 @@
 export const PILL_TAB_CLASS = [
-  'rounded-full px-4 py-1.5 font-medium transition-colors whitespace-nowrap',
-  'bg-neutral-200/60 text-neutral-700 hover:bg-neutral-200 hover:opacity-100',
-  'border border-white/10 bg-white/5 text-neutral-300 hover:bg-white/10',
-  'data-[selected=true]:bg-[#c5d86d] data-[selected=true]:text-neutral-900 data-[selected=true]:font-bold data-[selected=true]:shadow-sm',
-  'data-[selected=true]:bg-[#c5d86d] data-[selected=true]:text-neutral-900',
+  'rounded-xl px-4 py-2 font-medium transition-colors whitespace-nowrap text-sm',
+  'text-stone-600 hover:text-white hover:bg-stone-200/50',
+  'text-neutral-400 hover:text-white hover:bg-white/10',
+  'data-[selected=true]:bg-stone-900 data-[selected=true]:text-white data-[selected=true]:font-bold data-[selected=true]:shadow-sm',
+  'data-[selected=true]:bg-[#c5d86d] data-[selected=true]:text-neutral-950 data-[selected=true]:font-black',
 ].join(' ')
 
 /**
@@ -17,6 +17,6 @@ export const PILL_TAB_CLASS = [
  * sea el del label y la fila desborde (y scrollee) en lugar de aplastarlas.
  */
 export const PILL_TAB_LIST_CLASS = [
-  'max-w-full gap-2 overflow-x-auto overscroll-x-contain',
+  'max-w-full gap-2 overflow-x-auto overscroll-x-contain p-1 rounded-2xl bg-neutral-900/60 border border-white/5',
   '[scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
 ].join(' ')

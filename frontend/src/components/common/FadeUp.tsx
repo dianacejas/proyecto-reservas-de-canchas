@@ -24,7 +24,10 @@ export default function FadeUp({
     if (element === null) return
     const observer = new IntersectionObserver(
       (entries) => {
-        setVisible(entries[0].isIntersecting)
+        if (entries[0].isIntersecting) {
+          setVisible(true)
+          observer.unobserve(element)
+        }
       },
       { threshold: 0.12, rootMargin: '0px 0px -48px 0px' },
     )

@@ -2,7 +2,7 @@ import { Button, Chip, Tabs } from '@heroui/react'
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { getMatchdays, getStandings, getTournament, getTournamentStats, getTopScorers } from '../api'
+import { getMatchdays, getStandings, getTournament, getTournamentStats, getTopScorers, queryKeys } from '../api'
 import { getErrorMessage } from '../api/client'
 import { useAuth } from '../auth/useAuth'
 import ErrorState from '../components/common/ErrorState'
@@ -18,7 +18,9 @@ import TournamentRegistrationModal from '../components/tournament/TournamentRegi
 import AdminPanel from '../components/tournament/AdminPanel'
 import { buildFixtureText, buildStandingsText } from '../utils/tournamentExport'
 import { PILL_TAB_CLASS, PILL_TAB_LIST_CLASS } from '../utils/tabs'
-import type { GroupStandings, TournamentStatus } from '../types'
+import { CalendarIcon, ClockIcon, StadiumIcon, SwordsIcon, TrophyIcon } from '../components/common/Icons'
+import TeamCrest from '../components/tournament/TeamCrest'
+import type { GroupStandings, Match, TeamRef, TournamentStatus } from '../types'
 
 const STATUS_META: Record<
   TournamentStatus,
@@ -35,31 +37,31 @@ export default function TorneoPage(): React.JSX.Element {
   const [showRegistration, setShowRegistration] = useState(false)
 
   const tournamentQuery = useQuery({
-    queryKey: ['tournament', id],
+    queryKey: queryKeys.tournament(id ?? ''),
     queryFn: () => getTournament(id as string),
     enabled: id !== undefined,
   })
 
   const standingsQuery = useQuery({
-    queryKey: ['standings', id],
+    queryKey: queryKeys.tournamentStandings(id ?? ''),
     queryFn: () => getStandings(id as string),
     enabled: id !== undefined,
   })
 
   const matchdaysQuery = useQuery({
-    queryKey: ['matchdays', id],
+    queryKey: queryKeys.tournamentMatchdays(id ?? ''),
     queryFn: () => getMatchdays(id as string),
     enabled: id !== undefined,
   })
 
   const statsQuery = useQuery({
-    queryKey: ['stats', id],
+    queryKey: queryKeys.tournamentStats(id ?? ''),
     queryFn: () => getTournamentStats(id as string),
     enabled: id !== undefined,
   })
 
   const topScorersQuery = useQuery({
-    queryKey: ['top-scorers', id],
+    queryKey: queryKeys.tournamentTopScorers(id ?? ''),
     queryFn: () => getTopScorers(id as string),
     enabled: id !== undefined,
   })
@@ -84,36 +86,52 @@ export default function TorneoPage(): React.JSX.Element {
     )
   }
   const meta = STATUS_META[tournament.status]
+  const allMatches: Match[] = (matchdaysQuery.data ?? []).flatMap((md) => md.matches)
+  const featuredMatch: Match | undefined =
+    allMatches.find((m) => m.status === 'programado' && m.homeTeamId && m.awayTeamId) ??
+    allMatches[allMatches.length - 1]
 
   return (
-    <div className="space-y-6">
-      <div>
-        <Link
-          to="/torneos"
-          className="inline-flex min-h-11 items-center text-sm transition-colors text-mauve-soft hover:text-lime"
-        >
-          ← Torneos
-        </Link>
-        <div className="mt-1 flex flex-wrap items-center gap-3">
-          <h1 className="text-xl font-bold tracking-tight sm:text-2xl">{tournament.name}</h1>
-          <Chip
-            color={meta.color}
-            size="sm"
-            className={tournament.status === 'en_curso' ? 'animate-pulse' : undefined}
+    <div className="w-full space-y-6">
+      <div className="flex flex-col gap-4 rounded-3xl border p-5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] sm:flex-row sm:items-center sm:justify-between sm:p-6 border-white/10 bg-neutral-900/60">
+        <div>
+          <Link
+            to="/torneos"
+            className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider transition-colors text-neutral-400 hover:text-[#c5d86d]"
           >
-            {meta.label}
-          </Chip>
+            ← Volver a Torneos
+          </Link>
+          <div className="mt-2 flex flex-wrap items-center gap-3">
+            <span className="flex size-9 items-center justify-center rounded-xl bg-[#c5d86d]/20 text-[#c5d86d]">
+              <TrophyIcon className="size-5" />
+            </span>
+            <h1 className="text-2xl font-black tracking-tight sm:text-3xl text-white">
+              {tournament.name}
+            </h1>
+            <Chip
+              color={meta.color}
+              size="sm"
+              className={tournament.status === 'en_curso' ? 'animate-pulse font-bold' : 'font-bold'}
+            >
+              {meta.label}
+            </Chip>
+          </div>
         </div>
         {!isAdmin && tournament.status === 'inscripcion' && (
           <Button
             variant="primary"
-            className="mt-3 min-h-11"
+            className="min-h-11 bg-[#c5d86d] font-black text-neutral-950 hover:bg-[#b5c85d]"
             onPress={() => setShowRegistration(true)}
           >
             Inscribir mi Equipo
           </Button>
         )}
       </div>
+
+      {/* Banner Broadcast: Partido Destacado de la Fecha */}
+      {featuredMatch !== undefined && (
+        <FeaturedMatchBanner match={featuredMatch} />
+      )}
 
       <Tabs.Root defaultSelectedKey="posiciones">
         <Tabs.List className={PILL_TAB_LIST_CLASS}>
@@ -133,7 +151,7 @@ export default function TorneoPage(): React.JSX.Element {
               onRetry={() => void standingsQuery.refetch()}
             />
           ) : standingsQuery.data !== undefined && standingsQuery.data.length === 0 ? (
-            <p className="py-8 text-center text-sm text-mauve-soft">
+            <p className="py-8 text-center text-sm text-neutral-400">
               No hay equipos inscriptos todavía.
             </p>
           ) : (
@@ -155,7 +173,7 @@ export default function TorneoPage(): React.JSX.Element {
               onRetry={() => void topScorersQuery.refetch()}
             />
           ) : (
-            <TopScorersTab rows={topScorersQuery.data ?? []} tournamentId={id} />
+            <TopScorersTab rows={topScorersQuery.data ?? []} tournamentId={tournament.id} />
           )}
         </Tabs.Panel>
 
@@ -209,6 +227,78 @@ export default function TorneoPage(): React.JSX.Element {
         />
       )}
 
+    </div>
+  )
+}
+
+function teamRefLabel(team: string | TeamRef | null | undefined): string {
+  if (!team) return 'Por definirse'
+  return typeof team === 'object' ? team.name : 'Equipo'
+}
+
+function FeaturedMatchBanner({ match }: { match: Match }): React.JSX.Element {
+  const home = teamRefLabel(match.homeTeamId)
+  const away = teamRefLabel(match.awayTeamId)
+  const isFinished = match.status === 'finalizado'
+  const schedule = match.bookingId
+  const courtName =
+    schedule && schedule.fieldId && typeof schedule.fieldId === 'object'
+      ? schedule.fieldId.name
+      : null
+
+  return (
+    <div className="relative overflow-hidden rounded-3xl border bg-neutral-950 p-5 text-white shadow-lg sm:p-6 border-white/10">
+      <div className="pointer-events-none absolute -right-10 -top-10 size-48 rounded-full bg-[#c5d86d]/15 blur-3xl" />
+      <div className="relative z-10 flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-3 text-xs">
+        <span className="inline-flex items-center gap-1.5 font-bold uppercase tracking-widest text-[#c5d86d]">
+          <SwordsIcon className="size-4" />
+          Partido Destacado · Fecha {match.matchday} ({match.group})
+        </span>
+        <span className="rounded-full bg-white/10 px-2.5 py-0.5 text-[11px] font-bold text-neutral-200">
+          {isFinished ? 'Resultado Final' : 'Próximo Encuentro'}
+        </span>
+      </div>
+
+      <div className="relative z-10 mt-4 grid grid-cols-[1fr_auto_1fr] items-center gap-3 sm:gap-6">
+        <div className="flex flex-col items-center gap-2 sm:flex-row sm:justify-end">
+          <span className="truncate text-sm font-black sm:text-lg">{home}</span>
+          <TeamCrest name={home} size="md" />
+        </div>
+
+        <div className="rounded-2xl border border-[#c5d86d]/30 bg-[#c5d86d]/15 px-4 py-2 text-center">
+          <span className="font-mono text-xl font-black text-[#c5d86d] sm:text-2xl">
+            {isFinished ? `${match.homeGoals ?? 0} - ${match.awayGoals ?? 0}` : 'VS'}
+          </span>
+        </div>
+
+        <div className="flex flex-col items-center gap-2 sm:flex-row sm:justify-start">
+          <TeamCrest name={away} size="md" />
+          <span className="truncate text-sm font-black sm:text-lg">{away}</span>
+        </div>
+      </div>
+
+      {(schedule?.startTime || courtName) && (
+        <div className="relative z-10 mt-4 flex flex-wrap items-center justify-center gap-4 border-t border-white/10 pt-3 text-xs text-neutral-300">
+          {schedule?.date && (
+            <span className="inline-flex items-center gap-1.5">
+              <CalendarIcon className="size-3.5 text-[#c5d86d]" />
+              {String(schedule.date).slice(0, 10)}
+            </span>
+          )}
+          {schedule?.startTime && (
+            <span className="inline-flex items-center gap-1.5">
+              <ClockIcon className="size-3.5 text-[#c5d86d]" />
+              {schedule.startTime} hs
+            </span>
+          )}
+          {courtName && (
+            <span className="inline-flex items-center gap-1.5">
+              <StadiumIcon className="size-3.5 text-[#c5d86d]" />
+              {courtName}
+            </span>
+          )}
+        </div>
+      )}
     </div>
   )
 }

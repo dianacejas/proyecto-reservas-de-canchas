@@ -4,6 +4,7 @@ import { useState } from 'react'
 import {
   approveTournamentRegistration,
   listTournamentRegistrations,
+  queryKeys,
   rejectTournamentRegistration,
 } from '../../api'
 import { getErrorMessage } from '../../api/client'
@@ -27,14 +28,14 @@ export default function RegistrationRequests({
   const [error, setError] = useState<string | null>(null)
 
   const registrationsQuery = useQuery({
-    queryKey: ['registrations', tournamentId],
+    queryKey: queryKeys.tournamentRegistrations(tournamentId),
     queryFn: () => listTournamentRegistrations(tournamentId),
   })
 
   const invalidateAll = (): void => {
-    void queryClient.invalidateQueries({ queryKey: ['registrations', tournamentId] })
-    void queryClient.invalidateQueries({ queryKey: ['teams', tournamentId] })
-    void queryClient.invalidateQueries({ queryKey: ['standings', tournamentId] })
+    void queryClient.invalidateQueries({ queryKey: queryKeys.tournamentRegistrations(tournamentId) })
+    void queryClient.invalidateQueries({ queryKey: queryKeys.tournamentTeams(tournamentId) })
+    void queryClient.invalidateQueries({ queryKey: queryKeys.tournamentStandings(tournamentId) })
   }
 
   const approveMutation = useMutation({
@@ -74,10 +75,10 @@ export default function RegistrationRequests({
   return (
     <div className="space-y-3">
       <div>
-        <h3 className="text-sm font-semibold text-[#f3efe8]">
+        <h3 className="text-sm font-semibold text-white">
           Inscripciones ({pending.length} pendientes)
         </h3>
-        <p className="mt-0.5 text-xs text-mauve-soft">
+        <p className="mt-0.5 text-xs text-neutral-400">
           Aprobá los equipos para sumarlos a un grupo del torneo.
         </p>
       </div>
@@ -89,7 +90,7 @@ export default function RegistrationRequests({
       )}
 
       {registrations.length === 0 ? (
-        <p className="py-4 text-center text-sm text-mauve-soft">
+        <p className="py-4 text-center text-sm text-neutral-400">
           Todavía no hay inscripciones.
         </p>
       ) : (
@@ -132,19 +133,19 @@ function PendingRow({
   const [group, setGroup] = useState('Grupo A')
 
   return (
-    <li className="rounded-lg border p-3 border-mauve">
+    <li className="rounded-lg border p-3 border-white/10 bg-neutral-900/60">
       <div className="flex flex-wrap items-center gap-2">
         <span
-          className="size-4 shrink-0 rounded-full border border-mauve"
+          className="size-4 shrink-0 rounded-full border border-white/20"
           style={{ backgroundColor: registration.color }}
           aria-hidden="true"
         />
-        <span className="font-semibold text-[#f3efe8]">{registration.teamName}</span>
+        <span className="font-semibold text-white">{registration.teamName}</span>
         <Chip color="warning" size="sm">
           Pendiente
         </Chip>
       </div>
-      <p className="mt-1 text-xs text-mauve-soft">
+      <p className="mt-1 text-xs text-neutral-400">
         Capitán: {registration.captainName} · {registration.captainPhone} · {registration.players.length}{' '}
         jugadores
       </p>
@@ -175,8 +176,8 @@ function PendingRow({
 function ResolvedRow({ registration }: { registration: TournamentRegistration }): React.JSX.Element {
   const meta = STATUS_META[registration.status]
   return (
-    <li className="flex flex-wrap items-center justify-between gap-2 rounded-lg border px-3 py-2 text-sm border-mauve">
-      <span className="text-mauve-soft">
+    <li className="flex flex-wrap items-center justify-between gap-2 rounded-lg border px-3 py-2 text-sm border-white/10 bg-neutral-900/60">
+      <span className="text-neutral-300">
         {registration.teamName}
         {registration.assignedGroup !== null && ` · ${registration.assignedGroup}`}
       </span>

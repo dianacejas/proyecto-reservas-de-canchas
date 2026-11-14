@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { WhatsAppLink } from '../whatsapp/WhatsAppButton'
+import { WHATSAPP_HREF, WhatsAppIcon } from '../whatsapp/WhatsAppButton'
 
 interface Location {
   name: string
@@ -59,32 +59,32 @@ export default function LocationSection(): React.JSX.Element {
   )
 
   return (
-    <section className="space-y-4">
-      <div className="flex flex-col gap-1">
-        <span className="inline-flex w-fit items-center rounded-full border border-[#c5d86d]/30 bg-[#c5d86d]/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#c5d86d]">
-          Ubicación y Contacto
-        </span>
-        <h2 className="text-xl font-black tracking-tight text-white">Encontrá la sede más cerca</h2>
-        <p className="text-sm text-neutral-400">
-          Al recargar la página mostramos una de nuestras sedes de Córdoba Capital al azar.
+    <section className="space-y-6">
+      <div className="flex flex-col gap-2">
+        <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white">
+          Ubicación <span className="text-neutral-400 font-light">|</span>{' '}
+          <span className="text-[#c5d86d]">y sedes</span>
+        </h2>
+        <p className="max-w-2xl text-base md:text-lg leading-relaxed text-neutral-400">
+          Canchas en Córdoba Capital en zonas estratégicas de fácil acceso y estacionamiento.
         </p>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
-        <div className="relative min-h-72 overflow-hidden rounded-2xl border border-neutral-800 shadow-[0_8px_30px_rgb(0,0,0,0.35)]">
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="relative min-h-72 overflow-hidden rounded-2xl border shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] border-white/10">
           <iframe
             key={`${location.lat},${location.lng}`}
             src={mapsEmbedUrl(location)}
             title={`Mapa - ${location.name}`}
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
-            className="absolute inset-0 h-full w-full border-0 brightness-[0.8] contrast-[1.03] grayscale-[0.35]"
+            className="absolute inset-0 h-full w-full border-0 grayscale-[0.15] contrast-[1.03] grayscale-[0.35] brightness-[0.8]"
           />
         </div>
 
-        <div className="flex flex-col gap-4 rounded-2xl border border-neutral-800 bg-neutral-900/90 p-6 shadow-[0_8px_30px_rgb(0,0,0,0.35)] lg:col-span-2">
+        <div className="flex flex-col gap-4 rounded-2xl border p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] border-white/10 bg-neutral-900/50 lg:col-span-2">
           <div>
-            <h3 className="text-base font-bold text-white">{location.name}</h3>
+            <h3 className="text-lg font-extrabold text-white">{location.name}</h3>
             <p className="mt-1 flex items-start gap-2 text-sm text-neutral-400">
               <PinIcon />
               {location.address}
@@ -100,7 +100,7 @@ export default function LocationSection(): React.JSX.Element {
               href={directionsUrl(location)}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[#c5d86d] px-4 py-2 text-sm font-bold text-neutral-950 transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#b5c85d] hover:shadow-lg"
+              className="bg-stone-900 text-white hover:bg-stone-800 font-bold px-4 py-2.5 rounded-xl transition-colors flex items-center gap-2"
             >
               <DirectionsIcon />
               Cómo llegar
@@ -109,11 +109,19 @@ export default function LocationSection(): React.JSX.Element {
               href={directionsUrl(location).replace('/dir/', '/maps/')}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex min-h-11 items-center gap-2 rounded-full border border-neutral-700 px-4 py-2 text-sm font-medium text-neutral-200 transition-colors hover:border-[#c5d86d] hover:text-white"
+              className="border font-semibold px-4 py-2.5 rounded-xl transition-colors border-white/20 bg-white/5 text-white hover:bg-white/10"
             >
               Ver en Maps
             </a>
-            <WhatsAppLink label="Consultar por WhatsApp" />
+            <a
+              href={WHATSAPP_HREF}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-[#25D366] text-white hover:bg-[#20ba5a] font-bold px-4 py-2.5 rounded-xl transition-colors flex items-center gap-2"
+            >
+              <WhatsAppIcon className="size-4" />
+              Consultar por WhatsApp
+            </a>
           </div>
         </div>
       </div>

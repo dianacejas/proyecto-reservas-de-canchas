@@ -33,7 +33,7 @@ export async function apiRequest<T>(path: string, init: RequestInit = {}): Promi
 
   let response: Response
   try {
-    response = await fetch(`${BASE_URL}${path}`, { ...init, headers })
+    response = await fetch(`${BASE_URL}${path}`, { ...init, headers, credentials: 'include' })
   } catch {
     throw new ApiError(0, 'No se pudo conectar con el servidor. Verificá que el backend esté corriendo.')
   }

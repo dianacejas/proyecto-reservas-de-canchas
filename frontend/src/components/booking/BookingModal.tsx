@@ -5,6 +5,7 @@ import type { GridSlot } from '../../utils/slots'
 import { formatLong } from '../../utils/date'
 import { DEPOSIT_PERCENT, depositFor, formatCurrency } from '../../utils/payments'
 import { getErrorMessage } from '../../api/client'
+import { CalendarIcon, ClockIcon, QrCodeIcon, StadiumIcon, UsersIcon } from '../common/Icons'
 import { TextInput } from '../common/fields'
 
 export interface BookingFormPayload {
@@ -19,11 +20,6 @@ interface BookingModalProps {
   onSubmit: (payload: BookingFormPayload) => Promise<void>
   onClose: () => void
 }
-
-const INFO_ROW =
-  'flex items-center justify-between gap-3 rounded-lg border bg-paper/70 px-3 py-2 border-mauve bg-mauve-deep/60'
-const INFO_LABEL = 'text-mauve-soft'
-const INFO_VALUE = 'font-medium capitalize text-[#f3efe8]'
 
 export default function BookingModal({
   field,
@@ -59,34 +55,82 @@ export default function BookingModal({
           </Modal.Header>
           <Modal.Body>
             <div className="space-y-3">
-              <div className="grid gap-2 text-sm">
-                <div className={INFO_ROW}>
-                  <span className={INFO_LABEL}>Cancha</span>
-                  <span className={INFO_VALUE}>{field.name}</span>
+              {/* Ticket Deportivo Troquelado (Boarding Pass) */}
+              <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-neutral-800/70">
+                <div className="flex items-center justify-between bg-neutral-950 px-4 py-3 text-white">
+                  <div className="flex items-center gap-2">
+                    <span className="flex size-7 items-center justify-center rounded-lg bg-[#c5d86d]/20 text-[#c5d86d]">
+                      <StadiumIcon className="size-4" />
+                    </span>
+                    <div>
+                      <span className="block text-[10px] font-bold uppercase tracking-widest text-[#c5d86d]">
+                        Pase Oficial de Turno
+                      </span>
+                      <span className="text-sm font-black">{field.name}</span>
+                    </div>
+                  </div>
+                  <QrCodeIcon className="size-6 text-[#c5d86d]" />
                 </div>
-                <div className={INFO_ROW}>
-                  <span className={INFO_LABEL}>Fecha</span>
-                  <span className={INFO_VALUE}>{formatLong(date)}</span>
+
+                <div className="grid grid-cols-2 gap-3 px-4 py-3 text-xs">
+                  <div className="flex items-center gap-2">
+                    <CalendarIcon className="size-4 text-neutral-400" />
+                    <div>
+                      <span className="block text-[10px] uppercase text-neutral-400">
+                        Fecha
+                      </span>
+                      <span className="font-bold capitalize text-white">
+                        {formatLong(date)}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <ClockIcon className="size-4 text-neutral-400" />
+                    <div>
+                      <span className="block text-[10px] uppercase text-neutral-400">
+                        Horario
+                      </span>
+                      <span className="font-mono font-bold text-white">
+                        {slot.label}
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <div className={INFO_ROW}>
-                  <span className={INFO_LABEL}>Horario</span>
-                  <span className={INFO_VALUE}>{slot.label}</span>
+
+                {/* Línea troquelada con recortes laterales */}
+                <div className="relative flex items-center justify-between px-2">
+                  <span className="-ml-4 size-5 rounded-full border border-white/10 bg-neutral-900" />
+                  <div className="w-full border-t border-dashed border-white/15" />
+                  <span className="-mr-4 size-5 rounded-full border border-white/10 bg-neutral-900" />
                 </div>
+
                 {slot.kind === 'libre' && (
-                  <>
-                    <div className={INFO_ROW}>
-                      <span className={INFO_LABEL}>Total estimado</span>
-                      <span className="font-semibold text-lime">
+                  <div className="grid grid-cols-3 gap-2 px-4 py-3 text-center">
+                    <div className="rounded-xl p-2 bg-neutral-900/80">
+                      <span className="block text-[10px] font-semibold uppercase text-neutral-400">
+                        Total Cancha
+                      </span>
+                      <span className="text-sm font-black text-white">
                         {formatCurrency(field.pricePerHour)}
                       </span>
                     </div>
-                    <div className={INFO_ROW}>
-                      <span className={INFO_LABEL}>Seña {DEPOSIT_PERCENT}%</span>
-                      <span className={INFO_VALUE}>
+                    <div className="rounded-xl border border-[#c5d86d]/40 bg-[#c5d86d]/15 p-2">
+                      <span className="block text-[10px] font-bold uppercase text-[#c5d86d]">
+                        Seña {DEPOSIT_PERCENT}%
+                      </span>
+                      <span className="text-sm font-black text-[#c5d86d]">
                         {formatCurrency(depositFor(field.pricePerHour))}
                       </span>
                     </div>
-                  </>
+                    <div className="rounded-xl p-2 bg-neutral-900/80">
+                      <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase text-neutral-400">
+                        <UsersIcon className="size-3" />÷ 10 Jug.
+                      </span>
+                      <span className="block text-sm font-black text-white">
+                        {formatCurrency(Math.round(field.pricePerHour / 10))}
+                      </span>
+                    </div>
+                  </div>
                 )}
               </div>
 
@@ -105,7 +149,7 @@ export default function BookingModal({
                   onValueChange={setPhone}
                   placeholder="Ej: 11 5555 1234"
                 />
-                <p className="text-xs text-mauve-soft">
+                <p className="text-xs text-neutral-400">
                   La reserva queda en estado pendiente hasta que la confirme la administración.
                 </p>
               </div>

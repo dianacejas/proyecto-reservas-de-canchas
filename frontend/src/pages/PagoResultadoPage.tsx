@@ -51,17 +51,21 @@ export default function PagoResultadoPage(): React.JSX.Element {
 
   return (
     <div className="mx-auto max-w-lg py-8">
-      <div className="rounded-2xl border border-white/10 bg-neutral-900/60 p-6 shadow-[0_8px_30px_rgb(0,0,0,0.4)] sm:p-8">
+      <div className="rounded-2xl border p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] transition-colors sm:p-8 border-white/10 bg-neutral-900/60">
         {isSuccess && (
           <div className="space-y-5 text-center">
-            <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-[#c5d86d]/15 text-[#c5d86d]">
+            <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-[#c5d86d]/20 text-[#c5d86d]">
               <svg className="size-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <polyline points="20 6 9 17 4 12" />
               </svg>
             </div>
             <div>
-              <Chip color="success" size="sm" className="mb-2">Pago completado</Chip>
-              <h1 className="text-2xl font-bold tracking-tight text-white">¡Tu reserva está confirmada!</h1>
+              <Chip color="success" size="sm" className="mb-2">
+                Pago completado
+              </Chip>
+              <h1 className="text-2xl font-bold tracking-tight text-white">
+                ¡Tu reserva está confirmada!
+              </h1>
               <p className="mt-2 text-sm text-neutral-400">
                 {isSandbox
                   ? 'El pago simulado fue aprobado con éxito y el turno ya se encuentra asegurado.'
@@ -73,15 +77,16 @@ export default function PagoResultadoPage(): React.JSX.Element {
                 </p>
               )}
             </div>
+
             <div className="flex flex-col items-center justify-center gap-3 pt-2">
               <a
                 href={`https://api.whatsapp.com/send?text=${encodeURIComponent(
                   [
-                    '¡Hay partido en Copa 5!',
-                    'Fecha: Próximo turno confirmado',
-                    'Cancha: Copa 5 Complejo Deportivo',
-                    'Ubicación: https://www.google.com/maps/search/?api=1&query=Copa+5+Complejo+Deportivo+C%C3%B3rdoba',
-                    '¡Seña abonada! Entrá a armar el equipo para dividir el saldo en cancha.',
+                    '⚽ ¡Hay partido en Copa 5!',
+                    '📅 Fecha: Próximo turno confirmado',
+                    '🏟️ Cancha: Copa 5 Complejo Deportivo',
+                    '📍 Ubicación: https://www.google.com/maps/search/?api=1&query=Copa+5+Complejo+Deportivo+C%C3%B3rdoba',
+                    '💰 ¡Seña abonada! Entrá a armar el equipo para dividir el saldo en cancha.',
                     '¡Confirmen asistencia!',
                   ].join('\n')
                 )}`}
@@ -119,17 +124,30 @@ export default function PagoResultadoPage(): React.JSX.Element {
               <ClockIcon className="size-7" />
             </div>
             <div>
-              <Chip color="warning" size="sm" className="mb-2">En proceso</Chip>
-              <h1 className="text-2xl font-bold tracking-tight text-white">Pago pendiente de acreditación</h1>
+              <Chip color="warning" size="sm" className="mb-2">
+                En proceso
+              </Chip>
+              <h1 className="text-2xl font-bold tracking-tight text-white">
+                Pago pendiente de acreditación
+              </h1>
               <p className="mt-2 text-sm text-neutral-400">
-                Tu pago está siendo procesado por el medio seleccionado. En cuanto se acredite, la reserva quedará confirmada automáticamente.
+                Tu pago está siendo procesado por el medio seleccionado. En cuanto se acredite, la
+                reserva quedará confirmada automáticamente.
               </p>
             </div>
             <div className="flex flex-col gap-2 pt-2 sm:flex-row sm:justify-center">
-              <Button variant="primary" className="min-h-11 w-full sm:w-auto" onPress={() => navigate('/mis-reservas')}>
+              <Button
+                variant="primary"
+                className="min-h-11 w-full sm:w-auto"
+                onPress={() => navigate('/mis-reservas')}
+              >
                 Ir a Mis Reservas
               </Button>
-              <Button variant="secondary" className="min-h-11 w-full sm:w-auto" onPress={() => navigate('/')}>
+              <Button
+                variant="secondary"
+                className="min-h-11 w-full sm:w-auto"
+                onPress={() => navigate('/')}
+              >
                 Volver al inicio
               </Button>
             </div>
@@ -145,10 +163,15 @@ export default function PagoResultadoPage(): React.JSX.Element {
               </svg>
             </div>
             <div>
-              <Chip color="danger" size="sm" className="mb-2">No completado</Chip>
-              <h1 className="text-2xl font-bold tracking-tight text-white">No pudimos procesar tu pago</h1>
+              <Chip color="danger" size="sm" className="mb-2">
+                No completado
+              </Chip>
+              <h1 className="text-2xl font-bold tracking-tight text-white">
+                No pudimos procesar tu pago
+              </h1>
               <p className="mt-2 text-sm text-neutral-400">
-                {sandboxError ?? 'La operación fue cancelada o rechazada. El turno no ha sido confirmado.'}
+                {sandboxError ??
+                  'La operación fue cancelada o rechazada. El turno no ha sido confirmado.'}
               </p>
             </div>
             <div className="pt-2">

@@ -33,10 +33,7 @@ export default function AdminCourts({ onNotice }: AdminCourtsProps): React.JSX.E
     },
   })
 
-  if (courtsQuery.isLoading) {
-    return <Loading label="Cargando canchas…" />
-  }
-
+  if (courtsQuery.isLoading) return <Loading label="Cargando canchas…" />
   if (courtsQuery.isError) {
     return (
       <ErrorState
@@ -61,7 +58,7 @@ export default function AdminCourts({ onNotice }: AdminCourtsProps): React.JSX.E
           No hay canchas creadas.
         </p>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-white/10 bg-neutral-900/50 shadow-sm">
+        <div className="overflow-x-auto rounded-xl border shadow-sm border-white/10 bg-neutral-900/50">
           <table className="w-full min-w-[40rem] text-left text-sm">
             <thead className="border-b border-white/10 bg-neutral-900 text-neutral-300">
               <tr>
@@ -77,9 +74,9 @@ export default function AdminCourts({ onNotice }: AdminCourtsProps): React.JSX.E
             </thead>
             <tbody className="divide-y divide-white/10">
               {courts.map((court) => {
-                const isCovered =
-                  court.isCovered ?? court.type?.toLowerCase().includes('techad')
+                const isCovered = court.isCovered ?? court.type?.toLowerCase().includes('techad')
                 const isActive = court.active ?? court.isActive ?? true
+
                 return (
                   <tr key={court.id} className="transition-colors hover:bg-white/[0.02]">
                     <td className="px-4 py-3 font-medium text-white">
@@ -98,7 +95,7 @@ export default function AdminCourts({ onNotice }: AdminCourtsProps): React.JSX.E
                       <span
                         className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${
                           isCovered
-                            ? 'bg-blue-900/30 text-blue-300'
+                            ? 'bg-blue-100 text-blue-800 bg-blue-900/30 text-blue-300'
                             : 'bg-neutral-800 text-neutral-300'
                         }`}
                       >
@@ -118,7 +115,7 @@ export default function AdminCourts({ onNotice }: AdminCourtsProps): React.JSX.E
                         <Button
                           variant="outline"
                           size="sm"
-                          className="flex items-center gap-1.5 border-white/20 hover:border-neutral-400"
+                          className="flex items-center gap-1.5 hover:border-neutral-400 border-white/20"
                           onPress={() => setEditingCourt(court)}
                         >
                           <Pencil className="w-4 h-4 text-neutral-300" />
@@ -150,13 +147,13 @@ export default function AdminCourts({ onNotice }: AdminCourtsProps): React.JSX.E
         onSuccess={() => onNotice('success', 'Cancha actualizada con éxito.')}
       />
 
-      {/* Modal de confirmación eliminación */}
+      {/* Modal de confirmación de eliminación */}
       {pendingDelete !== null && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-sm rounded-2xl border border-white/10 bg-neutral-900 p-6 shadow-xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-2xl border p-6 shadow-xl border-white/10 bg-neutral-900">
             <h3 className="text-lg font-bold text-white">¿Eliminar cancha?</h3>
             <p className="mt-2 text-sm text-neutral-400">
-              ¿Estás seguro que querés eliminar <strong>{pendingDelete.name}</strong>? Esta acción no se puede deshacer.
+              ¿Estás seguro de que querés eliminar <strong>{pendingDelete.name}</strong>? Esta acción no se puede deshacer.
             </p>
             <div className="mt-6 flex justify-end gap-3">
               <Button variant="ghost" size="sm" onPress={() => setPendingDelete(null)}>

@@ -4,25 +4,30 @@ export type PaymentType = 'deposit' | 'full'
 export type TournamentStatus = 'inscripcion' | 'en_curso' | 'finalizado'
 export type MatchStatus = 'programado' | 'finalizado'
 export type MatchFase = 'grupos' | 'octavos' | 'cuartos' | 'semifinal' | 'final'
-export type MatchEventType = 'goal' | 'gol' | 'penal' | 'yellow_card' | 'red_card'
+export type MatchEventType = 'goal' | 'yellow_card' | 'red_card' | 'gol' | 'amarilla' | 'roja' | 'penal'
 export type RegistrationStatus = 'pendiente_aprobacion' | 'aprobada' | 'rechazada'
 
 export interface Field {
   id: string
   name: string
-  type: string
   sport?: string
-  pricePerHour: number
-  imageUrl?: string
-  isActive: boolean
-  active?: boolean
+  type: string
   isCovered?: boolean
   dimensions?: string
   lighting?: string
   features?: string[]
+  pricePerHour: number
+  standardPricePerHour?: number
+  peakPricePerHour?: number
+  peakHours?: string[]
+  imageUrl?: string
+  active?: boolean
+  isActive: boolean
   createdAt: string
   updatedAt: string
 }
+
+export type Court = Field
 
 export interface FieldRef {
   id: string
@@ -116,9 +121,9 @@ export interface Match {
   awayPenalties: number | null
   status: MatchStatus
   events: MatchEvent[]
+  mvpPlayer?: string | null
   bookingId: MatchBookingRef | null
   nextMatchId: string | null
-  mvpPlayer?: string | null
   createdAt: string
   updatedAt: string
 }
@@ -232,6 +237,17 @@ export interface TopScorerRow {
   goalsCount: number
 }
 
+export interface PlayerStats {
+  playerName: string
+  teamId: string
+  teamName: string
+  matchesPlayed: number
+  goalsCount: number
+  yellowCards: number
+  redCards: number
+  rank: number | null
+}
+
 export interface RegistrationPlayer {
   name: string
   number: number | null
@@ -262,6 +278,8 @@ export interface CreateRegistrationInput {
 
 export interface DailyMetrics {
   date: string
+  startDate?: string
+  endDate?: string
   recaudacion: {
     mostrador: number
     pasarela: number
@@ -288,6 +306,25 @@ export interface DailyMetrics {
     bloqueadas: number
     canceladas: number
   }
+  onlineRevenue?: number
+  counterRevenue?: {
+    efectivo: number
+    transferencia: number
+    debito: number
+    total: number
+  }
+  totalRevenue?: number
+  occupancyRate?: number
+  topCourt?: {
+    name: string
+    totalRevenue: number
+    bookingsCount: number
+  } | null
+  peakHour?: {
+    timeSlot: string
+    occupancyPercentage: number
+    bookingsCount: number
+  } | null
 }
 
 export interface AdminCustomer {
@@ -317,7 +354,7 @@ export interface CommunityNotice {
   timeSlot: string
   courtName?: string
   contactPhone: string
-  positionNeeded?: string
+  positionNeeded: string
   status: CommunityNoticeStatus
   createdAt: string
 }
@@ -331,15 +368,4 @@ export interface CreateCommunityNoticeInput {
   courtName?: string
   contactPhone: string
   positionNeeded?: string
-}
-
-export interface PlayerStatsResult {
-  playerName: string
-  teamId: string
-  teamName: string
-  matchesPlayed: number
-  goalsCount: number
-  yellowCards: number
-  redCards: number
-  rank: number | null
 }

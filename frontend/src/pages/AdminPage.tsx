@@ -1,15 +1,12 @@
-﻿import { Alert, Button, Checkbox, Chip, Modal, Tabs } from '@heroui/react'
+import { Alert, Button, Chip, Modal, Tabs } from '@heroui/react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
-  createField,
   createTournament,
-  deleteField,
   deleteTournament,
-  listFields,
   listTournaments,
-  updateField,
+  queryKeys,
 } from '../api'
 import { getErrorMessage } from '../api/client'
 import AdminBookingGrid from '../components/admin/AdminBookingGrid'
@@ -19,7 +16,7 @@ import AdminMetrics from '../components/admin/AdminMetrics'
 import ErrorState from '../components/common/ErrorState'
 import Loading from '../components/common/Loading'
 import { TextInput } from '../components/common/fields'
-import type { Field, Tournament, TournamentStatus } from '../types'
+import type { Tournament, TournamentStatus } from '../types'
 import { PILL_TAB_CLASS, PILL_TAB_LIST_CLASS } from '../utils/tabs'
 
 interface Notice {
@@ -44,10 +41,10 @@ export default function AdminPage(): React.JSX.Element {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="w-full space-y-8">
       <header>
-        <h1 className="text-2xl font-bold tracking-tight">Panel de administración</h1>
-        <p className="mt-1 text-sm text-mauve-soft">
+        <h1 className="text-2xl font-bold tracking-tight text-white">Panel de administración</h1>
+        <p className="mt-1 text-sm text-neutral-400">
           Gestioná canchas y torneos del complejo.
         </p>
       </header>
@@ -80,10 +77,7 @@ export default function AdminPage(): React.JSX.Element {
         </Tabs.Panel>
 
         <Tabs.Panel id="canchas">
-          <div className="space-y-6">
-            <AdminCourts onNotice={showNotice} />
-            <CanchasTab onNotice={showNotice} />
-          </div>
+          <AdminCourts onNotice={showNotice} />
         </Tabs.Panel>
 
         <Tabs.Panel id="torneos">
@@ -94,252 +88,16 @@ export default function AdminPage(): React.JSX.Element {
   )
 }
 
-interface FieldFormState {
-  id: string | null
-  name: string
-  type: string
-  price: string
-  imageUrl: string
-  isActive: boolean
-}
-
-function CanchasTab({ onNotice }: { onNotice: (kind: Notice['kind'], message: string) => void }): React.JSX.Element {
-  const queryClient = useQueryClient()
-  const fieldsQuery = useQuery({ queryKey: ['fields'], queryFn: listFields })
-  const [form, setForm] = useState<FieldFormState | null>(null)
-  const [pendingDelete, setPendingDelete] = useState<Field | null>(null)
-  const [formError, setFormError] = useState<string | null>(null)
-
-  const invalidateFields = () => void queryClient.invalidateQueries({ queryKey: ['fields'] })
-
-  const saveMutation = useMutation({
-    mutationFn: async (state: FieldFormState) => {
-      const price = Number(state.price)
-      if (Number.isNaN(price) || price < 0) {
-        throw new Error('El precio debe ser un número mayor o igual a 0')
-      }
-      const payload = {
-        name: state.name.trim(),
-        type: state.type.trim() || 'Fútbol 5',
-        pricePerHour: price,
-        imageUrl: state.imageUrl.trim(),
-        isActive: state.isActive,
-      }
-      return state.id === null ? createField(payload) : updateField(state.id, payload)
-    },
-    onSuccess: () => {
-      invalidateFields()
-      setForm(null)
-      onNotice('success', 'Cancha guardada.')
-    },
-    onError: (err) => {
-      setFormError(getErrorMessage(err))
-    },
-  })
-
-  const deleteMutation = useMutation({
-    mutationFn: (id: string) => deleteField(id),
-    onSuccess: () => {
-      invalidateFields()
-      setPendingDelete(null)
-      onNotice('success', 'Cancha eliminada.')
-    },
-    onError: (err) => {
-      setPendingDelete(null)
-      onNotice('danger', getErrorMessage(err))
-    },
-  })
-
-  if (fieldsQuery.isLoading) return <Loading label="Cargando canchas…" />
-  if (fieldsQuery.isError) {
-    return (
-      <ErrorState
-        message={getErrorMessage(fieldsQuery.error)}
-        onRetry={() => void fieldsQuery.refetch()}
-      />
-    )
-  }
-
-  const fields = fieldsQuery.data ?? []
-
-  function openCreate(): void {
-    setFormError(null)
-    setForm({ id: null, name: '', type: 'Fútbol 5', price: '', imageUrl: '', isActive: true })
-  }
-
-  function openEdit(field: Field): void {
-    setFormError(null)
-    setForm({
-      id: field.id,
-      name: field.name,
-      type: field.type,
-      price: String(field.pricePerHour),
-      imageUrl: field.imageUrl ?? '',
-      isActive: field.isActive,
-    })
-  }
-
-  return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-mauve-soft">{fields.length} canchas registradas</p>
-        <Button variant="primary" size="sm" onPress={openCreate}>
-          Nueva cancha
-        </Button>
-      </div>
-
-      {fields.length === 0 ? (
-        <p className="py-8 text-center text-sm text-mauve-soft">No hay canchas creadas.</p>
-      ) : (
-        <div className="overflow-x-auto rounded-xl border border-mauve">
-          <table className="w-full min-w-[34rem] text-left text-sm">
-            <thead className="bg-[#f1ebe3] bg-mauve-deep text-mauve-soft">
-              <tr>
-                <th className="px-4 py-2 font-medium">Nombre</th>
-                <th className="px-4 py-2 font-medium">Tipo</th>
-                <th className="px-4 py-2 font-medium">Precio/hora</th>
-                <th className="px-4 py-2 font-medium">Estado</th>
-                <th className="px-4 py-2 text-right font-medium">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-mauve/60">
-              {fields.map((field) => (
-                <tr key={field.id} className="bg-coffee-elev">
-                  <td className="px-4 py-3 font-medium">{field.name}</td>
-                  <td className="px-4 py-3 text-mauve-soft">{field.type}</td>
-                  <td className="px-4 py-3">${field.pricePerHour}</td>
-                  <td className="px-4 py-3">
-                    <Chip color={field.isActive ? 'success' : 'warning'} size="sm">
-                      {field.isActive ? 'Activa' : 'Inactiva'}
-                    </Chip>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex justify-end gap-2">
-                      <Button variant="outline" size="sm" onPress={() => openEdit(field)}>
-                        Editar
-                      </Button>
-                      <Button variant="danger-soft" size="sm" onPress={() => setPendingDelete(field)}>
-                        Eliminar
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {form !== null && (
-        <Modal.Root isOpen onOpenChange={(open) => open || setForm(null)}>
-<Modal.Backdrop variant="blur" />
-            <Modal.Container size="md">
-            <Modal.Dialog>
-              <Modal.Header>
-                <Modal.Heading>{form.id === null ? 'Nueva cancha' : 'Editar cancha'}</Modal.Heading>
-                <Modal.CloseTrigger />
-              </Modal.Header>
-              <Modal.Body>
-                <div className="space-y-3">
-                  <TextInput
-                    label="Nombre"
-                    value={form.name}
-                    onValueChange={(name) => setForm({ ...form, name })}
-                    placeholder="Ej: Cancha Alpha"
-                  />
-                  <TextInput
-                    label="Tipo de superficie"
-                    value={form.type}
-                    onValueChange={(type) => setForm({ ...form, type })}
-                    placeholder="Ej: Fútbol 5"
-                  />
-                  <TextInput
-                    label="Precio por hora ($)"
-                    type="number"
-                    min={0}
-                    value={form.price}
-                    onValueChange={(price) => setForm({ ...form, price })}
-                    placeholder="Ej: 35000"
-                  />
-                  <div className="space-y-1.5">
-                    <TextInput
-                      label="Imagen (URL)"
-                      value={form.imageUrl}
-                      onValueChange={(imageUrl) => setForm({ ...form, imageUrl })}
-                      placeholder="Ej: https://…/nocturna.jpg"
-                    />
-                    {form.imageUrl.trim() !== '' && (
-                      <img
-                        src={form.imageUrl.trim()}
-                        alt="Vista previa"
-                        loading="lazy"
-                        className="h-16 w-24 rounded-lg border object-cover border-mauve"
-                      />
-                    )}
-                  </div>
-                  <Checkbox
-                    isSelected={form.isActive}
-                    onChange={(isActive) => setForm({ ...form, isActive })}
-                  >
-                    <Checkbox.Content className="text-sm text-mauve-soft">
-                      <Checkbox.Control>
-                        <Checkbox.Indicator />
-                      </Checkbox.Control>
-                      Cancha activa (visible para reservas)
-                    </Checkbox.Content>
-                  </Checkbox>
-                  {formError !== null && (
-                    <Chip color="danger" size="sm" className="h-auto py-1">
-                      {formError}
-                    </Chip>
-                  )}
-                </div>
-              </Modal.Body>
-              <Modal.Footer className="flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-                <Button
-                  variant="secondary"
-                  className="min-h-11 w-full sm:w-auto"
-                  onPress={() => setForm(null)}
-                >
-                  Cancelar
-                </Button>
-                <Button
-                  variant="primary"
-                  className="min-h-11 w-full sm:w-auto"
-                  isDisabled={saveMutation.isPending || form.name.trim().length === 0}
-                  onPress={() => saveMutation.mutate(form)}
-                >
-                  {saveMutation.isPending ? 'Guardando…' : 'Guardar'}
-                </Button>
-              </Modal.Footer>
-            </Modal.Dialog>
-          </Modal.Container>
-        </Modal.Root>
-      )}
-
-      {pendingDelete !== null && (
-        <ConfirmDialog
-          title="Eliminar cancha"
-          message={`¿Eliminar «${pendingDelete.name}»? Esta acción no se puede deshacer.`}
-          isPending={deleteMutation.isPending}
-          onCancel={() => setPendingDelete(null)}
-          onConfirm={() => deleteMutation.mutate(pendingDelete.id)}
-        />
-      )}
-    </div>
-  )
-}
-
 function TorneosTab({ onNotice }: { onNotice: (kind: Notice['kind'], message: string) => void }): React.JSX.Element {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
-  const tournamentsQuery = useQuery({ queryKey: ['tournaments'], queryFn: listTournaments })
+  const tournamentsQuery = useQuery({ queryKey: queryKeys.tournaments(), queryFn: listTournaments })
   const [creating, setCreating] = useState(false)
   const [name, setName] = useState('')
   const [pendingDelete, setPendingDelete] = useState<Tournament | null>(null)
   const [createError, setCreateError] = useState<string | null>(null)
 
-  const invalidateTournaments = () => void queryClient.invalidateQueries({ queryKey: ['tournaments'] })
+  const invalidateTournaments = () => void queryClient.invalidateQueries({ queryKey: queryKeys.tournaments() })
 
   const createMutation = useMutation({
     mutationFn: () => createTournament({ name: name.trim() }),
@@ -383,41 +141,41 @@ function TorneosTab({ onNotice }: { onNotice: (kind: Notice['kind'], message: st
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-mauve-soft">{tournaments.length} torneos</p>
+        <p className="text-sm text-neutral-400">{tournaments.length} torneos</p>
         <Button variant="primary" size="sm" onPress={() => { setCreateError(null); setName(''); setCreating(true) }}>
           Nuevo torneo
         </Button>
       </div>
 
       {tournaments.length === 0 ? (
-        <p className="py-8 text-center text-sm text-mauve-soft">No hay torneos creados.</p>
+        <p className="py-8 text-center text-sm text-neutral-400">No hay torneos creados.</p>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-mauve">
+        <div className="overflow-x-auto rounded-2xl border border-neutral-800 bg-neutral-900/90 shadow-[0_8px_30px_rgb(0,0,0,0.4)]">
           <table className="w-full min-w-[32rem] text-left text-sm">
-            <thead className="bg-[#f1ebe3] bg-mauve-deep text-mauve-soft">
+            <thead className="bg-neutral-800/80 text-xs font-bold uppercase tracking-wider text-neutral-400">
               <tr>
-                <th className="px-4 py-2 font-medium">Nombre</th>
-                <th className="px-4 py-2 font-medium">Estado</th>
-                <th className="px-4 py-2 font-medium">Equipos</th>
-                <th className="px-4 py-2 font-medium">Partidos</th>
-                <th className="px-4 py-2 text-right font-medium">Acciones</th>
+                <th className="px-4 py-3 font-bold">Nombre</th>
+                <th className="px-4 py-3 font-bold">Estado</th>
+                <th className="px-4 py-3 font-bold">Equipos</th>
+                <th className="px-4 py-3 font-bold">Partidos</th>
+                <th className="px-4 py-3 text-right font-bold">Acciones</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-mauve/60">
+            <tbody className="divide-y divide-neutral-800">
               {tournaments.map((tournament) => {
                 const meta = TOURNAMENT_STATUS_META[tournament.status]
                 return (
-                  <tr key={tournament.id} className="bg-coffee-elev">
-                    <td className="px-4 py-3 font-medium">{tournament.name}</td>
+                  <tr key={tournament.id} className="bg-neutral-900/60 hover:bg-neutral-800/60 transition-colors">
+                    <td className="px-4 py-3 font-semibold text-white">{tournament.name}</td>
                     <td className="px-4 py-3">
                       <Chip color={meta.color} size="sm">
                         {meta.label}
                       </Chip>
                     </td>
-                    <td className="px-4 py-3 text-mauve-soft">
+                    <td className="px-4 py-3 font-bold text-neutral-200">
                       {tournament.teamsCount ?? '-'}
                     </td>
-                    <td className="px-4 py-3 text-mauve-soft">
+                    <td className="px-4 py-3 font-bold text-neutral-200">
                       {tournament.matchesCount ?? '-'}
                     </td>
                     <td className="px-4 py-3">
@@ -516,7 +274,7 @@ function ConfirmDialog({ title, message, isPending, onCancel, onConfirm }: Confi
             <Modal.CloseTrigger />
           </Modal.Header>
           <Modal.Body>
-            <p className="text-sm text-mauve-soft">{message}</p>
+            <p className="text-sm text-neutral-300">{message}</p>
           </Modal.Body>
           <Modal.Footer className="flex-col-reverse gap-2 sm:flex-row sm:justify-end">
             <Button variant="secondary" className="min-h-11 w-full sm:w-auto" onPress={onCancel}>

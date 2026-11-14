@@ -2,7 +2,7 @@ import { Button, Card, Chip, Modal } from '@heroui/react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { createTournament, listTournaments } from '../api'
+import { createTournament, listTournaments, queryKeys } from '../api'
 import { getErrorMessage } from '../api/client'
 import { useAuth } from '../auth/useAuth'
 import ErrorState from '../components/common/ErrorState'
@@ -204,7 +204,7 @@ export default function TorneosPage(): React.JSX.Element {
   const { isAdmin } = useAuth()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const tournamentsQuery = useQuery({ queryKey: ['tournaments'], queryFn: listTournaments })
+  const tournamentsQuery = useQuery({ queryKey: queryKeys.tournaments(), queryFn: listTournaments })
 
   const [creating, setCreating] = useState(false)
   const [tName, setTName] = useState('')
@@ -214,7 +214,7 @@ export default function TorneosPage(): React.JSX.Element {
   const createMutation = useMutation({
     mutationFn: () => createTournament({ name: tName.trim(), status: tStatus }),
     onSuccess: (tournament) => {
-      void queryClient.invalidateQueries({ queryKey: ['tournaments'] })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.tournaments() })
       setCreating(false)
       setTName('')
       setTStatus('inscripcion')
@@ -237,14 +237,14 @@ export default function TorneosPage(): React.JSX.Element {
   const tournaments = tournamentsQuery.data ?? []
 
   return (
-    <div className="space-y-8">
+    <div className="w-full space-y-8">
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] border-lime/30 bg-lime/10 text-lime">
+          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[#c5d86d]/30 bg-[#c5d86d]/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#c5d86d]">
             Copa 5 · Competencia
           </div>
           <h1 className="text-2xl font-bold tracking-tight">Torneos</h1>
-          <p className="mt-1 text-sm text-mauve-soft">
+          <p className="mt-1 text-sm text-neutral-400">
             Seguí las posiciones y el fixture de cada torneo.
           </p>
         </div>
@@ -265,7 +265,7 @@ export default function TorneosPage(): React.JSX.Element {
       </header>
 
       {tournaments.length === 0 ? (
-        <p className="py-8 text-center text-sm text-mauve-soft">
+        <p className="py-8 text-center text-sm text-neutral-400">
           Todavía no hay torneos creados.
         </p>
       ) : (
@@ -276,7 +276,7 @@ export default function TorneosPage(): React.JSX.Element {
             return (
               <Card.Root
                 key={tournament.id}
-                className="group relative overflow-hidden border transition duration-300 border-white/10 shadow-xl shadow-black/40 hover:border-lime/50 hover:shadow-lime/10"
+                className="group relative overflow-hidden border transition duration-300 border-white/10 shadow-xl shadow-black/40 hover:border-[#c5d86d]/50 hover:shadow-[#c5d86d]/10"
               >
                 <img
                   src={BACKDROP_SRC}
@@ -285,7 +285,7 @@ export default function TorneosPage(): React.JSX.Element {
                   decoding="async"
                   className="absolute inset-0 size-full object-cover opacity-40 transition-transform duration-500 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 z-10 bg-gradient-to-br from-[#1a090d] via-[#202e1d] to-[#52414c]/40" />
+                <div className="absolute inset-0 z-10 bg-gradient-to-br from-neutral-950 via-neutral-900/80 to-neutral-900/40" />
                 <TrophyWatermark />
 
                 <Card.Content className="relative z-20 flex flex-col gap-4 p-5 sm:p-6 md:p-7">

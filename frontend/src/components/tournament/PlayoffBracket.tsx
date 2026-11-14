@@ -7,6 +7,7 @@ import {
   getStandings,
   getTopScorers,
   listTournamentTeams,
+  queryKeys,
   updateMatchScore,
 } from '../../api'
 import { getErrorMessage } from '../../api/client'
@@ -16,6 +17,7 @@ import MatchResultModal, { type MatchResultSubmit } from './MatchResultModal'
 import type { Match, PlayoffBracket as PlayoffData, TeamPlayer, TeamRef, TopScorerRow } from '../../types'
 import { bookingDay, formatDayShort } from '../../utils/date'
 import { teamCrestColor } from '../../utils/crest'
+import { SoccerBallIcon } from '../common/Icons'
 import TeamCrest from './TeamCrest'
 
 type Side = 'home' | 'away'
@@ -25,18 +27,15 @@ type PathTone = 'advance' | 'advanceGlow' | 'link'
 const CHAMPION_NODE = '__champion__'
 
 /**
- * El bracket se renderiza SIEMPRE oscuro, como un panel de transmision, en
- * ambos temas. Por eso estas clases no llevan variante `dark:`: un `bg-cream`
- * sin su override `dark:` se convertia en un bloque casi blanco con texto
- * claro encima (ilegible). Todos los hijos heredan este fondo oscuro.
+ * Tarjeta de partido del bracket con soporte completo para modo claro y oscuro.
  */
 const SHELL_CARD =
-  'overflow-hidden rounded-2xl border border-white/10 bg-[#1a090d]/90 backdrop-blur-sm transition-shadow shadow-[0_18px_46px_-20px_rgba(0,0,0,0.95)]'
+  'overflow-hidden rounded-2xl border border-white/10 bg-neutral-900/90 text-white shadow-sm transition-shadow'
 
 const TONE_STROKE: Record<PathTone, string> = {
-  advance: 'stroke-lime',
-  advanceGlow: 'stroke-lime/20',
-  link: 'stroke-[#574752]',
+  advance: 'stroke-[#c5d86d]',
+  advanceGlow: 'stroke-[#c5d86d]/20',
+  link: 'stroke-neutral-700',
 }
 
 const TONE_WIDTH: Record<PathTone, number> = {
@@ -164,8 +163,8 @@ export default function PlayoffBracket({
             <MvpPodium mvp={mvp} />
           </div>
         )}
-        <div className="rounded-2xl border border-dashed p-10 text-center border-mauve/60">
-          <p className="text-sm text-mauve-soft">
+        <div className="rounded-2xl border border-dashed border-neutral-700/60 p-10 text-center">
+          <p className="text-sm text-neutral-400">
             Todavía no hay cruces de fase final. Se arman automáticamente con los mejores de cada
             grupo.
           </p>
@@ -185,9 +184,9 @@ export default function PlayoffBracket({
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col items-center justify-center">
-      <div className="relative w-full overflow-hidden rounded-3xl border border-white/10 bg-[#1a090d]/80 shadow-[0_18px_46px_-20px_rgba(0,0,0,0.95)]">
-        <p className="border-b border-white/10 px-4 py-2 text-[11px] text-mauve-soft/80 md:hidden">
+    <div className="w-full max-w-7xl mx-auto flex flex-col items-center justify-center">
+      <div className="relative w-full overflow-hidden rounded-2xl border border-white/10 bg-neutral-950 p-6 shadow-sm">
+        <p className="border-b border-white/10 px-4 py-2 text-[11px] text-neutral-400 md:hidden">
           Deslizá para ver la fase final completa.
         </p>
         <BracketPlate
@@ -323,7 +322,7 @@ function BracketPlate({
       */}
       <div
         ref={boardRef}
-        className="relative mx-auto flex w-full min-w-max items-stretch justify-center gap-8 px-4 py-6 sm:gap-10 md:gap-14 md:px-8 md:py-8"
+        className="relative mx-auto flex w-full min-w-max items-stretch justify-center gap-6 px-2 py-4 sm:gap-8 md:gap-10 md:px-6 md:py-6 lg:min-w-0 lg:gap-8"
       >
         <svg
           className="pointer-events-none absolute left-0 top-0 h-full w-full"
@@ -347,7 +346,7 @@ function BracketPlate({
         {rounds.map((round, index) => (
           <section
             key={round.fase}
-            className="flex w-[13.5rem] shrink-0 snap-center flex-col items-center sm:w-64"
+            className="flex w-[13.5rem] shrink-0 snap-center flex-col items-center sm:w-60 md:w-64 lg:flex-1 lg:min-w-[14rem] lg:max-w-xs"
             aria-label={round.label}
           >
             <RoundHeader label={round.label} isHero={index === lastRound} />
@@ -375,7 +374,7 @@ function BracketPlate({
         ))}
 
         <section
-          className="flex w-[13.5rem] shrink-0 snap-center flex-col items-center sm:w-64"
+          className="flex w-[13.5rem] shrink-0 snap-center flex-col items-center sm:w-60 md:w-64 lg:flex-1 lg:min-w-[14rem] lg:max-w-xs"
           aria-label="Campeón"
         >
           <RoundHeader label="Campeón" isHero={false} />
@@ -393,7 +392,7 @@ function BracketPlate({
 
         {mvp !== null && (
           <section
-            className="flex w-[13.5rem] shrink-0 snap-center flex-col items-center sm:w-64"
+            className="flex w-[13.5rem] shrink-0 snap-center flex-col items-center sm:w-60 md:w-64 lg:flex-1 lg:min-w-[14rem] lg:max-w-xs"
             aria-label="Goleador MVP"
           >
             <RoundHeader label="MVP" isHero={false} />
@@ -409,20 +408,18 @@ function BracketPlate({
 
 function RoundHeader({ label, isHero }: { label: string; isHero: boolean }): React.JSX.Element {
   const shell = isHero
-    ? 'border-lime/60 bg-lime/10 shadow-[0_0_28px_-10px_rgba(197,216,109,0.85)]'
+    ? 'border-[#c5d86d]/60 bg-[#c5d86d]/15 shadow-sm'
     : 'border-white/10 bg-white/[0.04]'
-  // text-[#c6bbbf] y no text-neutral-400: neutral-400 sobre el panel oscuro
-  // queda en 2.2:1 y no cumple WCAG AA.
-  const text = isHero ? 'text-lime' : 'text-[#c6bbcf]'
+  const text = isHero ? 'text-[#c5d86d]' : 'text-neutral-300'
 
   return (
     <div
       className={`mb-4 flex w-full min-h-12 shrink-0 items-center justify-center gap-2 rounded-xl border px-3 text-center ${shell}`}
     >
       {isHero ? (
-        <TrophyIcon className="size-4 shrink-0 text-lime" />
+        <TrophyIcon className="size-4 shrink-0 text-[#c5d86d]" />
       ) : (
-        <span className="size-1.5 shrink-0 rounded-full bg-cinnamon/70" />
+        <span className="size-1.5 shrink-0 rounded-full bg-neutral-500/70" />
       )}
       <span className={`text-[11px] font-bold uppercase tracking-[0.22em] ${text}`}>{label}</span>
     </div>
@@ -461,16 +458,16 @@ function MatchCapsule({
 
   const canEdit = isAdmin && onEditMatch !== undefined && !finished && bothKnown
   const shell = isHero
-    ? `${SHELL_CARD} border-lime/50 shadow-[0_0_34px_-12px_rgba(197,216,109,0.7)]`
+    ? `${SHELL_CARD} border-[#c5d86d]/60 ring-2 ring-[#c5d86d]/40 shadow-md`
     : SHELL_CARD
 
   return (
     <div ref={cardRef} className={shell}>
-      <div className="flex items-center justify-between gap-2 border-b border-white/10 bg-[#52414c]/30 px-2.5 py-1.5">
+      <div className="flex items-center justify-between gap-2 border-b border-white/10 bg-white/[0.03] px-2.5 py-1.5">
         <Chip color={finished ? 'success' : 'default'} size="sm" className="shrink-0">
           {finished ? 'Finalizado' : 'Programado'}
         </Chip>
-        <span className="truncate text-right text-[10px] font-semibold uppercase tracking-[0.16em] text-mauve-soft/80">
+        <span className="truncate text-right text-[10px] font-semibold uppercase tracking-[0.16em] text-neutral-400">
           {scheduleLabel(match)}
         </span>
       </div>
@@ -529,20 +526,20 @@ function TeamRow({
   const isLoser = state === 'loser'
 
   const nameTone = isWinner
-    ? 'font-bold text-lime'
+    ? 'font-bold text-[#c5d86d]'
     : state === 'pending'
-      ? 'font-semibold text-[#f3efe8]/85'
+      ? 'font-semibold text-white/90'
       : state === 'tbd'
-        ? 'font-medium italic text-mauve-soft/80'
-        : 'font-medium text-mauve-soft'
+        ? 'font-medium italic text-neutral-500'
+        : 'font-medium text-neutral-400'
 
   const boxTone = isWinner
-    ? 'bg-lime text-white shadow-[0_0_18px_-4px_rgba(197,216,109,0.85)]'
+    ? 'bg-[#c5d86d] text-neutral-950 font-black shadow-xs'
     : isLoser
-      ? 'border border-white/10 text-mauve-soft/70'
+      ? 'border border-white/10 text-neutral-500'
       : state === 'pending'
-        ? 'bg-white/5 text-mauve-soft/80'
-        : 'border border-dashed border-white/15 text-mauve-soft/50'
+        ? 'bg-white/5 text-neutral-400'
+        : 'border border-dashed border-white/15 text-neutral-600'
 
   return (
     <div
@@ -551,10 +548,15 @@ function TeamRow({
       className={`relative flex items-center gap-2.5 px-2.5 py-2 ${isLoser ? 'opacity-40' : ''}`}
     >
       {isWinner && (
-        <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-lime" />
+        <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-[#c5d86d]" />
       )}
       <TeamCrest name={name} size="sm" dimmed={isLoser} />
       <span className={`min-w-0 flex-1 truncate text-xs sm:text-sm ${nameTone}`}>{name}</span>
+      {isWinner && (
+        <span className="shrink-0 rounded-full bg-[#c5d86d]/20 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-[#c5d86d] border border-[#c5d86d]/30">
+          Ganador
+        </span>
+      )}
       <span
         className={`flex h-7 min-w-9 shrink-0 items-center justify-center gap-0.5 rounded-md px-1.5 text-sm font-black tabular-nums ${boxTone}`}
       >
@@ -588,11 +590,11 @@ function ChampionPodium({
         ref={cardRef}
         className="w-full rounded-2xl border border-dashed border-white/15 bg-white/[0.03] px-4 py-8 text-center backdrop-blur-sm"
       >
-        <TrophyIcon className="mx-auto size-8 text-mauve-soft/40" />
-        <p className="mt-3 text-xs font-semibold uppercase tracking-[0.2em] text-mauve-soft/60">
+        <TrophyIcon className="mx-auto size-8 text-neutral-600" />
+        <p className="mt-3 text-xs font-semibold uppercase tracking-[0.2em] text-neutral-400">
           Por coronar
         </p>
-        <p className="mt-1 text-xs text-mauve-soft/40">Definido en la final</p>
+        <p className="mt-1 text-xs text-neutral-500">Definido en la final</p>
       </div>
     )
   }
@@ -602,15 +604,15 @@ function ChampionPodium({
   return (
     <div
       ref={cardRef}
-      className="relative w-full overflow-hidden rounded-2xl border border-[#c5d86d]/40 bg-[#1a090d]/90 bg-gradient-to-b from-lime/20 via-lime/[0.06] to-transparent px-4 py-6 text-center shadow-[0_0_30px_rgba(197,216,109,0.15)] backdrop-blur-sm"
+      className="relative w-full overflow-hidden rounded-2xl border-2 border-[#c5d86d] bg-gradient-to-br from-neutral-900 to-neutral-950 px-4 py-6 text-center text-white shadow-sm"
     >
       <div
         className="pointer-events-none absolute inset-x-0 top-0 h-24 opacity-60"
         style={{ background: `radial-gradient(60% 100% at 50% 0%, ${accent}33, transparent)` }}
       />
       <div className="relative flex flex-col items-center gap-3">
-        <TrophyIcon className="size-7 text-lime drop-shadow-[0_0_10px_rgba(197,216,109,0.7)]" />
-        <p className="text-[11px] font-black uppercase tracking-[0.3em] text-lime">Campeón</p>
+        <TrophyIcon className="size-7 text-[#c5d86d]" />
+        <p className="text-[11px] font-black uppercase tracking-[0.3em] text-[#c5d86d]">Campeón</p>
         <TeamCrest name={champion.teamName} size="lg" />
         <p className="w-full truncate text-lg font-extrabold leading-tight text-white md:text-xl">
           {champion.teamName}
@@ -627,14 +629,14 @@ function MvpPodium({ mvp }: { mvp: TopScorerRow }): React.JSX.Element {
   const accent = teamCrestColor(mvp.teamName, 0.22)
 
   return (
-    <div className="relative w-full overflow-hidden rounded-2xl border border-[#c5d86d]/40 bg-[#1a090d]/90 bg-gradient-to-b from-lime/20 via-lime/[0.06] to-transparent px-4 py-6 text-center shadow-[0_0_30px_rgba(197,216,109,0.22)] backdrop-blur-sm">
+    <div className="relative w-full overflow-hidden rounded-2xl border-2 border-[#c5d86d] bg-gradient-to-br from-neutral-900 to-neutral-950 px-4 py-6 text-center text-white shadow-sm">
       <div
         className="pointer-events-none absolute inset-x-0 top-0 h-24 opacity-60"
         style={{ background: `radial-gradient(60% 100% at 50% 0%, ${accent}33, transparent)` }}
       />
       <div className="relative flex flex-col items-center gap-3">
-        <StarIcon className="size-7 text-lime drop-shadow-[0_0_10px_rgba(197,216,109,0.7)]" />
-        <p className="text-[11px] font-black uppercase tracking-[0.3em] text-lime">MVP · Goleador</p>
+        <StarIcon className="size-7 text-[#c5d86d]" />
+        <p className="text-[11px] font-black uppercase tracking-[0.3em] text-[#c5d86d]">MVP · Goleador</p>
         <p className="w-full truncate text-lg font-extrabold leading-tight text-white md:text-xl">
           {mvp.playerName}
         </p>
@@ -644,8 +646,9 @@ function MvpPodium({ mvp }: { mvp: TopScorerRow }): React.JSX.Element {
             {mvp.teamName}
           </span>
         </div>
-        <span className="inline-flex items-center gap-1 rounded-full border border-lime/30 bg-lime/15 px-3 py-1 text-xs font-bold text-lime">
-          ⚽ {mvp.goalsCount} {mvp.goalsCount === 1 ? 'Gol' : 'Goles'}
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-[#c5d86d]/30 bg-[#c5d86d]/15 px-3 py-1 text-xs font-bold text-[#c5d86d]">
+          <SoccerBallIcon className="size-3.5" />
+          <span>{mvp.goalsCount} {mvp.goalsCount === 1 ? 'Gol' : 'Goles'}</span>
         </span>
       </div>
     </div>
@@ -702,22 +705,22 @@ export function PlayoffBracketPanel({
   const [scoreError, setScoreError] = useState<string | null>(null)
 
   const playoffsQuery = useQuery({
-    queryKey: ['playoffs', tournamentId],
+    queryKey: queryKeys.tournamentPlayoffs(tournamentId),
     queryFn: () => getPlayoffs(tournamentId),
   })
 
   const standingsQuery = useQuery({
-    queryKey: ['standings', tournamentId],
+    queryKey: queryKeys.tournamentStandings(tournamentId),
     queryFn: () => getStandings(tournamentId),
   })
 
   const teamsQuery = useQuery({
-    queryKey: ['teams', tournamentId],
+    queryKey: queryKeys.tournamentTeams(tournamentId),
     queryFn: () => listTournamentTeams(tournamentId),
   })
 
   const topScorersQuery = useQuery({
-    queryKey: ['top-scorers', tournamentId],
+    queryKey: queryKeys.tournamentTopScorers(tournamentId),
     queryFn: () => getTopScorers(tournamentId),
   })
 
@@ -736,11 +739,11 @@ export function PlayoffBracketPanel({
   }, [teamsQuery.data])
 
   function invalidate(): void {
-    void queryClient.invalidateQueries({ queryKey: ['playoffs', tournamentId] })
-    void queryClient.invalidateQueries({ queryKey: ['matchdays', tournamentId] })
-    void queryClient.invalidateQueries({ queryKey: ['standings', tournamentId] })
-    void queryClient.invalidateQueries({ queryKey: ['stats', tournamentId] })
-    void queryClient.invalidateQueries({ queryKey: ['top-scorers', tournamentId] })
+    void queryClient.invalidateQueries({ queryKey: queryKeys.tournamentPlayoffs(tournamentId) })
+    void queryClient.invalidateQueries({ queryKey: queryKeys.tournamentMatchdays(tournamentId) })
+    void queryClient.invalidateQueries({ queryKey: queryKeys.tournamentStandings(tournamentId) })
+    void queryClient.invalidateQueries({ queryKey: queryKeys.tournamentStats(tournamentId) })
+    void queryClient.invalidateQueries({ queryKey: queryKeys.tournamentTopScorers(tournamentId) })
   }
 
   const generateMutation = useMutation({

@@ -20,8 +20,8 @@ interface LegalSectionProps {
 export function LegalSection({ title, children }: LegalSectionProps): React.JSX.Element {
   return (
     <section className="space-y-2">
-      <h2 className="text-base font-bold tracking-tight text-[#f3efe8]">{title}</h2>
-      <div className="space-y-2 text-sm leading-relaxed text-mauve-soft">
+      <h2 className="text-base font-bold tracking-tight text-white">{title}</h2>
+      <div className="space-y-2 text-sm leading-relaxed text-neutral-400">
         {children}
       </div>
     </section>
@@ -46,12 +46,12 @@ export default function LegalPageLayout({
   return (
     <article className="mx-auto w-full max-w-3xl">
       <header>
-        <div className="mb-2 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] border-lime/30 bg-lime/10 text-lime">
+        <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[#c5d86d]/30 bg-[#c5d86d]/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#c5d86d]">
           {eyebrow}
         </div>
-        <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
-        <p className="mt-1 text-sm text-mauve-soft">{intro}</p>
-        <p className="mt-2 text-xs text-mauve-soft">
+        <h1 className="text-2xl font-bold tracking-tight text-white">{title}</h1>
+        <p className="mt-1 text-sm text-neutral-400">{intro}</p>
+        <p className="mt-2 text-xs text-neutral-400">
           Última actualización: {updatedAt}
         </p>
       </header>
@@ -68,14 +68,14 @@ export default function LegalPageLayout({
         </p>
       </div>
 
-      <div className="mt-5 space-y-6 rounded-xl border p-5 shadow-surface border-mauve bg-coffee-elev sm:p-6">
+      <div className="mt-5 space-y-6 rounded-xl border p-5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] border-white/10 bg-neutral-900/60 sm:p-6">
         {children}
       </div>
 
       <div className="mt-6 text-xs">
         <Link
           to="/"
-          className="inline-flex items-center gap-1.5 transition-colors text-mauve-soft hover:text-[#c5d86d]"
+          className="inline-flex items-center gap-1.5 transition-colors text-neutral-400 hover:text-[#c5d86d]"
         >
           <span aria-hidden="true">←</span>
           Volver al inicio

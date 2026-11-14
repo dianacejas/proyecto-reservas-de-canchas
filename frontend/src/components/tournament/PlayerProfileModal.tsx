@@ -42,6 +42,7 @@ export default function PlayerProfileModal({
             </Modal.Heading>
             <Modal.CloseTrigger />
           </Modal.Header>
+
           <Modal.Body>
             {isLoading ? (
               <div className="flex flex-col items-center justify-center py-10 gap-2">
@@ -56,14 +57,14 @@ export default function PlayerProfileModal({
               </div>
             ) : (
               <div className="space-y-4">
-                {/* Header */}
-                <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-neutral-800/60 p-3.5">
+                {/* Header Jugador */}
+                <div className="flex items-center gap-3 rounded-xl border p-3.5 border-white/10 bg-neutral-800/60">
                   <TeamCrest name={stats.teamName || 'Equipo'} color={teamColor} size="md" />
                   <div className="min-w-0 flex-1">
                     <h3 className="truncate text-base font-extrabold text-white">
                       {stats.playerName}
                     </h3>
-                    <p className="text-xs font-medium text-neutral-400">
+                    <p className="truncate text-xs font-medium text-neutral-400">
                       {stats.teamName || 'Sin equipo asignado'}
                     </p>
                   </div>

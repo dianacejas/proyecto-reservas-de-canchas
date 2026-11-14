@@ -1,4 +1,5 @@
 import { apiRequest } from './client'
+import { loadAuth } from '../auth/storage'
 import type {
   AdminCustomer,
   AuthResponse,
@@ -16,7 +17,7 @@ import type {
   Matchday,
   Payment,
   PaymentType,
-  PlayerStatsResult,
+  PlayerStats,
   PlayoffBracket,
   Team,
   TopScorerRow,
@@ -55,9 +56,18 @@ export interface RegisterInput {
 
 export interface FieldInput {
   name?: string
+  sport?: string
   type?: string
+  isCovered?: boolean
+  dimensions?: string
+  lighting?: string
+  features?: string[]
   pricePerHour?: number
+  standardPricePerHour?: number
+  peakPricePerHour?: number
+  peakHours?: string[]
   imageUrl?: string
+  active?: boolean
   isActive?: boolean
 }
 
@@ -105,6 +115,13 @@ export function createField(input: FieldInput): Promise<Field> {
 export function updateField(id: string, input: FieldInput): Promise<Field> {
   return apiRequest<Field>(`/fields/${id}`, {
     method: 'PUT',
+    body: JSON.stringify(input),
+  })
+}
+
+export function updateCourt(id: string, input: Partial<FieldInput>): Promise<Field> {
+  return apiRequest<Field>(`/admin/courts/${id}`, {
+    method: 'PATCH',
     body: JSON.stringify(input),
   })
 }
@@ -158,6 +175,30 @@ export function listAdminCustomers(): Promise<AdminCustomer[]> {
   return apiRequest<AdminCustomer[]>('/admin/customers')
 }
 
+export async function downloadBalanceCsv(startDate?: string, endDate?: string): Promise<void> {
+  const params = new URLSearchParams()
+  if (startDate) params.set('startDate', startDate)
+  if (endDate) params.set('endDate', endDate)
+  const qs = params.toString() ? `?${params.toString()}` : ''
+
+  const auth = loadAuth()
+  const headers = new Headers()
+  if (auth !== null) headers.set('Authorization', `Bearer ${auth.token}`)
+
+  const response = await fetch(`/api/admin/reports/export${qs}`, { headers, credentials: 'include' })
+  if (!response.ok) throw new Error('Error al descargar el balance CSV')
+
+  const blob = await response.blob()
+  const url = window.URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `copa5-balance-${startDate || new Date().toISOString().slice(0, 10)}.csv`
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  window.URL.revokeObjectURL(url)
+}
+
 export function completeBookingAtDoor(id: string): Promise<Booking> {
   return apiRequest<Booking>(`/admin/bookings/${id}/complete`, { method: 'POST' })
 }
@@ -196,6 +237,27 @@ export function getMatchdays(id: string): Promise<Matchday[]> {
   return apiRequest<Matchday[]>(`/tournaments/${id}/matches`)
 }
 
+export function getMatch(id: string): Promise<Match> {
+  return apiRequest<Match>(`/matches/${id}`)
+}
+
+export function listCommunityNotices(): Promise<CommunityNotice[]> {
+  return apiRequest<CommunityNotice[]>('/community/notices')
+}
+
+export function createCommunityNotice(input: CreateCommunityNoticeInput): Promise<CommunityNotice> {
+  return apiRequest<CommunityNotice>('/community/notices', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  })
+}
+
+export function closeCommunityNotice(id: string): Promise<CommunityNotice> {
+  return apiRequest<CommunityNotice>(`/community/notices/${id}/close`, {
+    method: 'PATCH',
+  })
+}
+
 export function createMatch(input: CreateMatchInput): Promise<Match> {
   return apiRequest<Match>('/matches', {
     method: 'POST',
@@ -216,6 +278,10 @@ export function getTournamentStats(id: string): Promise<TournamentStats> {
 
 export function getTopScorers(id: string): Promise<TopScorerRow[]> {
   return apiRequest<TopScorerRow[]>(`/tournaments/${id}/top-scorers`)
+}
+
+export function getPlayerStats(tournamentId: string, playerId: string): Promise<PlayerStats> {
+  return apiRequest<PlayerStats>(`/tournaments/${tournamentId}/players/${encodeURIComponent(playerId)}/stats`)
 }
 
 export function createTournamentRegistration(
@@ -272,6 +338,7 @@ export function updateMatchScore(
     homePenalties?: number
     awayPenalties?: number
     events?: MatchEvent[]
+    mvpPlayer?: string | null
   }
 ): Promise<Match> {
   const payload: Record<string, unknown> = { homeGoals: input.homeGoals, awayGoals: input.awayGoals }
@@ -308,53 +375,40 @@ export function confirmSandboxPayment(paymentId: string): Promise<Payment> {
   })
 }
 
+export function getAdminMetrics(params: {
+  date?: string
+  startDate?: string
+  endDate?: string
+}): Promise<DailyMetrics> {
+  const qs = new URLSearchParams()
+  if (params.date) qs.set('date', params.date)
+  if (params.startDate) qs.set('startDate', params.startDate)
+  if (params.endDate) qs.set('endDate', params.endDate)
+  return apiRequest<DailyMetrics>(`/admin/metrics?${qs.toString()}`)
+}
+
 export const queryKeys = {
   fields: () => ['fields'] as const,
-  bookings: () => ['bookings'] as const,
+  courts: () => ['courts'] as const,
+  bookings: (fieldId?: string | null, date?: string) =>
+    fieldId && date
+      ? (['bookings', fieldId, date] as const)
+      : fieldId
+        ? (['bookings', fieldId] as const)
+        : (['bookings'] as const),
+  adminBookings: (date?: string) =>
+    date ? (['admin-bookings', date] as const) : (['admin-bookings'] as const),
+  adminMetrics: (params?: unknown) =>
+    params ? (['admin-metrics', params] as const) : (['admin-metrics'] as const),
+  adminCustomers: () => ['admin-customers'] as const,
   myBookings: () => ['my-bookings'] as const,
-  communityNotices: () => ['community', 'notices'] as const,
-  playerStats: (tournamentId: string, playerId: string) =>
-    ['tournaments', tournamentId, 'players', playerId, 'stats'] as const,
-}
-
-export interface UpdateCourtInput extends FieldInput {
-  isCovered?: boolean
-  dimensions?: string
-  lighting?: string
-  active?: boolean
-}
-
-export function updateCourt(id: string, input: UpdateCourtInput): Promise<Field> {
-  return apiRequest<Field>(`/fields/${id}`, {
-    method: 'PUT',
-    body: JSON.stringify(input),
-  })
-}
-
-export function listCommunityNotices(): Promise<CommunityNotice[]> {
-  return apiRequest<CommunityNotice[]>('/community/notices')
-}
-
-export function createCommunityNotice(
-  input: CreateCommunityNoticeInput
-): Promise<CommunityNotice> {
-  return apiRequest<CommunityNotice>('/community/notices', {
-    method: 'POST',
-    body: JSON.stringify(input),
-  })
-}
-
-export function closeCommunityNotice(id: string): Promise<CommunityNotice> {
-  return apiRequest<CommunityNotice>(`/community/notices/${id}/close`, {
-    method: 'PATCH',
-  })
-}
-
-export function getPlayerStats(
-  tournamentId: string,
-  playerId: string
-): Promise<PlayerStatsResult> {
-  return apiRequest<PlayerStatsResult>(
-    `/tournaments/${tournamentId}/players/${playerId}/stats`
-  )
-}
+  tournaments: () => ['tournaments'] as const,
+  tournament: (id: string) => ['tournament', id] as const,
+  tournamentTeams: (id: string) => ['teams', id] as const,
+  tournamentMatchdays: (id: string) => ['matchdays', id] as const,
+  tournamentStandings: (id: string) => ['standings', id] as const,
+  tournamentStats: (id: string) => ['stats', id] as const,
+  tournamentTopScorers: (id: string) => ['top-scorers', id] as const,
+  tournamentPlayoffs: (id: string) => ['playoffs', id] as const,
+  tournamentRegistrations: (id: string) => ['registrations', id] as const,
+} as const

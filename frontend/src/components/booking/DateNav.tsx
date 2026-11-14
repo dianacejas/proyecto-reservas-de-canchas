@@ -39,9 +39,9 @@ export default function DateNav({ date, onChange }: DateNavProps): React.JSX.Ele
         <span className="hidden sm:inline">Día anterior</span>
         <span className="sr-only sm:hidden">Día anterior</span>
       </Button>
-      <div className="order-last w-full min-w-0 rounded-xl border px-4 py-2 sm:order-none sm:w-auto sm:min-w-44 border-mauve bg-coffee-elev">
-        <p className="truncate text-base font-semibold capitalize text-[#f3efe8]">{formatLong(date)}</p>
-        <p className="flex items-center gap-2 text-xs text-mauve-soft">
+      <div className="order-last w-full min-w-0 rounded-xl border px-4 py-2 sm:order-none sm:w-auto sm:min-w-44 border-white/10 bg-neutral-900/50">
+        <p className="truncate text-base font-semibold capitalize text-white">{formatLong(date)}</p>
+        <p className="flex items-center gap-2 text-xs text-neutral-400">
           {formatDayShort(date)}
           {isToday && (
             <Chip color="accent" size="sm">
@@ -74,7 +74,7 @@ export default function DateNav({ date, onChange }: DateNavProps): React.JSX.Ele
         <DatePicker.Trigger
           ref={triggerRef}
           aria-label="Elegir otra fecha"
-          className="min-h-11 w-auto shrink-0 gap-1.5 rounded-lg border px-2.5 py-1.5 text-sm font-semibold transition-colors border-mauve bg-coffee-elev text-[#f3efe8] hover:bg-coffee-elev/70"
+          className="min-h-11 w-auto shrink-0 gap-1.5 rounded-lg border px-2.5 py-1.5 text-sm font-semibold transition-colors border-neutral-700 bg-neutral-900/60 text-white hover:bg-neutral-800/60"
         >
           <DatePicker.TriggerIndicator />
           {formatDayShort(date)}

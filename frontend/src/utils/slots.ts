@@ -7,7 +7,18 @@ export interface GridSlot {
   end: string
   label: string
   kind: SlotKind
+  isPeak?: boolean
   booking?: Booking
+}
+
+export function isPeakSlot(dateKey: string, startTime: string): boolean {
+  if (!dateKey) return false
+  const [year, month, day] = dateKey.split('-').map(Number)
+  const d = new Date(year, month - 1, day)
+  const dayOfWeek = d.getDay()
+  if (dayOfWeek === 0 || dayOfWeek === 6) return true // Fines de semana
+  const hour = parseInt(startTime.slice(0, 2), 10)
+  return hour >= 19
 }
 
 const START_HOUR = 9

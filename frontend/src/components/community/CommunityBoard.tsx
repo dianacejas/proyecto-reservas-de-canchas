@@ -43,7 +43,7 @@ export default function CommunityBoard(): React.JSX.Element {
     const text =
       notice.type === 'falta_uno'
         ? `¡Hola! Vi tu aviso "${notice.title}" en Copa 5 para el turno ${notice.date} a las ${notice.timeSlot}. ¿Siguen necesitando jugador?`
-        : `¡Hola! Vi tu desafío "${notice.title}" en Copa 5 para el turno ${notice.date} a las ${notice.timeSlot}. Tenemos equipo para jugar.`
+        : `¡Hola! Vi tu desafío "${notice.title}" en Copa 5 para jugar el ${notice.date} a las ${notice.timeSlot}. Tenemos equipo para jugar.`
     return `https://wa.me/${fullPhone}?text=${encodeURIComponent(text)}`
   }
 
@@ -51,21 +51,27 @@ export default function CommunityBoard(): React.JSX.Element {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-black sm:text-3xl text-white">Tablón Comunitario</h1>
+          <h1 className="text-2xl font-black sm:text-3xl text-white">
+            Tablón Comunitario
+          </h1>
           <p className="mt-1 text-sm text-neutral-400">
-            Encontrá jugadores para completar o desafiá a otros conjuntos a un partido amistoso.
+            Encontrá jugadores para completar tu equipo o desafiá a otros conjuntos a un partido amistoso.
           </p>
         </div>
+
         <Button
           variant="primary"
-          className="min-h-11 shrink-0 bg-[#c5d86d] text-neutral-950 font-bold hover:bg-[#b5c85d] shadow-sm"
+          className="min-h-11 shrink-0 bg-[#c5d86d] text-neutral-950 font-black hover:bg-[#b5c85d] shadow-sm"
           onPress={() => setShowCreateModal(true)}
         >
           + Publicar aviso
         </Button>
       </div>
 
-      <Tabs.Root selectedKey={selectedTab} onSelectionChange={(key) => setSelectedTab(String(key))}>
+      <Tabs.Root
+        selectedKey={selectedTab}
+        onSelectionChange={(key) => setSelectedTab(String(key))}
+      >
         <Tabs.List className={PILL_TAB_LIST_CLASS}>
           <Tabs.Tab id="todos" className={PILL_TAB_CLASS}>
             Todos ({notices.length})
@@ -84,12 +90,12 @@ export default function CommunityBoard(): React.JSX.Element {
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="h-44 animate-pulse rounded-2xl border border-white/10 bg-neutral-900/60 p-5"
+              className="h-44 animate-pulse rounded-2xl border p-5 border-white/10 bg-neutral-900/60"
             />
           ))}
         </div>
       ) : filteredNotices.length === 0 ? (
-        <div className="rounded-2xl border border-white/10 bg-neutral-900/60 p-10 text-center shadow-sm">
+        <div className="rounded-2xl border p-10 text-center shadow-sm border-white/10 bg-neutral-900/60">
           <p className="text-base font-bold text-white">
             No hay avisos abiertos en esta categoría.
           </p>
@@ -102,7 +108,7 @@ export default function CommunityBoard(): React.JSX.Element {
           {filteredNotices.map((notice) => (
             <div
               key={notice.id}
-              className="flex flex-col justify-between rounded-2xl border border-white/10 bg-neutral-900/80 p-4 shadow-[0_8px_30px_rgb(0,0,0,0.4)] transition-all hover:border-[#c5d86d]"
+              className="flex flex-col justify-between rounded-2xl border p-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] transition-all hover:border-[#c5d86d] border-white/10 bg-neutral-900/60"
             >
               <div>
                 <div className="flex items-center justify-between gap-2">

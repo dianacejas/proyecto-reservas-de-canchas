@@ -1,6 +1,5 @@
 import { Chip } from '@heroui/react'
 import FadeUp from '../common/FadeUp'
-import VenueAdvantages from './VenueAdvantages'
 
 interface Court {
   id: string
@@ -46,20 +45,20 @@ export default function CourtGallery(): React.JSX.Element {
     <section className="space-y-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="text-xs font-bold uppercase tracking-wider text-[#c5d86d]">
-            Nuestro complejo
+          <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white">
+            Nuestro complejo <span className="text-neutral-400 font-light">|</span>{' '}
+            <span className="text-[#c5d86d]">3 canchas pro</span>
           </h2>
-          <p className="mt-0.5 text-xl font-black tracking-tight text-white">Tres canchas, un solo club</p>
+          <p className="mt-2 text-base md:text-lg max-w-2xl text-neutral-400 leading-relaxed">
+            Reservá, elegí el horario y jugá en la superficie que prefieras.
+          </p>
         </div>
-        <p className="text-sm text-neutral-400">
-          Elegí el horario y jugá en la superficie que prefieras.
-        </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {COURTS.map((court, index) => (
           <FadeUp key={court.id} delayMs={index * 90} className="h-full">
-            <figure className="group h-full overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900/90 shadow-[0_8px_30px_rgb(0,0,0,0.35)] transition-all duration-300 hover:-translate-y-1 hover:border-[#c5d86d]/50 hover:shadow-xl">
+            <figure className="group h-full overflow-hidden rounded-2xl border shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] transition-all duration-300 hover:-translate-y-1 hover:border-stone-300 hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1)] border-white/10 bg-neutral-900/50">
             <div className="aspect-[4/3] overflow-hidden">
               <img
                 src={court.image}
@@ -83,8 +82,6 @@ export default function CourtGallery(): React.JSX.Element {
         </FadeUp>
       ))}
       </div>
-
-      <VenueAdvantages />
     </section>
   )
 }

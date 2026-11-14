@@ -158,12 +158,12 @@ export default function AdminBookingGrid({
       ) : bookingsQuery.isError ? (
         <ErrorState message={getErrorMessage(bookingsQuery.error)} onRetry={() => void bookingsQuery.refetch()} />
       ) : (
-        <div className="overflow-hidden rounded-xl border border-mauve">
+        <div className="overflow-hidden rounded-xl border border-white/10">
           <div className="overflow-x-auto">
             <table className="w-full min-w-155 text-left text-sm" aria-label="Agenda diaria">
-              <thead className="bg-[#f1ebe3] bg-mauve-deep text-mauve-soft">
+              <thead className="bg-neutral-800 text-neutral-300">
                 <tr>
-                  <th className="sticky left-0 z-10 bg-[#f1ebe3] px-3 py-2 font-medium bg-mauve-deep">
+                  <th className="sticky left-0 z-10 px-3 py-2 font-medium bg-neutral-800">
                     Horario
                   </th>
                   {fields.map((field) => (
@@ -173,10 +173,10 @@ export default function AdminBookingGrid({
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-mauve/60">
+              <tbody className="divide-y divide-white/5">
                 {grid.map((row) => (
-                  <tr key={row.slot.start} className="bg-coffee-elev">
-                    <td className="sticky left-0 z-10 whitespace-nowrap px-3 py-2 font-mono text-xs font-semibold bg-coffee-elev text-[#f3efe8]">
+                  <tr key={row.slot.start} className="bg-neutral-900/60">
+                    <td className="sticky left-0 z-10 whitespace-nowrap px-3 py-2 font-mono text-xs font-semibold bg-neutral-900 text-white">
                       {row.slot.label}
                     </td>
                     {row.cells.map((cell) => {
@@ -184,8 +184,8 @@ export default function AdminBookingGrid({
                       if (booking === undefined) {
                         return (
                           <td key={cell.field.id} className="px-2 py-2">
-                            <div className="flex min-h-16 flex-col items-stretch justify-center gap-1.5 rounded-lg border border-dashed px-2 py-1.5 border-mauve/60">
-                              <span className="text-xs text-mauve-soft">Libre</span>
+                            <div className="flex min-h-16 flex-col items-stretch justify-center gap-1.5 rounded-lg border border-dashed px-2 py-1.5 border-neutral-700">
+                              <span className="text-xs text-neutral-400">Libre</span>
                               <div className="flex gap-1">
                                 <Button
                                   variant="primary"
@@ -292,15 +292,15 @@ function CellCard({
     <button
       type="button"
       onClick={onOpen}
-      className="flex min-h-16 w-full flex-col items-start gap-1.5 rounded-lg border bg-paper/70 px-2 py-1.5 text-left transition-colors border-mauve/70 bg-mauve-deep/60 hover:border-lime/60"
+      className="flex min-h-16 w-full flex-col items-start gap-1.5 rounded-lg border px-2 py-1.5 text-left transition-colors border-white/10 bg-neutral-800/60 hover:border-[#c5d86d]/60"
     >
       <div className="flex w-full items-center justify-between gap-2">
         <Chip color={chip.color} size="sm">
           {chip.label}
         </Chip>
-        <span className="text-xs text-mauve-soft">{booking.startTime}</span>
+        <span className="text-xs text-neutral-400">{booking.startTime}</span>
       </div>
-      <span className="truncate text-xs font-medium text-mauve-soft">
+      <span className="truncate text-xs font-medium text-neutral-200">
         {booking.type === 'mantenimiento' ? booking.clientInfo.name : booking.clientInfo.name}
       </span>
       <div className="flex w-full flex-wrap gap-1" onClick={(event) => event.stopPropagation()}>
@@ -405,20 +405,20 @@ function NewSlotModal({
           <Modal.Body>
             <div className="space-y-3">
               <div className="grid gap-2 text-sm">
-                <div className="flex items-center justify-between gap-3 rounded-lg border bg-paper/70 px-3 py-2 border-mauve bg-mauve-deep/60">
-                  <span className="text-mauve-soft">Cancha</span>
-                  <span className="font-medium text-[#f3efe8]">{form.field.name}</span>
+                <div className="flex items-center justify-between gap-3 rounded-lg border px-3 py-2 border-white/10 bg-neutral-800/60">
+                  <span className="text-neutral-400">Cancha</span>
+                  <span className="font-medium text-white">{form.field.name}</span>
                 </div>
-                <div className="flex items-center justify-between gap-3 rounded-lg border bg-paper/70 px-3 py-2 border-mauve bg-mauve-deep/60">
-                  <span className="text-mauve-soft">Horario</span>
-                  <span className="font-medium text-[#f3efe8]">
+                <div className="flex items-center justify-between gap-3 rounded-lg border px-3 py-2 border-white/10 bg-neutral-800/60">
+                  <span className="text-neutral-400">Horario</span>
+                  <span className="font-medium text-white">
                     {formatLong(date)} · {form.slot.label}
                   </span>
                 </div>
                 {kind === 'reserva' && (
-                  <div className="flex items-center justify-between gap-3 rounded-lg border bg-paper/70 px-3 py-2 border-mauve bg-mauve-deep/60">
-                    <span className="text-mauve-soft">Total estimado</span>
-                    <span className="font-semibold text-lime">${form.field.pricePerHour}</span>
+                  <div className="flex items-center justify-between gap-3 rounded-lg border px-3 py-2 border-white/10 bg-neutral-800/60">
+                    <span className="text-neutral-400">Total estimado</span>
+                    <span className="font-semibold text-[#c5d86d]">${form.field.pricePerHour}</span>
                   </div>
                 )}
               </div>
@@ -509,9 +509,9 @@ function BookingDetailModal({
 }): React.JSX.Element {
   const chip = bookingChip(booking)
   const waLink = whatsappLink(booking, fieldName)
-  const row = 'flex items-center justify-between gap-3 rounded-lg border bg-paper/70 px-3 py-2 border-mauve bg-mauve-deep/60'
-  const label = 'text-mauve-soft'
-  const value = 'font-medium capitalize text-[#f3efe8]'
+  const row = 'flex items-center justify-between gap-3 rounded-lg border px-3 py-2 border-white/10 bg-neutral-800/60'
+  const label = 'text-neutral-400'
+  const value = 'font-medium capitalize text-white'
 
   return (
     <Modal.Root isOpen onOpenChange={(open) => open || onClose()}>

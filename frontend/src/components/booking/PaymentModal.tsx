@@ -15,8 +15,8 @@ interface PaymentModalProps {
 const OPTION_CLASS =
   'w-full cursor-pointer rounded-xl border-2 p-4 text-left transition-all duration-200'
 const OPTION_ACTIVE =
-  'border-lime bg-lime/10 shadow-[0_0_24px_-12px_rgba(197,216,109,0.8)]'
-const OPTION_IDLE = 'hover:border-mauve/50 border-mauve bg-coffee-elev'
+  'border-[#c5d86d] bg-[#c5d86d]/10 shadow-[0_0_24px_-12px_rgba(197,216,109,0.8)]'
+const OPTION_IDLE = 'border-white/10 bg-neutral-800/60 hover:border-white/30'
 
 export default function PaymentModal({
   booking,
@@ -43,11 +43,11 @@ export default function PaymentModal({
           </Modal.Header>
           <Modal.Body>
             <div className="space-y-4">
-              <div className="rounded-lg border bg-paper/70 px-3 py-2 text-sm border-mauve bg-mauve-deep/60">
-                <p className="font-semibold text-[#f3efe8]">
+              <div className="rounded-lg border px-3 py-2 text-sm border-white/10 bg-neutral-800/60">
+                <p className="font-semibold text-white">
                   {fieldName} · {formatLong(bookingDay(booking.date))}
                 </p>
-                <p className="text-mauve-soft">
+                <p className="text-neutral-400">
                   {booking.startTime} a {booking.endTime} · Total {formatCurrency(total)}
                 </p>
               </div>
@@ -59,14 +59,14 @@ export default function PaymentModal({
                   className={`${OPTION_CLASS} ${paymentType === 'deposit' ? OPTION_ACTIVE : OPTION_IDLE}`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-semibold text-[#f3efe8]">
+                    <span className="font-semibold text-white">
                       Seña {DEPOSIT_PERCENT}%
                     </span>
-                    <span className="font-semibold text-lime">
+                    <span className="font-semibold text-[#c5d86d]">
                       {formatCurrency(deposit)}
                     </span>
                   </div>
-                  <p className="mt-1 text-xs text-mauve-soft">
+                  <p className="mt-1 text-xs text-neutral-400">
                     Reservás el turno y el saldo de {formatCurrency(total - deposit)} se paga en
                     mostrador.
                   </p>
@@ -78,22 +78,22 @@ export default function PaymentModal({
                   className={`${OPTION_CLASS} ${paymentType === 'full' ? OPTION_ACTIVE : OPTION_IDLE}`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-semibold text-[#f3efe8]">
+                    <span className="font-semibold text-white">
                       Pago total
                     </span>
-                    <span className="font-semibold text-lime">
+                    <span className="font-semibold text-[#c5d86d]">
                       {formatCurrency(total)}
                     </span>
                   </div>
-                  <p className="mt-1 text-xs text-mauve-soft">
+                  <p className="mt-1 text-xs text-neutral-400">
                     Sin saldo pendiente. Quedás al día con la cancha.
                   </p>
                 </button>
               </div>
 
-              <div className="flex items-center justify-between rounded-lg border px-3 py-2 text-sm border-mauve bg-coffee-elev">
-                <span className="text-mauve-soft">Saldo a pagar en cancha</span>
-                <span className="font-semibold text-[#f3efe8]">
+              <div className="flex items-center justify-between rounded-lg border px-3 py-2 text-sm border-white/10 bg-neutral-800/60">
+                <span className="text-neutral-400">Saldo a pagar en cancha</span>
+                <span className="font-semibold text-white">
                   {formatCurrency(remaining)}
                 </span>
               </div>

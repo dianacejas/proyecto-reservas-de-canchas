@@ -46,11 +46,13 @@ export default function WeatherBadge({
   const { data } = useQuery({
     queryKey: ['weather', selectedDate],
     queryFn: fetchWeather,
-    staleTime: 1000 * 60 * 30,
+    staleTime: 1000 * 60 * 30, // 30 minutos
   })
 
   if (!data?.daily) return null
+
   const index = data.daily.time.indexOf(selectedDate)
+  // Solo se muestra si la fecha está dentro del rango disponible (próximos 7 días)
   if (index === -1) return null
 
   const code = data.daily.weather_code[index] ?? 0
@@ -61,8 +63,8 @@ export default function WeatherBadge({
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      {/* Cápsula compacta clima */}
-      <div className="inline-flex items-center gap-1.5 rounded-full border border-neutral-800 bg-neutral-900/90 px-3 py-1 text-xs font-semibold text-neutral-100 shadow-sm">
+      {/* Cápsula compacta del clima */}
+      <div className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold shadow-sm border-mauve bg-coffee-elev text-[#f3efe8]">
         {condition.type === 'sun' && <SunIcon className="size-4 text-amber-500" />}
         {condition.type === 'cloud' && <CloudIcon className="size-4 text-neutral-400" />}
         {condition.type === 'rain' && <CloudRainIcon className="size-4 text-sky-500" />}

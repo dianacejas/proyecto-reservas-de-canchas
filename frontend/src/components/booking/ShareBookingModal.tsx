@@ -35,10 +35,10 @@ export default function ShareBookingModal({
           </Modal.Header>
           <Modal.Body>
             <div className="space-y-4">
-              <p className="text-sm text-mauve-soft">
+              <p className="text-sm text-neutral-400">
                 Enviá los datos del partido a tu grupo de WhatsApp.
               </p>
-              <pre className="whitespace-pre-wrap rounded-xl border bg-paper/70 p-4 text-sm border-mauve bg-mauve-deep/60 text-[#f3efe8]">
+              <pre className="whitespace-pre-wrap rounded-xl border p-4 text-sm border-white/10 bg-neutral-800/60 text-white">
                 {message}
               </pre>
               {copied && (
@@ -56,13 +56,13 @@ export default function ShareBookingModal({
               Copiar mensaje
             </Button>
             <a
-              href={`https://wa.me/?text=${encodeURIComponent(message)}`}
+              href={`https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-[#25d366] px-4 py-2 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg sm:w-auto"
             >
               <WhatsAppIcon className="size-4" />
-              Compartir por WhatsApp
+              Convocar equipo por WhatsApp
             </a>
           </Modal.Footer>
         </Modal.Dialog>

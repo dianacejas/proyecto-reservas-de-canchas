@@ -1,7 +1,7 @@
 import { Chip } from '@heroui/react'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
-import { listAdminCustomers } from '../../api'
+import { listAdminCustomers, queryKeys } from '../../api'
 import { getErrorMessage } from '../../api/client'
 import ErrorState from '../common/ErrorState'
 import Loading from '../common/Loading'
@@ -38,7 +38,7 @@ function isRiesgo(customer: AdminCustomer): boolean {
 
 export default function AdminCustomers(): React.JSX.Element {
   const customersQuery = useQuery({
-    queryKey: ['admin-customers'],
+    queryKey: queryKeys.adminCustomers(),
     queryFn: listAdminCustomers,
   })
   const [search, setSearch] = useState('')
@@ -87,13 +87,13 @@ export default function AdminCustomers(): React.JSX.Element {
       </div>
 
       {customers.length === 0 ? (
-        <p className="py-8 text-center text-sm text-mauve-soft">
+        <p className="py-8 text-center text-sm text-neutral-400">
           No se encontraron clientes.
         </p>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-mauve">
+        <div className="overflow-x-auto rounded-2xl overflow-hidden border shadow-sm border-white/10 bg-neutral-900/60">
           <table className="w-full min-w-230 text-left text-sm">
-            <thead className="bg-[#f1ebe3] bg-mauve-deep text-mauve-soft">
+            <thead className="bg-neutral-800/80 text-neutral-300">
               <tr>
                 <th className="px-4 py-2 font-medium">Cliente</th>
                 <th className="px-4 py-2 font-medium">Reservas</th>
@@ -105,7 +105,7 @@ export default function AdminCustomers(): React.JSX.Element {
                 <th className="px-4 py-2 text-right font-medium">Contacto</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-mauve/60">
+            <tbody className="divide-y divide-white/5">
               {customers.map((customer) => (
                 <CustomerRow key={customer.id} customer={customer} />
               ))}
@@ -114,7 +114,7 @@ export default function AdminCustomers(): React.JSX.Element {
         </div>
       )}
 
-      <p className="text-xs text-mauve-soft">
+      <p className="text-xs text-neutral-400">
         Clientes agrupados por teléfono o usuario registrado. «Inasist.» son turnos confirmados
         pasados con saldo sin cobrar. Revisá la reputación antes de aprobar un turno manual.
       </p>
@@ -131,15 +131,15 @@ function CustomerRow({ customer }: { customer: AdminCustomer }): React.JSX.Eleme
     customer.whatsapp !== null ? `https://wa.me/${customer.whatsapp}?text=${encodeURIComponent(waText)}` : null
 
   return (
-    <tr className="bg-coffee-elev">
+    <tr className="bg-neutral-900/60 hover:bg-neutral-900">
       <td className="px-4 py-3">
         <div className="flex items-center gap-2">
           <div className="min-w-0">
-            <p className="max-w-52 truncate font-medium text-[#f3efe8]">
+            <p className="max-w-52 truncate font-medium text-white">
               {customer.name}
             </p>
             {customer.userId !== null && (
-              <p className="text-xs text-mauve-soft">Cuenta registrada</p>
+              <p className="text-xs text-neutral-400">Cuenta registrada</p>
             )}
           </div>
           {frecuente && (
@@ -154,33 +154,33 @@ function CustomerRow({ customer }: { customer: AdminCustomer }): React.JSX.Eleme
           )}
         </div>
       </td>
-      <td className="px-4 py-3 font-semibold text-[#f3efe8]">
+      <td className="px-4 py-3 font-semibold text-white">
         {customer.totalReservas}
       </td>
-      <td className="px-4 py-3 text-mauve-soft">{customer.completadas}</td>
-      <td className="px-4 py-3 text-mauve-soft">{customer.canceladas}</td>
-      <td className="px-4 py-3 text-mauve-soft">{customer.inasistencias}</td>
+      <td className="px-4 py-3 text-neutral-400">{customer.completadas}</td>
+      <td className="px-4 py-3 text-neutral-400">{customer.canceladas}</td>
+      <td className="px-4 py-3 text-neutral-400">{customer.inasistencias}</td>
       <td className="px-4 py-3">
         <div className="flex items-center gap-2">
-          <div className="h-1.5 w-14 overflow-hidden rounded-full bg-paper bg-mauve-deep">
+          <div className="h-1.5 w-14 overflow-hidden rounded-full bg-neutral-800">
             <div
-              className="h-full rounded-full bg-cinnamon"
+              className="h-full rounded-full bg-amber-500"
               style={{ width: `${Math.min(customer.tasaCancelacion, 100)}%` }}
             />
           </div>
           <span
-            className={`font-semibold ${riesgo ? 'text-cinnamon' : 'text-mauve-soft'}`}
+            className={`font-semibold ${riesgo ? 'text-amber-400' : 'text-neutral-400'}`}
           >
             {customer.tasaCancelacion}%
           </span>
         </div>
       </td>
-      <td className="px-4 py-3 font-medium text-[#f3efe8]">
+      <td className="px-4 py-3 font-medium text-white">
         {formatCurrency(customer.totalRecaudado)}
       </td>
       <td className="px-4 py-3">
         <div className="flex justify-end gap-2">
-          <span className="inline-flex items-center text-xs text-mauve-soft">
+          <span className="inline-flex items-center text-xs text-neutral-400">
             {customer.ultimaReserva !== null ? formatDayShort(customer.ultimaReserva) : '—'}
           </span>
           {waHref !== null && (

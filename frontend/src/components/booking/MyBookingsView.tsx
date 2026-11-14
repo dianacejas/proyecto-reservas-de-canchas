@@ -7,6 +7,7 @@ import {
   confirmSandboxPayment,
   createCheckout,
   listMyBookings,
+  queryKeys,
 } from '../../api'
 import { getErrorMessage } from '../../api/client'
 import type { Booking, BookingStatus, PaymentType } from '../../types'
@@ -56,7 +57,7 @@ export default function MyBookingsView(): React.JSX.Element {
     return () => clearInterval(timer)
   }, [])
 
-  const bookingsQuery = useQuery({ queryKey: ['my-bookings'], queryFn: listMyBookings })
+  const bookingsQuery = useQuery({ queryKey: queryKeys.myBookings(), queryFn: listMyBookings })
 
   const { upcoming, history } = useMemo(() => {
     const all = bookingsQuery.data ?? []
@@ -70,8 +71,8 @@ export default function MyBookingsView(): React.JSX.Element {
   }, [bookingsQuery.data, now])
 
   function invalidate(): void {
-    void queryClient.invalidateQueries({ queryKey: ['my-bookings'] })
-    void queryClient.invalidateQueries({ queryKey: ['bookings'] })
+    void queryClient.invalidateQueries({ queryKey: queryKeys.myBookings() })
+    void queryClient.invalidateQueries({ queryKey: queryKeys.bookings() })
   }
 
   const payMutation = useMutation({
@@ -145,11 +146,11 @@ export default function MyBookingsView(): React.JSX.Element {
       </div>
 
       {list.length === 0 ? (
-        <p className="rounded-xl border p-6 text-center text-sm border-mauve bg-coffee-elev text-mauve-soft">
+        <p className="rounded-xl border p-6 text-center text-sm border-white/10 bg-neutral-900/60 text-neutral-400">
           {tab === 'upcoming'
             ? 'No tenés turnos próximos. '
             : 'Todavía no hay reservas en tu historial. '}
-          <Link to="/#reservas" className="underline decoration-lime underline-offset-2">
+          <Link to="/#reservas" className="underline decoration-[#c5d86d] underline-offset-2">
             Reservá una cancha
           </Link>
         </p>
@@ -162,12 +163,12 @@ export default function MyBookingsView(): React.JSX.Element {
             return (
               <li
                 key={booking.id}
-                className="space-y-4 rounded-xl border p-4 shadow-surface border-mauve bg-coffee-elev"
+                className="space-y-4 rounded-xl border p-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] border-white/10 bg-neutral-900/60"
               >
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
-                    <p className="font-semibold text-[#f3efe8]">{fieldName}</p>
-                    <p className="text-sm text-mauve-soft">
+                    <p className="font-semibold text-white">{fieldName}</p>
+                    <p className="text-sm text-neutral-400">
                       {formatLong(bookingDay(booking.date))} · {booking.startTime} a {booking.endTime}
                     </p>
                   </div>
@@ -247,6 +248,8 @@ export default function MyBookingsView(): React.JSX.Element {
             startTime: sharingBooking.startTime,
             endTime: sharingBooking.endTime,
             totalAmount: sharingBooking.totalAmount,
+            depositAmount: sharingBooking.depositAmount,
+            remainingBalance: sharingBooking.remainingBalance,
           }}
           onClose={() => setSharingBooking(null)}
         />
@@ -267,11 +270,11 @@ function Amount({
   isCurrency?: boolean
 }): React.JSX.Element {
   return (
-    <div className="rounded-lg border bg-paper/70 px-3 py-2 border-mauve bg-mauve-deep/60">
-      <p className="text-xs text-mauve-soft">{label}</p>
+    <div className="rounded-lg border px-3 py-2 border-white/10 bg-neutral-800/60">
+      <p className="text-xs text-neutral-400">{label}</p>
       <p
         className={`font-semibold ${
-          highlight ? 'text-lime' : 'text-[#f3efe8]'
+          highlight ? 'text-[#c5d86d]' : 'text-white'
         }`}
       >
         {isCurrency ? formatCurrency(Number(value)) : value}

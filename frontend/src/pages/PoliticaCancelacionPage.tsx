@@ -11,20 +11,20 @@ export default function PoliticaCancelacionPage(): React.JSX.Element {
       <LegalSection title="1. Cancelación por parte del jugador">
         <ul className="list-disc space-y-1 pl-5">
           <li>
-            <strong className="font-semibold text-[#f3efe8]">
+            <strong className="font-semibold text-white">
               Más de 24 horas antes:
             </strong>{' '}
             reprogramación sin cargo o devolución del 100% de la seña.
           </li>
           <li>
-            <strong className="font-semibold text-[#f3efe8]">
+            <strong className="font-semibold text-white">
               Entre 24 y 6 horas antes:
             </strong>{' '}
             la seña no se devuelve, pero podés reprogramar el turno dentro de los 30 días según
             disponibilidad.
           </li>
           <li>
-            <strong className="font-semibold text-[#f3efe8]">
+            <strong className="font-semibold text-white">
               Menos de 6 horas antes o ausencia:
             </strong>{' '}
             se pierde la seña y no corresponde reprogramación.

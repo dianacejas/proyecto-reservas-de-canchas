@@ -17,7 +17,7 @@ import type { ReactNode } from 'react'
 export const HIDE_NUMBER_SPINNER =
   '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
 
-const LABEL_CLASS = 'text-sm font-medium text-mauve-soft'
+const LABEL_CLASS = 'text-sm font-medium text-neutral-300'
 /** Mantiene el alto táctil (44px) y un radio consistente en todos los controles. */
 const FIELD_CLASS = 'min-h-11 rounded-lg'
 /** El popover de HeroUI usa `bg-overlay` pero no fija color; se ancla al token. */
@@ -43,7 +43,7 @@ const FIELD_BOX_CLASS = [
 const DROPDOWN_POPOVER_CLASS = [
   POPOVER_CLASS,
   'border border-neutral-200 bg-white text-neutral-900 shadow-xl',
-  'border-white/10 bg-[#1a090d] text-white shadow-xl shadow-black/60',
+  'border-white/10 bg-neutral-900 text-white shadow-xl shadow-black/60',
 ].join(' ')
 
 type InputType = 'text' | 'number' | 'tel' | 'email' | 'password' | 'search' | 'url'

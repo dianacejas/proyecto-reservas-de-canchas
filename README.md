@@ -1,233 +1,176 @@
-# Copa 5 — Plataforma de reservas y torneos
+# Copa 5
+
+> **Plataforma SaaS integral para la gestión de complejos deportivos, reservas de canchas en tiempo real y organización de torneos.**
 
 [![CI](https://github.com/dianacejas/proyecto-reservas-de-canchas/actions/workflows/ci.yml/badge.svg)](https://github.com/dianacejas/proyecto-reservas-de-canchas/actions/workflows/ci.yml)
+![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=000)
+![TypeScript](https://img.shields.io/badge/TypeScript-Strict-3178C6?style=flat-square&logo=typescript&logoColor=fff)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=fff)
+![Node.js](https://img.shields.io/badge/Node.js-24.x-339933?style=flat-square&logo=nodedotjs&logoColor=fff)
+![MongoDB](https://img.shields.io/badge/MongoDB-Mongoose_9-47A248?style=flat-square&logo=mongodb&logoColor=fff)
 
-Aplicación web para un complejo de fútbol 5: permite reservas de canchas con
-pago online y un hub de torneos con posiciones, fixture y playoffs. Incluye un
-panel de administración protegido por rol.
+---
 
-- **Frontend**: React 19 + TypeScript + Vite, Tailwind CSS v4 y HeroUI v3.
-- **Backend**: Express 5 + Mongoose 9, en TypeScript, con JWT.
-- **Base de datos**: MongoDB local.
-- **Pagos**: Checkout Pro de Mercado Pago y pasarela `sandbox` simulada.
+## Características Principales
 
-## Requisitos previos
+- 🕒 **Grilla de Reservas en Tiempo Real:** Visualización interactiva de turnos disponibles, estados dinámicos actualizados por servidor (SSE), soporte de señas o pago total y experiencia móvil optimizada como PWA.
+- 🏆 **Módulo de Torneos y Playoffs:** Cálculo automático de tablas de posiciones, rankings de goleadores, sanciones, minuta de partidos, fixture por jornadas y llaves eliminatorias de fase final.
+- 📊 **Panel de Administración Financiera:** Métricas diarias de recaudación (mostrador y pasarela), saldos por cobrar, tasa de ocupación, gestión integral de canchas y clientes, y exportación optimizada a **PDF** y **CSV**.
+- 🌙 **Diseño Dark SaaS:** Interfaz inmersiva en modo oscuro estricto de alto contraste, diseñada con tipografía clara, jerarquía visual limpia y componentes accesibles.
 
-- **Node.js 24.x**
-- **npm** (incluido con Node.js)
-- **MongoDB** escuchando en `127.0.0.1:27017`.
-- **Redis** (opcional): solo si querés compartir el rate limiting entre
-  instancias o reinicios (`REDIS_URL`).
+---
 
-## Estructura
+## Stack Tecnológico
 
-```
-proyecto-canchas/
-├── backend/    # API Express (puerto 4000) — TypeScript
-│   ├── src/
-│   │   ├── config/       # conexión a MongoDB/Redis y validación de entorno con zod
-│   │   ├── controllers/  # auth, reservas, canchas, partidos, pagos, …
-│   │   ├── middleware/   # autenticación, validación, rate limiting, sanitización y errores
-│   │   ├── models/       # esquemas de Mongoose
-│   │   ├── routes/       # endpoints bajo /api
-│   │   ├── schemas/      # esquemas de validación zod
-│   │   ├── services/     # lógica de reservas, partidos, playoffs y posiciones
-│   │   └── utils/        # JWT, hashing, fechas y helpers
-│   └── .env.example      # plantilla de configuración (copiar a .env)
-└── frontend/   # SPA React (dev en el puerto 5173) — TypeScript
-    ├── src/
-    │   ├── pages/        # ReservasPage, TorneosPage, TorneoPage, AdminPage, LoginPage
-    │   ├── components/   # booking, tournament, courts, admin, layout, …
-    │   ├── auth/         # contexto de autenticación (JWT en localStorage)
-    │   ├── api/          # cliente HTTP + hooks de TanStack Query
-    │   └── utils/        # helpers de fecha/hora, horarios y paleta de escudos
-    └── README.md         # detalle del frontend (tema, rutas, componentes)
-```
+### Frontend
+- **React 19** + **TypeScript** + **Vite** (con soporte PWA)
+- **Tailwind CSS v4** & **HeroUI v3**
+- **TanStack Query v5** para gestión de estado asíncrono y caché
+- **React Router v7** para enrutamiento SPA
 
-## Puesta en marcha
+### Backend
+- **Node.js 24.x** + **Express 5** (TypeScript)
+- **Mongoose 9** para modelado de datos y consultas optimizadas
+- **Zod** para validación estricta de esquemas, payloads y variables de entorno
+- **JWT**, **Helmet**, **CORS** y **Rate Limiting** (con soporte opcional de Redis)
+- **Pasarela de Pagos:** Integración con Mercado Pago (Checkout Pro / Webhook) y modo `sandbox` para entorno local
 
-### 1. Instalar dependencias
+### Base de Datos
+- **MongoDB** (persistencia principal de canchas, reservas, pagos, torneos, equipos y comunidad)
 
-```bash
-cd backend  && npm install
-cd frontend && npm install
-```
+---
 
-### 2. Configurar el backend
+## Guía de Instalación y Configuración Local
+
+### Requisitos previos
+- **Node.js 24.x** y **npm**
+- **MongoDB** en ejecución (local en `127.0.0.1:27017` o instancia dedicada)
+- **Redis** *(opcional)*: para compartir rate limiting entre múltiples instancias
+
+### 1. Clonar el repositorio
 
 ```bash
+git clone <URL_DEL_REPOSITORIO>
+cd proyecto-canchas
+```
+
+### 2. Instalar dependencias
+
+```bash
+# Backend
 cd backend
-cp .env.example .env   # en Windows: copy .env.example .env
+npm install
+
+# Frontend
+cd ../frontend
+npm install
 ```
 
-| Variable                      | Descripción                                            | Por defecto                              |
-| ----------------------------- | ------------------------------------------------------ | ---------------------------------------- |
-| `NODE_ENV`                    | Entorno de ejecución                                   | `development`                            |
-| `PORT`                        | Puerto del servidor Express                            | `4000`                                   |
-| `MONGODB_URI`                 | Cadena de conexión a MongoDB                           | `mongodb://127.0.0.1:27017/canchas`      |
-| `JWT_SECRET`                  | Clave para firmar los tokens                           | (obligatoria, sin valor por defecto)     |
-| `JWT_EXPIRES_IN_DAYS`         | Vigencia del token                                      | `7`                                      |
-| `PAYMENT_PROVIDER`            | `sandbox` (simulada) o `mercadopago`                   | `sandbox`                                |
-| `MERCADO_PAGO_ACCESS_TOKEN`   | Access token de Mercado Pago (solo si `mercadopago`)   | (vacío: el pago online queda deshabilitado) |
-| `MERCADO_PAGO_WEBHOOK_SECRET` | Clave para validar la firma del webhook de pagos (obligatoria en producción si `PAYMENT_PROVIDER=mercadopago`) | (vacío: no se valida la firma) |
-| `WEB_BASE_URL`                | Origen del frontend, para los links de retorno del pago | `http://localhost:5173`                 |
-| `CORS_ORIGINS`                | Orígenes permitidos por CORS, separados por coma (si se omite, solo `WEB_BASE_URL`) | (vacío) |
-| `TRUST_PROXY`                 | Saltos de proxy a confiar para resolver la IP real (si se omite, ninguno) | (vacío) |
-| `REDIS_URL`                   | Redis para compartir el rate limiting entre instancias (si se omite, memoria) | (vacío) |
-| `SMTP_HOST`                   | Host SMTP para emails de confirmación                  | (vacío: envío deshabilitado)             |
-| `SMTP_PORT`                   | Puerto SMTP                                            | `587`                                    |
-| `SMTP_SECURE`                 | `true` para TLS implícito (puerto 465)                 | `false`                                  |
-| `SMTP_USER` / `SMTP_PASS`     | Credenciales SMTP                                      | (vacío)                                  |
-| `MAIL_FROM`                   | Remitente de los emails                                | `Copa 5 <no-reply@copa5.local>`          |
-| `MAIL_REPLY_TO`               | Dirección de respuesta (opcional)                      | (vacío)                                  |
-| `AUTH_RATE_LIMIT_MAX`         | Máximo de intentos de login/registro por minuto y por IP | `5`                                    |
-| `BOOKING_RATE_LIMIT_MAX`      | Máximo de reservas por 15 minutos y por IP             | `10`                                     |
+### 3. Configurar variables de entorno
 
-> `JWT_SECRET` no tiene valor por defecto a propósito: sin ella el servidor
-> arrancaría con una clave de firma conocida y cualquier token ajeno sería
-> válido. Generá una con
-> `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"`.
+Copia la plantilla de ejemplo del backend y completa los valores correspondientes para tu entorno local:
 
-### 3. Sembrar datos de ejemplo (opcional)
+```bash
+cd ../backend
+cp .env.example .env
+```
 
-Crea canchas, un torneo con dos grupos, partidos, y usuarios de prueba:
+Ejemplo seguro de `.env.example` (nunca subas tu `.env` real al repositorio):
+
+```env
+NODE_ENV=development
+PORT=4000
+MONGODB_URI=mongodb://127.0.0.1:27017/canchas
+
+# Clave secreta para firmar JWT (obligatoria; generar una aleatoria en local)
+JWT_SECRET=
+JWT_EXPIRES_IN_DAYS=7
+
+# Pasarela de pagos: "sandbox" (simulada) o "mercadopago"
+PAYMENT_PROVIDER=sandbox
+MERCADO_PAGO_ACCESS_TOKEN=
+MERCADO_PAGO_WEBHOOK_SECRET=
+
+# URLs de frontend y CORS
+WEB_BASE_URL=http://localhost:5173
+CORS_ORIGINS=
+
+# Configuración operativa de reservas
+PENDING_TTL_MINUTES=15
+DEPOSIT_PERCENT=50
+CANCEL_WINDOW_HOURS=4
+
+# Opcional: Redis y SMTP
+REDIS_URL=
+SMTP_HOST=
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=
+SMTP_PASS=
+MAIL_FROM=Copa 5 <no-reply@example.local>
+```
+
+### 4. Cargar datos iniciales (opcional)
 
 ```bash
 cd backend
 npm run seed
 ```
 
-El seed crea usuarios de desarrollo con emails de ejemplo, pensados solo para
-`localhost`:
+### 5. Iniciar el entorno de desarrollo
 
-| Rol       | Email de ejemplo       |
-| --------- | ---------------------- |
-| `admin`   | `admin@ejemplo.com`    |
-| `cliente` | `cliente@ejemplo.com`  |
-
-> Las credenciales se toman de `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD`,
-> `SEED_CLIENT_EMAIL` y `SEED_CLIENT_PASSWORD`. Si no definís las contraseñas,
-> el seed genera una aleatoria por ejecución y la muestra por consola.
-
-### 4. Ejecutar
-
-En dos terminales:
+Ejecuta ambos servicios en terminales separadas:
 
 ```bash
-# Terminal 1 — API en http://localhost:4000
+# Terminal 1 — API Backend (http://localhost:4000)
 cd backend
 npm run dev
-```
 
-```bash
-# Terminal 2 — frontend en http://localhost:5173
+# Terminal 2 — Frontend SPA (http://localhost:5173)
 cd frontend
 npm run dev
 ```
 
-## Scripts
+### 6. Verificación de calidad y compilación
 
-### Backend (`backend/`)
+```bash
+# Backend: chequeo de tipos, build y pruebas unitarias
+cd backend
+npm run typecheck
+npm run build
+npm test
 
-| Comando             | Qué hace                              |
-| ------------------- | ------------------------------------- |
-| `npm run dev`       | `tsx watch` sobre `src/index.ts`      |
-| `npm run build`     | Compila a `dist/` con `tsc`           |
-| `npm start`         | Ejecuta el build (`node dist/index.js`) |
-| `npm run typecheck` | `tsc --noEmit`                        |
-| `npm run seed`      | Carga los datos de ejemplo           |
+# Frontend: linter y build de producción
+cd ../frontend
+npm run lint
+npm run build
+```
 
-### Frontend (`frontend/`)
+---
 
-| Comando           | Qué hace                                    |
-| ----------------- | ------------------------------------------- |
-| `npm run dev`     | Servidor de desarrollo de Vite              |
-| `npm run build`   | `tsc -b && vite build`                      |
-| `npm run lint`    | `oxlint` sobre `src`                        |
-| `npm run preview` | Sirve el build de producción                |
+## Estructura del Proyecto
 
-## Rutas del frontend
-
-| Ruta           | Página                                          |
-| -------------- | ----------------------------------------------- |
-| `/`            | Reservas (galería de canchas + grilla de horarios) |
-| `/torneos`     | Hub de torneos                                   |
-| `/torneos/:id` | Detalle: posiciones, fixture, playoffs y panel admin |
-| `/admin`       | Panel de administración (solo rol `admin`)       |
-| `/login`       | Ingreso / registro                              |
-| `/reglamento`  | Reglamento del complejo (texto de ejemplo)       |
-| `/politica-de-cancelacion` | Política de cancelación y reembolsos (texto de ejemplo) |
-
-Cualquier otra ruta muestra una pantalla 404 temática con un botón para volver al inicio.
-
-## API
-
-El backend monta los recursos bajo `/api`:
-
-| Ruta             | Recurso                                   |
-| ---------------- | ----------------------------------------- |
-| `/api/auth`      | Registro, login y perfil                  |
-| `/api/fields`    | Canchas disponibles                       |
-| `/api/bookings`  | Reservas y disponibilidad de horarios     |
-| `/api/tournaments` | Torneos, posiciones y playoffs         |
-| `/api/teams`     | Equipos y plantilla                       |
-| `/api/matches`   | Partidos de la fixture                     |
-| `/api/payments`  | Checkout de Mercado Pago y pasarela sandbox |
-
-## Pagos
-
-El flujo crea la reserva en estado `pendiente` y, según `PAYMENT_PROVIDER`:
-
-- `sandbox`: crea un pago simulado y devuelve una URL de confirmación
-  (`/pago/sandbox/:paymentId/confirmar`); al confirmarla, la reserva pasa a
-  confirmada. Útil para desarrollo sin credenciales.
-- `mercadopago`: crea la preferencia contra la API de Mercado Pago y devuelve el
-  `initPoint` para redirigir al checkout. El servidor **recalcula el total** del
-  lado del servidor; el importe del cliente no se toma como fuente de verdad.
-
-Si no hay `MERCADO_PAGO_ACCESS_TOKEN`, el pago online queda deshabilitado y el
-resto del flujo sigue funcionando. Nunca subes un token de producción al
-repositorio.
-
-Cuando Mercado Pago confirma un pago notifica al endpoint `POST /api/payments/webhook`.
-El servidor verifica la firma `x-signature` (si `MERCADO_PAGO_WEBHOOK_SECRET`
-está configurado), consulta el pago a la API de Mercado Pago y, si está
-aprobado, marca el pago como pagado y confirma la reserva. En producción, con
-`PAYMENT_PROVIDER=mercadopago`, el secreto es obligatorio: el servidor no
-arranca si falta, para no aceptar webhooks sin firma.
-
-Al confirmarse un pago se envía (si SMTP está configurado) un email con el
-comprobante de la reserva: código, cancha, fecha, horario, importe abonado y
-las reglas de convivencia. El envío es asíncrono: un fallo de SMTP no afecta la
-confirmación.
-
-## Notas de seguridad
-
-- `.env` está ignorado por Git; solo se versiona `.env.example`.
-- `JWT_SECRET` es obligatoria y no tiene valor por defecto.
-- **CORS**: solo se permiten los orígenes de `CORS_ORIGINS` (o `WEB_BASE_URL`);
-  el resto recibe un `403`. Se deshabilita `X-Powered-By` y se agregan cabeceras
-  de seguridad con Helmet.
-- **Errores**: un JSON inválido en el cuerpo responde `400`; los errores de las
-  rutas protegidas devuelven `401`/`403`. Nunca se expone un stack trace de
-  Node.js al cliente.
-- Las contraseñas se almacenan con hash, nunca en claro.
-- El rol se valida en el servidor: los endpoints de administración rechazan
-  tokens sin `role: admin`, sin confiar en lo que la UI oculta.
-- **Rate limiting**: login y registro están limitados a `AUTH_RATE_LIMIT_MAX`
-  intentos por minuto y por IP; la creación de reservas, a
-  `BOOKING_RATE_LIMIT_MAX` por cada 15 minutos. Los contadores viven en memoria
-  por defecto; con `REDIS_URL` se comparten entre todas las instancias y
-  sobreviven a los reinicios.
-- **IP detrás de proxy**: si hay un reverse proxy delante (Nginx, Cloudflare),
-  configurar `TRUST_PROXY` con el número de saltos para que el rate limiting
-  cuente por cliente y no por la IP del proxy.
-- **Sanitización NoSQL**: un middleware descarta claves con operadores (`$gt`,
-  `$ne`, …) o puntos en `body`, `params` y `query` antes de que lleguen a
-  Mongoose.
-- Las imágenes de las canchas son de Pexels (libres de uso, sin atribución
-  requerida).
-
-## Licencia
-
-MIT.
+```text
+proyecto-canchas/
+├── backend/                     # API REST & SSE en Express + TypeScript
+│   ├── src/
+│   │   ├── config/              # Conexión a MongoDB/Redis y validación env con Zod
+│   │   ├── controllers/         # Controladores (auth, reservas, canchas, torneos, pagos, comunidad)
+│   │   ├── middleware/          # Autenticación JWT, validación Zod, rate limiting y manejo de errores
+│   │   ├── models/              # Modelos y esquemas Mongoose
+│   │   ├── routes/              # Definición de rutas bajo /api
+│   │   ├── schemas/             # Esquemas Zod reutilizables
+│   │   ├── services/            # Lógica de negocio (reservas, SSE, pagos, standings, playoffs)
+│   │   └── utils/               # Utilidades de fechas, tokens y helpers
+│   └── .env.example             # Plantilla segura de variables de entorno
+│
+└── frontend/                    # Aplicación SPA / PWA en React 19 + TypeScript
+    ├── public/                  # Íconos PWA y recursos estáticos
+    └── src/
+        ├── api/                 # Cliente HTTP y funciones tipadas con TanStack Query
+        ├── auth/                # Contexto y protección de rutas por rol
+        ├── components/          # Módulos UI (admin, booking, community, courts, layout, tournament)
+        ├── pages/               # Vistas principales (Reservas, Torneos, Comunidad, Admin, Login)
+        ├── types/               # Interfaces y tipos de dominio compartidos
+        └── utils/               # Formateadores de moneda, fechas y utilidades UI
+```

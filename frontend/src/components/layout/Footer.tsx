@@ -49,7 +49,7 @@ const HOVER_LIME = 'transition-colors hover:text-[#c5d86d]'
 
 export default function Footer(): React.JSX.Element {
   return (
-    <footer className="mt-10 border-t transition-colors border-white/10 bg-[#15070a] text-neutral-400">
+    <footer className="mt-10 border-t border-white/10 bg-neutral-950 text-neutral-400 transition-colors">
       <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:py-8">
         <div className="grid grid-cols-1 justify-items-center gap-6 text-center sm:grid-cols-2 sm:justify-items-start sm:gap-5 sm:text-left lg:grid-cols-3 lg:gap-8">
           {/* Marca */}

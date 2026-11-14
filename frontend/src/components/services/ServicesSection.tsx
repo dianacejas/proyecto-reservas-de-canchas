@@ -49,11 +49,11 @@ export default function ServicesSection(): React.JSX.Element {
   return (
     <section className="space-y-4">
       <div className="flex flex-col gap-1">
-        <span className="inline-flex w-fit items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] border-lime/30 bg-lime/10 text-lime">
+        <span className="inline-flex w-fit items-center rounded-full border border-[#c5d86d]/30 bg-[#c5d86d]/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#c5d86d]">
           Nuestros Servicios
         </span>
-        <h2 className="text-lg font-bold tracking-tight">Instalaciones y comodidades</h2>
-        <p className="text-sm text-mauve-soft">
+        <h2 className="text-xl font-black tracking-tight text-white">Instalaciones y comodidades</h2>
+        <p className="text-sm text-neutral-400">
           Todo lo que necesitás para un partido de fútbol 5 con experiencia de predio premium.
         </p>
       </div>
@@ -61,13 +61,13 @@ export default function ServicesSection(): React.JSX.Element {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {SERVICES.map((service, index) => (
           <FadeUp key={service.title} delayMs={index * 70} className="h-full">
-            <div className="flex h-full flex-col gap-4 rounded-2xl border p-6 shadow-surface transition-all duration-300 hover:-translate-y-1 hover:border-lime/60 hover:shadow-xl border-mauve bg-coffee-elev">
-              <span className="flex size-12 items-center justify-center rounded-2xl bg-lime/10 text-lime">
+            <div className="flex h-full flex-col gap-4 rounded-2xl border border-neutral-800 bg-neutral-900/90 p-6 shadow-[0_8px_30px_rgb(0,0,0,0.35)] transition-all duration-300 hover:-translate-y-1 hover:border-[#c5d86d]/50 hover:shadow-xl">
+              <span className="flex size-12 items-center justify-center rounded-2xl bg-[#c5d86d]/15 text-[#c5d86d]">
                 <service.icon />
               </span>
               <div className="space-y-2">
-                <h3 className="text-base font-bold">{service.title}</h3>
-                <p className="text-sm leading-relaxed text-mauve-soft">
+                <h3 className="text-base font-bold text-white">{service.title}</h3>
+                <p className="text-sm leading-relaxed text-neutral-400">
                   {service.description}
                 </p>
               </div>

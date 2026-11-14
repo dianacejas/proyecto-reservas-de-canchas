@@ -46,20 +46,20 @@ export default function CourtGallery(): React.JSX.Element {
     <section className="space-y-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-mauve-soft">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-[#c5d86d]">
             Nuestro complejo
           </h2>
-          <p className="mt-0.5 text-lg font-bold tracking-tight">Tres canchas, un solo club</p>
+          <p className="mt-0.5 text-xl font-black tracking-tight text-white">Tres canchas, un solo club</p>
         </div>
-        <p className="text-sm text-mauve-soft">
-          Reservá elegí el horario y jugá en la que prefieras.
+        <p className="text-sm text-neutral-400">
+          Elegí el horario y jugá en la superficie que prefieras.
         </p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {COURTS.map((court, index) => (
           <FadeUp key={court.id} delayMs={index * 90} className="h-full">
-            <figure className="group h-full overflow-hidden rounded-2xl border transition-all duration-300 hover:-translate-y-1 hover:border-lime/60 hover:shadow-xl border-mauve bg-coffee-elev">
+            <figure className="group h-full overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900/90 shadow-[0_8px_30px_rgb(0,0,0,0.35)] transition-all duration-300 hover:-translate-y-1 hover:border-[#c5d86d]/50 hover:shadow-xl">
             <div className="aspect-[4/3] overflow-hidden">
               <img
                 src={court.image}
@@ -70,12 +70,12 @@ export default function CourtGallery(): React.JSX.Element {
             </div>
             <figcaption className="space-y-2 p-5">
               <div className="flex items-center justify-between gap-2">
-                <h3 className="text-base font-bold">{court.title}</h3>
+                <h3 className="text-base font-bold text-white">{court.title}</h3>
                 <Chip color={court.chip.color} size="sm">
                   {court.chip.label}
                 </Chip>
               </div>
-              <p className="text-sm leading-relaxed text-mauve-soft">
+              <p className="text-sm leading-relaxed text-neutral-400">
                 {court.description}
               </p>
             </figcaption>

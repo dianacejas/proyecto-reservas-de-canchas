@@ -35,16 +35,17 @@ const POPOVER_CLASS = 'text-overlay-foreground'
 const FIELD_BOX_CLASS = [
   FIELD_CLASS,
   'border shadow-sm transition-colors',
-  'border-neutral-300 bg-white text-neutral-900 hover:border-neutral-400',
   'border-white/20 bg-[#241319]/80 text-white shadow-inner hover:border-white/40',
   'focus-within:border-[#c5d86d]',
 ].join(' ')
 /** Popovers de Select/ComboBox: borde definido y sombra fuerte para despegarlos del fondo. */
 const DROPDOWN_POPOVER_CLASS = [
   POPOVER_CLASS,
-  'border border-neutral-200 bg-white text-neutral-900 shadow-xl',
-  'border-white/10 bg-neutral-900 text-white shadow-xl shadow-black/60',
+  'border border-neutral-800 bg-neutral-900 text-neutral-100 shadow-xl shadow-black/60',
 ].join(' ')
+const LISTBOX_CLASS = 'bg-neutral-900 text-neutral-100 p-1'
+const LISTBOX_ITEM_CLASS =
+  'rounded-md text-neutral-100 hover:bg-neutral-800/80 focus:bg-neutral-800/80 data-[hovered]:bg-neutral-800/80 data-[focused]:bg-neutral-800/80 data-[selected]:bg-neutral-800 data-[selected]:text-[#c5d86d]'
 
 type InputType = 'text' | 'number' | 'tel' | 'email' | 'password' | 'search' | 'url'
 
@@ -161,11 +162,12 @@ export function SelectInput({
       <Select.Popover
         className={[DROPDOWN_POPOVER_CLASS, popoverClassName].filter(Boolean).join(' ')}
       >
-        <ListBox>
+        <ListBox className={LISTBOX_CLASS}>
           {options.map((option) => (
             <ListBox.Item
               key={option.key}
               id={option.key}
+              className={LISTBOX_ITEM_CLASS}
               textValue={
                 option.textValue ?? (typeof option.label === 'string' ? option.label : option.key)
               }
@@ -222,9 +224,9 @@ export function ComboBoxInput({
         <ComboBox.Trigger />
       </ComboBox.InputGroup>
       <ComboBox.Popover className={DROPDOWN_POPOVER_CLASS}>
-        <ListBox>
+        <ListBox className={LISTBOX_CLASS}>
           {options.map((option) => (
-            <ListBox.Item key={option} id={option} textValue={option}>
+            <ListBox.Item key={option} id={option} textValue={option} className={LISTBOX_ITEM_CLASS}>
               {option}
             </ListBox.Item>
           ))}

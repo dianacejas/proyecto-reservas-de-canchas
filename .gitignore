@@ -1,7 +1,15 @@
 node_modules
 dist
 .env
+.env.*
+!.env.example
 *.log
+
+# Configuracion local de desarrollo / asistentes
+GEMINI.md
+.gemini/
+.claude/
+.cursor/
 
 # Artefactos de build de TypeScript (se regeneran con tsc)
 *.tsbuildinfo

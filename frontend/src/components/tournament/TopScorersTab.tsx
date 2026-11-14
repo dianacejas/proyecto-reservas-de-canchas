@@ -1,6 +1,7 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import type { TopScorerRow } from '../../types'
 import { assignCrestColors } from '../../utils/crest'
+import PlayerProfileModal from './PlayerProfileModal'
 import TeamCrest from './TeamCrest'
 
 const MEDALS = ['🥇', '🥈', '🥉']
@@ -26,7 +27,14 @@ const PODIUM_TONES = [
   },
 ]
 
-export default function TopScorersTab({ rows }: { rows: TopScorerRow[] }): React.JSX.Element {
+export default function TopScorersTab({
+  rows,
+  tournamentId = '',
+}: {
+  rows: TopScorerRow[]
+  tournamentId?: string
+}): React.JSX.Element {
+  const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null)
   const colorFor = useMemo(
     () => assignCrestColors(rows.map((row) => row.teamName)),
     [rows],
@@ -118,7 +126,19 @@ export default function TopScorersTab({ rows }: { rows: TopScorerRow[] }): React
                       {row.rank}
                     </span>
                   </td>
-                  <td className="px-3 py-3 font-semibold sm:px-4">{row.playerName}</td>
+                  <td className="px-3 py-3 font-semibold sm:px-4">
+                    {tournamentId ? (
+                      <button
+                        type="button"
+                        onClick={() => setSelectedPlayer(row.playerName)}
+                        className="text-left transition-colors hover:text-[#c5d86d]"
+                      >
+                        {row.playerName}
+                      </button>
+                    ) : (
+                      row.playerName
+                    )}
+                  </td>
                   <td className="px-3 py-3 sm:px-4">
                     <div className="flex items-center gap-2 sm:gap-3">
                       <TeamCrest name={row.teamName} color={colorFor(row.teamName)} size="xs" />
@@ -142,6 +162,13 @@ export default function TopScorersTab({ rows }: { rows: TopScorerRow[] }): React
           </tbody>
         </table>
       </div>
+
+      <PlayerProfileModal
+        isOpen={selectedPlayer !== null}
+        onClose={() => setSelectedPlayer(null)}
+        tournamentId={tournamentId}
+        playerId={selectedPlayer}
+      />
     </div>
   )
 }

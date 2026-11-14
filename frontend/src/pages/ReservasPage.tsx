@@ -17,6 +17,7 @@ import DateNav from '../components/booking/DateNav'
 import FieldPicker from '../components/booking/FieldPicker'
 import PaymentModal from '../components/booking/PaymentModal'
 import ShareBookingModal from '../components/booking/ShareBookingModal'
+import WeatherBadge from '../components/booking/WeatherBadge'
 import ErrorState from '../components/common/ErrorState'
 import FadeUp from '../components/common/FadeUp'
 import Skeleton from '../components/common/Skeleton'
@@ -150,15 +151,18 @@ export default function ReservasPage(): React.JSX.Element {
   if (fieldsQuery.isLoading) {
     return (
       <div className="space-y-8">
-        <header>
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] border-lime/30 bg-lime/10 text-lime">
-            Copa 5 · Complejo Deportivo
+        <header className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[#c5d86d]/30 bg-[#c5d86d]/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#c5d86d]">
+              Copa 5 · Complejo Deportivo
+            </div>
+            <h2 className="text-2xl font-bold tracking-tight">Reservá tu cancha</h2>
+            <p className="mt-1 text-sm text-mauve-soft">
+              Elegí cancha y día, y reservá el horario que quieras. Las reservas de torneo aparecen
+              bloqueadas.
+            </p>
           </div>
-          <h2 className="text-2xl font-bold tracking-tight">Reservá tu cancha</h2>
-          <p className="mt-1 text-sm text-mauve-soft">
-            Elegí cancha y día, y reservá el horario que quieras. Las reservas de torneo aparecen
-            bloqueadas.
-          </p>
+          <WeatherBadge selectedDate={date} isCovered={field?.isCovered} />
         </header>
 
         <section>
@@ -184,15 +188,18 @@ export default function ReservasPage(): React.JSX.Element {
       <HeroSection />
 
       <div id="reservas" className="scroll-mt-28 space-y-8">
-        <header>
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] border-lime/30 bg-lime/10 text-lime">
-            Copa 5 · Complejo Deportivo
+        <header className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[#c5d86d]/30 bg-[#c5d86d]/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#c5d86d]">
+              Copa 5 · Complejo Deportivo
+            </div>
+            <h2 className="text-2xl font-bold tracking-tight">Reservá tu cancha</h2>
+            <p className="mt-1 text-sm text-mauve-soft">
+              Elegí cancha y día, y reservá el horario que quieras. Las reservas de torneo aparecen
+              bloqueadas.
+            </p>
           </div>
-          <h2 className="text-2xl font-bold tracking-tight">Reservá tu cancha</h2>
-          <p className="mt-1 text-sm text-mauve-soft">
-            Elegí cancha y día, y reservá el horario que quieras. Las reservas de torneo aparecen
-            bloqueadas.
-          </p>
+          <WeatherBadge selectedDate={date} isCovered={field?.isCovered} />
         </header>
 
         {notice !== null && (

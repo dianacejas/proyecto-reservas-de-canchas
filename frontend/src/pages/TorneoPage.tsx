@@ -155,7 +155,7 @@ export default function TorneoPage(): React.JSX.Element {
               onRetry={() => void topScorersQuery.refetch()}
             />
           ) : (
-            <TopScorersTab rows={topScorersQuery.data ?? []} />
+            <TopScorersTab rows={topScorersQuery.data ?? []} tournamentId={id} />
           )}
         </Tabs.Panel>
 

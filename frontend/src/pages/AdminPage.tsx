@@ -13,6 +13,7 @@ import {
 } from '../api'
 import { getErrorMessage } from '../api/client'
 import AdminBookingGrid from '../components/admin/AdminBookingGrid'
+import AdminCourts from '../components/admin/AdminCourts'
 import AdminCustomers from '../components/admin/AdminCustomers'
 import AdminMetrics from '../components/admin/AdminMetrics'
 import ErrorState from '../components/common/ErrorState'
@@ -79,7 +80,10 @@ export default function AdminPage(): React.JSX.Element {
         </Tabs.Panel>
 
         <Tabs.Panel id="canchas">
-          <CanchasTab onNotice={showNotice} />
+          <div className="space-y-6">
+            <AdminCourts onNotice={showNotice} />
+            <CanchasTab onNotice={showNotice} />
+          </div>
         </Tabs.Panel>
 
         <Tabs.Panel id="torneos">

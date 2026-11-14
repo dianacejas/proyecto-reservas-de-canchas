@@ -179,6 +179,9 @@ export default function Navbar(): React.JSX.Element {
           <NavLink to="/torneos" className={navLinkClass}>
             Torneos
           </NavLink>
+          <NavLink to="/comunidad" className={navLinkClass}>
+            Comunidad
+          </NavLink>
           {isAdmin && (
             <NavLink to="/admin" className={navLinkClass}>
               Admin
@@ -257,6 +260,9 @@ export default function Navbar(): React.JSX.Element {
                 )}
                 <NavLink to="/torneos" className={drawerLinkClass} onClick={closeMenu}>
                   Torneos
+                </NavLink>
+                <NavLink to="/comunidad" className={drawerLinkClass} onClick={closeMenu}>
+                  Comunidad
                 </NavLink>
                 {isAdmin && (
                   <NavLink to="/admin" className={drawerLinkClass} onClick={closeMenu}>

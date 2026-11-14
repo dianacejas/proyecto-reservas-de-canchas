@@ -1,6 +1,8 @@
 import { Chip } from '@heroui/react'
+import { useState } from 'react'
 import type { Match, Matchday, TeamRef } from '../../types'
 import { bookingDay, formatLong } from '../../utils/date'
+import MatchTimelineModal from './MatchTimelineModal'
 import TeamCrest from './TeamCrest'
 
 function teamName(team: string | TeamRef | undefined | null): string {
@@ -27,6 +29,8 @@ function fieldName(match: Match): string {
 }
 
 export default function FixtureList({ matchdays }: { matchdays: Matchday[] }): React.JSX.Element {
+  const [selectedMatch, setSelectedMatch] = useState<Match | null>(null)
+
   if (matchdays.length === 0) {
     return (
       <p className="py-8 text-center text-sm text-mauve-soft">
@@ -44,23 +48,43 @@ export default function FixtureList({ matchdays }: { matchdays: Matchday[] }): R
           </h3>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {matchday.matches.map((match) => (
-              <MatchCard key={match.id} match={match} />
+              <MatchCard
+                key={match.id}
+                match={match}
+                onSelect={() => setSelectedMatch(match)}
+              />
             ))}
           </div>
         </section>
       ))}
+
+      <MatchTimelineModal
+        match={selectedMatch}
+        isOpen={selectedMatch !== null}
+        onClose={() => setSelectedMatch(null)}
+      />
     </div>
   )
 }
 
-function MatchCard({ match }: { match: Match }): React.JSX.Element {
+function MatchCard({
+  match,
+  onSelect,
+}: {
+  match: Match
+  onSelect: () => void
+}): React.JSX.Element {
   const finished = match.status === 'finalizado'
   const homeLabel = teamName(match.homeTeamId)
   const awayLabel = teamName(match.awayTeamId)
   const field = fieldName(match)
 
   return (
-    <div className="rounded-xl border p-3 shadow-surface transition-colors hover:border-mauve/50 sm:p-4 border-mauve bg-coffee-elev">
+    <button
+      type="button"
+      onClick={onSelect}
+      className="w-full rounded-xl border border-mauve bg-coffee-elev p-3 text-left shadow-surface transition-colors hover:border-[#c5d86d]/50 sm:p-4"
+    >
       <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
         <span className="text-xs font-medium uppercase tracking-wide text-mauve-soft">
           {match.group}
@@ -105,6 +129,6 @@ function MatchCard({ match }: { match: Match }): React.JSX.Element {
         <p className="capitalize">{scheduleLine(match)}</p>
         {field.length > 0 && <p>{field}</p>}
       </div>
-    </div>
+    </button>
   )
 }

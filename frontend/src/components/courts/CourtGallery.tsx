@@ -1,5 +1,6 @@
 import { Chip } from '@heroui/react'
 import FadeUp from '../common/FadeUp'
+import VenueAdvantages from './VenueAdvantages'
 
 interface Court {
   id: string
@@ -82,6 +83,8 @@ export default function CourtGallery(): React.JSX.Element {
         </FadeUp>
       ))}
       </div>
+
+      <VenueAdvantages />
     </section>
   )
 }

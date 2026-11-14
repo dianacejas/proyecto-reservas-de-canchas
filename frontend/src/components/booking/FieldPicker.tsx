@@ -1,5 +1,5 @@
-import { Button, Card } from '@heroui/react'
 import FadeUp from '../common/FadeUp'
+import CourtCard from '../courts/CourtCard'
 import type { Field } from '../../types'
 
 interface FieldPickerProps {
@@ -35,44 +35,12 @@ export default function FieldPicker({
         const selected = field.id === selectedFieldId
         return (
           <FadeUp key={field.id} delayMs={index * 90} className="h-full">
-            <Card.Root
-              className={`h-full cursor-pointer overflow-hidden border-2 transition-all duration-300 ${
-                selected
-                  ? 'border-lime shadow-[0_0_30px_-10px_rgba(197,216,109,0.6)] bg-coffee-elev'
-                  : 'border-transparent shadow-surface hover:-translate-y-1 hover:shadow-xl bg-coffee-elev hover:border-mauve'
-              }`}
-              onClick={() => onSelect(field.id)}
-            >
-            <div className="aspect-video overflow-hidden">
-              <img
-                src={imageFor(field, index)}
-                alt={`Fotografía de ${field.name}`}
-                loading="lazy"
-                className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
-              />
-            </div>
-            <Card.Content className="flex flex-col gap-4 p-4 sm:p-5">
-              <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
-                <div className="min-w-0 flex-1 space-y-2">
-                  <Card.Title className="text-base font-bold sm:text-lg">{field.name}</Card.Title>
-                  <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-lime/30 bg-lime/10 text-lime">
-                    {field.type}
-                  </span>
-                </div>
-                <div className="shrink-0 text-right">
-                  <span className="text-xl font-extrabold tracking-tight sm:text-2xl text-[#f3efe8]">
-                    ${field.pricePerHour}
-                  </span>
-                  <span className="block text-xs font-medium text-mauve-soft">
-                    / hora
-                  </span>
-                </div>
-              </div>
-              <Button variant="primary" className="min-h-11 w-full" onPress={() => onSelect(field.id)} aria-pressed={selected}>
-                {selected ? 'Elegida' : 'Seleccionar'}
-              </Button>
-            </Card.Content>
-            </Card.Root>
+            <CourtCard
+              field={field}
+              selected={selected}
+              image={imageFor(field, index)}
+              onSelect={onSelect}
+            />
           </FadeUp>
         )
       })}

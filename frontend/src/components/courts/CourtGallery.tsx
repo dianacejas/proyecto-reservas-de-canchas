@@ -45,12 +45,12 @@ export default function CourtGallery(): React.JSX.Element {
     <section className="space-y-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-tertiary dark:text-mauve-soft">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-mauve-soft">
             Nuestro complejo
           </h2>
           <p className="mt-0.5 text-lg font-bold tracking-tight">Tres canchas, un solo club</p>
         </div>
-        <p className="text-sm text-tertiary dark:text-mauve-soft">
+        <p className="text-sm text-mauve-soft">
           Reservá elegí el horario y jugá en la que prefieras.
         </p>
       </div>
@@ -58,7 +58,7 @@ export default function CourtGallery(): React.JSX.Element {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {COURTS.map((court, index) => (
           <FadeUp key={court.id} delayMs={index * 90} className="h-full">
-            <figure className="group h-full overflow-hidden rounded-2xl border border-line bg-cream transition-all duration-300 hover:-translate-y-1 hover:border-lime/60 hover:shadow-xl dark:border-mauve dark:bg-coffee-elev">
+            <figure className="group h-full overflow-hidden rounded-2xl border transition-all duration-300 hover:-translate-y-1 hover:border-lime/60 hover:shadow-xl border-mauve bg-coffee-elev">
             <div className="aspect-[4/3] overflow-hidden">
               <img
                 src={court.image}
@@ -74,7 +74,7 @@ export default function CourtGallery(): React.JSX.Element {
                   {court.chip.label}
                 </Chip>
               </div>
-              <p className="text-sm leading-relaxed text-tertiary dark:text-mauve-soft">
+              <p className="text-sm leading-relaxed text-mauve-soft">
                 {court.description}
               </p>
             </figcaption>

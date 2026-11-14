@@ -151,18 +151,18 @@ export default function ReservasPage(): React.JSX.Element {
     return (
       <div className="space-y-8">
         <header>
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-mauve/30 bg-lime/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-coffee dark:border-lime/30 dark:bg-lime/10 dark:text-lime">
+          <div className="mb-2 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] border-lime/30 bg-lime/10 text-lime">
             Copa 5 · Complejo Deportivo
           </div>
           <h2 className="text-2xl font-bold tracking-tight">Reservá tu cancha</h2>
-          <p className="mt-1 text-sm text-tertiary dark:text-mauve-soft">
+          <p className="mt-1 text-sm text-mauve-soft">
             Elegí cancha y día, y reservá el horario que quieras. Las reservas de torneo aparecen
             bloqueadas.
           </p>
         </header>
 
         <section>
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-tertiary dark:text-mauve-soft">
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-mauve-soft">
             Elegí la cancha
           </h2>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -183,13 +183,13 @@ export default function ReservasPage(): React.JSX.Element {
     <div className="space-y-8">
       <HeroSection />
 
-      <div id="reservas" className="scroll-mt-24 space-y-8">
+      <div id="reservas" className="scroll-mt-28 space-y-8">
         <header>
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-mauve/30 bg-lime/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-coffee dark:border-lime/30 dark:bg-lime/10 dark:text-lime">
+          <div className="mb-2 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] border-lime/30 bg-lime/10 text-lime">
             Copa 5 · Complejo Deportivo
           </div>
           <h2 className="text-2xl font-bold tracking-tight">Reservá tu cancha</h2>
-          <p className="mt-1 text-sm text-tertiary dark:text-mauve-soft">
+          <p className="mt-1 text-sm text-mauve-soft">
             Elegí cancha y día, y reservá el horario que quieras. Las reservas de torneo aparecen
             bloqueadas.
           </p>
@@ -211,13 +211,13 @@ export default function ReservasPage(): React.JSX.Element {
             return (
               <div
                 key={booking.id}
-                className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-cream p-4 shadow-surface dark:border-mauve dark:bg-coffee-elev"
+                className="flex flex-wrap items-center justify-between gap-3 rounded-xl border p-4 shadow-surface border-mauve bg-coffee-elev"
               >
                 <div>
                   <p className="text-sm font-semibold">
                     {fieldName} · {bookingDay(booking.date)} · {booking.startTime} a {booking.endTime}
                   </p>
-                  <p className="text-xs text-tertiary dark:text-mauve-soft">
+                  <p className="text-xs text-mauve-soft">
                     Reserva pendiente de pago y confirmación.
                   </p>
                 </div>
@@ -243,7 +243,7 @@ export default function ReservasPage(): React.JSX.Element {
                     </Button>
                   </div>
                 ) : (
-                  <span className="text-xs text-tertiary dark:text-mauve-soft">
+                  <span className="text-xs text-mauve-soft">
                     <Link to="/login" className="underline decoration-lime underline-offset-2">
                       Iniciá sesión
                     </Link>{' '}
@@ -262,7 +262,7 @@ export default function ReservasPage(): React.JSX.Element {
             return (
               <div
                 key={booking.id}
-                className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-lime/60 bg-lime/10 p-4 shadow-surface dark:border-lime/40 dark:bg-lime/10"
+                className="flex flex-wrap items-center justify-between gap-3 rounded-xl border p-4 shadow-surface border-lime/40 bg-lime/10"
               >
                 <div>
                   <p className="text-sm font-semibold">
@@ -270,7 +270,7 @@ export default function ReservasPage(): React.JSX.Element {
                     {fields.find((item) => item.id === booking.fieldId)?.name ?? 'Tu cancha'} ·{' '}
                     {bookingDay(booking.date)} · {booking.startTime} a {booking.endTime}
                   </p>
-                  <p className="text-xs text-tertiary dark:text-mauve-soft">
+                  <p className="text-xs text-mauve-soft">
                     Saldo pendiente en cancha: $
                     {booking.remainingBalance.toLocaleString('es-AR')}. Podés gestionarla en{' '}
                     <Link to="/mis-reservas" className="underline decoration-lime underline-offset-2">
@@ -293,7 +293,7 @@ export default function ReservasPage(): React.JSX.Element {
       ) : (
         <>
           <section>
-            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-tertiary dark:text-mauve-soft">
+            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-mauve-soft">
               Elegí la cancha
             </h2>
             <FieldPicker fields={fields} selectedFieldId={activeFieldId} onSelect={setFieldId} />
@@ -301,7 +301,7 @@ export default function ReservasPage(): React.JSX.Element {
 
           <section className="space-y-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-4">
-              <h2 className="text-sm font-semibold uppercase tracking-wide text-tertiary dark:text-mauve-soft">
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-mauve-soft">
                 Disponibilidad
               </h2>
               <DateNav date={date} onChange={setDate} />
@@ -336,16 +336,16 @@ export default function ReservasPage(): React.JSX.Element {
                       <div
 className={`flex h-full flex-wrap items-center justify-between gap-x-3 gap-y-2 rounded-xl border p-4 shadow-surface transition-all duration-300 ${
                            ocupado
-                            ? 'border-line bg-cream/70 dark:border-mauve/70 dark:bg-mauve-deep/50'
-                            : 'border-lime/60 bg-cream hover:-translate-y-0.5 hover:shadow-xl dark:border-lime/50 dark:bg-coffee-elev'
+                            ? 'bg-neutral-900/90/70 border-mauve/70 bg-mauve-deep/50'
+                            : 'hover:-translate-y-0.5 hover:shadow-xl border-lime/50 bg-coffee-elev'
                         }`}
                       >
                         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 sm:gap-3">
                           <span
                             className={`font-mono text-sm font-semibold ${
                               ocupado
-                                ? 'text-coffee/70 dark:text-mauve-soft'
-                                : 'text-coffee dark:text-[#f3efe8]'
+                                ? 'text-mauve-soft'
+                                : 'text-[#f3efe8]'
                             }`}
                           >
                             {slot.label}
@@ -441,7 +441,7 @@ variant="outline"
 
 function FieldCardSkeleton(): React.JSX.Element {
   return (
-    <div className="overflow-hidden rounded-2xl border-2 border-transparent bg-cream shadow-surface dark:bg-coffee-elev">
+    <div className="overflow-hidden rounded-2xl border-2 border-transparent shadow-surface bg-coffee-elev">
       <Skeleton className="aspect-video w-full rounded-none" />
       <div className="space-y-3 p-5">
         <Skeleton className="h-5 w-2/3" />
@@ -462,7 +462,7 @@ function SlotsSkeleton(): React.JSX.Element {
       {Array.from({ length: 6 }, (_, index) => (
         <div
           key={index}
-          className="flex items-center justify-between gap-3 rounded-xl border border-line bg-cream p-4 shadow-surface dark:border-mauve dark:bg-coffee-elev"
+          className="flex items-center justify-between gap-3 rounded-xl border p-4 shadow-surface border-mauve bg-coffee-elev"
         >
           <Skeleton className="h-5 w-24" />
           <Skeleton className="h-8 w-24" />

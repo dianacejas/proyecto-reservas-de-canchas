@@ -2,73 +2,21 @@ import { Button, Disclosure, DisclosureContent, DisclosureTrigger } from '@herou
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../../auth/useAuth'
-import { useDarkMode } from '../../hooks/useDarkMode'
 import Logo from '../brand/Logo'
 
 const navLinkClass = ({ isActive }: { isActive: boolean }): string =>
-  `inline-flex min-h-11 items-center rounded-full px-3.5 text-sm font-medium transition-colors ${
+  `inline-flex min-h-11 items-center rounded-full px-3.5 text-sm transition-colors ${
     isActive
-      ? 'bg-lime text-coffee shadow-surface'
-      : 'text-tertiary hover:bg-lime/10 hover:text-coffee dark:text-mauve-soft dark:hover:bg-lime/10 dark:hover:text-[#f3efe8]'
+      ? 'border border-[#c5d86d]/30 bg-[#c5d86d]/15 font-bold text-[#c5d86d]'
+      : 'font-medium text-neutral-300 hover:bg-white/5 hover:text-white'
   }`
 
-/**
- * Enlaces del drawer movil.
- *
- * El inactivo NO puede llevar `text-white` fijo: el panel es claro en tema
- * claro, y blanco sobre crema daba 1.03:1 (invisible). Va neutral-700 con
- * variante dark. El activo va texto oscuro porque el fondo es lime claro.
- */
 const drawerLinkClass = ({ isActive }: { isActive: boolean }): string =>
   `flex w-full min-h-11 items-center rounded-xl px-4 py-2 text-lg transition-colors ${
     isActive
-      ? 'bg-lime font-bold text-neutral-900 shadow-surface'
-      : 'text-neutral-700 hover:bg-lime/10 hover:text-black dark:text-neutral-300 dark:hover:bg-white'
+      ? 'bg-[#c5d86d] font-bold text-neutral-950 shadow-surface'
+      : 'text-neutral-300 hover:bg-white/10 hover:text-white'
   }`
-
-function SunIcon({ className }: { className?: string }): React.JSX.Element {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      focusable="false"
-      className={className ?? 'size-5'}
-    >
-      <circle cx="12" cy="12" r="4" />
-      <path d="M12 2v2" />
-      <path d="M12 20v2" />
-      <path d="M4.93 4.93l1.41 1.41" />
-      <path d="M17.66 17.66l1.41 1.41" />
-      <path d="M2 12h2" />
-      <path d="M20 12h2" />
-      <path d="M6.34 17.66l-1.41 1.41" />
-      <path d="M19.07 4.93l-1.41 1.41" />
-    </svg>
-  )
-}
-
-function MoonIcon({ className }: { className?: string }): React.JSX.Element {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      focusable="false"
-      className={className ?? 'size-5'}
-    >
-      <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
-    </svg>
-  )
-}
 
 function MenuIcon({ open }: { open: boolean }): React.JSX.Element {
   return (
@@ -98,9 +46,15 @@ function MenuIcon({ open }: { open: boolean }): React.JSX.Element {
   )
 }
 
+function scrollToSection(sectionId: string, navbarHeight: number): void {
+  const el = document.getElementById(sectionId)
+  if (el === null) return
+  const y = el.getBoundingClientRect().top + window.scrollY - Math.max(navbarHeight, 80) - 8
+  window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' })
+}
+
 export default function Navbar(): React.JSX.Element {
   const { user, isAdmin, isAuthenticated, logout } = useAuth()
-  const { isDark, toggleDark } = useDarkMode()
   const navigate = useNavigate()
   const location = useLocation()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -109,9 +63,6 @@ export default function Navbar(): React.JSX.Element {
   /** Sección activa en la home: "Reservas" es un ancla de la misma página. */
   const [activeSection, setActiveSection] = useState<'home' | 'reservas'>('home')
 
-  // HeroUI envuelve el Disclosure en un div `relative` que mide solo el ancho
-  // del trigger, asi que un panel `absolute inset-x-0` queda angosto y se
-  // corta. Midiendo el header podemosPositionarlo respecto de la ventana.
   useEffect(() => {
     const el = headerRef.current
     if (el === null) return
@@ -122,53 +73,46 @@ export default function Navbar(): React.JSX.Element {
     return () => observer.disconnect()
   }, [])
 
-  // Al llegar con /#reservas desde otra ruta el scroll nativo no alcanza:
-  // el id se monta despues de resolver la query de canchas. Reintentamos
-  // con un par de timeouts. Depende de location porque el Navbar esta
-  // montado en el layout y no se remonta al cambiar de ruta.
   useEffect(() => {
     if (location.pathname !== '/' || location.hash !== '#reservas') return
-    const scroll = (): void => {
-      document.getElementById('reservas')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }
+    const scroll = (): void => scrollToSection('reservas', headerHeight)
     scroll()
     const timers = [setTimeout(scroll, 120), setTimeout(scroll, 400)]
     return () => timers.forEach(clearTimeout)
-  }, [location.pathname, location.hash])
+  }, [location.pathname, location.hash, headerHeight])
 
-  // En la home, "Reservas" es un ancla en la misma pagina: la pildora activa
-  // se decide por la seccion que ocupa el borde superior del viewport (debajo
-  // del header sticky) y no por la ruta. Se recalcula con scroll/resize usando
-  // rAF para no encadenar renders en cada evento.
+  // Scroll Spy con IntersectionObserver adelantado para marcar "Reservas" apenas
+  // entra en el tercio superior de la pantalla debajo del Navbar fijo.
   useEffect(() => {
     if (location.pathname !== '/') return
-    const update = (): void => {
+
+    let observer: IntersectionObserver | null = null
+    const attach = (): void => {
       const target = document.getElementById('reservas')
-      if (target === null) {
-        setActiveSection('home')
-        return
-      }
-      const rect = target.getBoundingClientRect()
-      const offset = headerHeight + 8
-      setActiveSection(rect.top <= offset && rect.bottom > offset ? 'reservas' : 'home')
+      if (target === null) return
+      observer?.disconnect()
+      observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              setActiveSection('reservas')
+            } else if (window.scrollY < target.offsetTop - Math.max(headerHeight, 80)) {
+              setActiveSection('home')
+            }
+          })
+        },
+        {
+          rootMargin: '-20% 0px -60% 0px',
+          threshold: 0.1,
+        }
+      )
+      observer.observe(target)
     }
-    let frame = 0
-    const schedule = (): void => {
-      cancelAnimationFrame(frame)
-      frame = requestAnimationFrame(update)
-    }
-    // Primera medicion diferida: setState sincrono dentro del effect dispara
-    // renders en cascada (react/set-state-in-effect).
-    schedule()
-    window.addEventListener('scroll', schedule, { passive: true })
-    window.addEventListener('resize', schedule)
-    // La grilla de reservas se monta despues de resolver la query de canchas:
-    // recalculamos un par de veces para no quedar con el estado inicial.
-    const timers = [setTimeout(schedule, 150), setTimeout(schedule, 500)]
+
+    attach()
+    const timers = [setTimeout(attach, 200), setTimeout(attach, 600)]
     return () => {
-      cancelAnimationFrame(frame)
-      window.removeEventListener('scroll', schedule)
-      window.removeEventListener('resize', schedule)
+      observer?.disconnect()
       timers.forEach(clearTimeout)
     }
   }, [location.pathname, headerHeight])
@@ -177,11 +121,6 @@ export default function Navbar(): React.JSX.Element {
     setIsMenuOpen(false)
   }
 
-  /**
-   * "Inicio" apunta a la raiz. Si ya estamos en la home, evitamos la navegacion
-   * y subimos con scroll suave (sin recargar la vista). De paso limpiamos el
-   * hash para que la URL coincida con lo que se ve: la parte superior.
-   */
   function goToHome(event: React.MouseEvent<HTMLAnchorElement>): void {
     closeMenu()
     setActiveSection('home')
@@ -191,20 +130,12 @@ export default function Navbar(): React.JSX.Element {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  /**
-   * "Reservas" apunta al ancla de la grilla.
-   *
-   * En la home no dejamos que Link navegue: agregar el hash no scrollea por si
-   * solo, asi que hacemos scroll puro. Desde otra ruta dejamos que Link vaya a
-   * /#reservas y el effect de hash completa el scroll cuando la grilla ya esta
-   * montada.
-   */
   function goToReservas(event: React.MouseEvent<HTMLAnchorElement>): void {
     closeMenu()
     setActiveSection('reservas')
     if (location.pathname !== '/') return
     event.preventDefault()
-    document.getElementById('reservas')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    scrollToSection('reservas', headerHeight)
   }
 
   const isOnHome = location.pathname === '/'
@@ -214,7 +145,7 @@ export default function Navbar(): React.JSX.Element {
   return (
     <header
       ref={headerRef}
-      className="sticky top-0 z-30 border-b border-line/70 bg-cream/80 backdrop-blur dark:border-mauve/50 dark:bg-coffee/85"
+      className="fixed left-0 right-0 top-0 z-50 border-b border-white/10 bg-neutral-950/80 backdrop-blur-md transition-all duration-300"
     >
       <nav className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3">
         <div className="flex min-w-0 items-center gap-2">
@@ -256,20 +187,9 @@ export default function Navbar(): React.JSX.Element {
         </div>
 
         <div className="hidden items-center gap-2 md:flex">
-          <Button
-            isIconOnly
-            variant="ghost"
-            size="sm"
-            className="min-h-11 min-w-11 rounded-full"
-            onPress={toggleDark}
-            aria-label="Cambiar tema"
-          >
-            {isDark ? <SunIcon className="size-5 text-amber-400" /> : <MoonIcon className="size-5 text-neutral-700" />}
-          </Button>
-
           {isAuthenticated && user !== null ? (
             <>
-              <span className="text-sm font-medium text-coffee dark:text-mauve-soft">
+              <span className="text-sm font-medium text-mauve-soft">
                 {user.name.split(' ')[0]} {user.role === 'admin' ? '· Admin' : ''}
               </span>
               <Button
@@ -292,21 +212,10 @@ export default function Navbar(): React.JSX.Element {
         </div>
 
         <div className="flex items-center gap-2 md:hidden">
-          <Button
-            isIconOnly
-            variant="ghost"
-            size="sm"
-            className="pointer-events-auto min-h-11 min-w-11 rounded-full"
-            onPress={toggleDark}
-            aria-label="Cambiar tema"
-          >
-            {isDark ? <SunIcon className="size-5 text-amber-400" /> : <MoonIcon className="size-5 text-neutral-700" />}
-          </Button>
-
           <Disclosure isExpanded={isMenuOpen} onExpandedChange={setIsMenuOpen}>
             <DisclosureTrigger
               aria-label={isMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
-              className="flex size-11 items-center justify-center rounded-xl border border-line bg-cream text-coffee transition-colors hover:bg-lime/10 dark:border-mauve dark:bg-coffee-elev dark:text-[#f3efe8]"
+              className="flex size-11 items-center justify-center rounded-xl border transition-colors hover:bg-lime/10 border-mauve bg-coffee-elev text-[#f3efe8]"
             >
               <MenuIcon open={isMenuOpen} />
             </DisclosureTrigger>
@@ -322,7 +231,7 @@ export default function Navbar(): React.JSX.Element {
 
             <DisclosureContent
               style={{ top: headerHeight }}
-              className="fixed inset-x-0 z-40 w-full max-w-full border-b border-neutral-200 bg-white/95 px-6 pb-6 pt-4 text-neutral-900 shadow-xl backdrop-blur-md dark:border-white/10 dark:bg-[#1a090d]/95 dark:text-white"
+              className="fixed inset-x-0 z-40 w-full max-w-full border-b px-6 pb-6 pt-4 shadow-xl backdrop-blur-md border-white/10 bg-[#1a090d]/95 text-white"
             >
               <nav className="flex w-full flex-col gap-4" aria-label="Navegación principal">
                 <Link
@@ -355,22 +264,17 @@ export default function Navbar(): React.JSX.Element {
                   </NavLink>
                 )}
 
-                <div className="my-2 h-px bg-neutral-200 dark:bg-white/10" />
+                <div className="my-2 h-px bg-white/10" />
 
                 {isAuthenticated && user !== null ? (
                   <>
-                    {/*
-                      text-neutral-500 daba 4.24:1 sobre el panel claro (falla AA
-                      en texto de 14px). El proyecto no define neutral-600, asi
-                      que el siguiente tono disponible es neutral-700 (9.3:1).
-                    */}
-                    <p className="px-4 pb-1 text-sm text-neutral-700 dark:text-neutral-400">
+                    <p className="px-4 pb-1 text-sm text-neutral-400">
                       Sesión de {user.name.split(' ')[0]}
                       {user.role === 'admin' ? ' (admin)' : ''}
                     </p>
                     <Button
                       variant="outline"
-                      className="min-h-11 border border-neutral-300 text-neutral-800 dark:border-white/20 dark:text-white"
+                      className="min-h-11 border border-white/20 text-white"
                       onPress={() => {
                         logout()
                         closeMenu()

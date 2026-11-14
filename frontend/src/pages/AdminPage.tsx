@@ -46,7 +46,7 @@ export default function AdminPage(): React.JSX.Element {
     <div className="space-y-8">
       <header>
         <h1 className="text-2xl font-bold tracking-tight">Panel de administración</h1>
-        <p className="mt-1 text-sm text-tertiary dark:text-mauve-soft">
+        <p className="mt-1 text-sm text-mauve-soft">
           Gestioná canchas y torneos del complejo.
         </p>
       </header>
@@ -178,18 +178,18 @@ function CanchasTab({ onNotice }: { onNotice: (kind: Notice['kind'], message: st
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-tertiary dark:text-mauve-soft">{fields.length} canchas registradas</p>
+        <p className="text-sm text-mauve-soft">{fields.length} canchas registradas</p>
         <Button variant="primary" size="sm" onPress={openCreate}>
           Nueva cancha
         </Button>
       </div>
 
       {fields.length === 0 ? (
-        <p className="py-8 text-center text-sm text-tertiary dark:text-mauve-soft">No hay canchas creadas.</p>
+        <p className="py-8 text-center text-sm text-mauve-soft">No hay canchas creadas.</p>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-line dark:border-mauve">
+        <div className="overflow-x-auto rounded-xl border border-mauve">
           <table className="w-full min-w-[34rem] text-left text-sm">
-            <thead className="bg-[#f1ebe3] text-tertiary dark:bg-mauve-deep dark:text-mauve-soft">
+            <thead className="bg-[#f1ebe3] bg-mauve-deep text-mauve-soft">
               <tr>
                 <th className="px-4 py-2 font-medium">Nombre</th>
                 <th className="px-4 py-2 font-medium">Tipo</th>
@@ -198,11 +198,11 @@ function CanchasTab({ onNotice }: { onNotice: (kind: Notice['kind'], message: st
                 <th className="px-4 py-2 text-right font-medium">Acciones</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-line dark:divide-mauve/60">
+            <tbody className="divide-y divide-mauve/60">
               {fields.map((field) => (
-                <tr key={field.id} className="bg-cream dark:bg-coffee-elev">
+                <tr key={field.id} className="bg-coffee-elev">
                   <td className="px-4 py-3 font-medium">{field.name}</td>
-                  <td className="px-4 py-3 text-tertiary dark:text-mauve-soft">{field.type}</td>
+                  <td className="px-4 py-3 text-mauve-soft">{field.type}</td>
                   <td className="px-4 py-3">${field.pricePerHour}</td>
                   <td className="px-4 py-3">
                     <Chip color={field.isActive ? 'success' : 'warning'} size="sm">
@@ -269,7 +269,7 @@ function CanchasTab({ onNotice }: { onNotice: (kind: Notice['kind'], message: st
                         src={form.imageUrl.trim()}
                         alt="Vista previa"
                         loading="lazy"
-                        className="h-16 w-24 rounded-lg border border-line object-cover dark:border-mauve"
+                        className="h-16 w-24 rounded-lg border object-cover border-mauve"
                       />
                     )}
                   </div>
@@ -277,7 +277,7 @@ function CanchasTab({ onNotice }: { onNotice: (kind: Notice['kind'], message: st
                     isSelected={form.isActive}
                     onChange={(isActive) => setForm({ ...form, isActive })}
                   >
-                    <Checkbox.Content className="text-sm text-coffee/80 dark:text-mauve-soft">
+                    <Checkbox.Content className="text-sm text-mauve-soft">
                       <Checkbox.Control>
                         <Checkbox.Indicator />
                       </Checkbox.Control>
@@ -379,18 +379,18 @@ function TorneosTab({ onNotice }: { onNotice: (kind: Notice['kind'], message: st
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-tertiary dark:text-mauve-soft">{tournaments.length} torneos</p>
+        <p className="text-sm text-mauve-soft">{tournaments.length} torneos</p>
         <Button variant="primary" size="sm" onPress={() => { setCreateError(null); setName(''); setCreating(true) }}>
           Nuevo torneo
         </Button>
       </div>
 
       {tournaments.length === 0 ? (
-        <p className="py-8 text-center text-sm text-tertiary dark:text-mauve-soft">No hay torneos creados.</p>
+        <p className="py-8 text-center text-sm text-mauve-soft">No hay torneos creados.</p>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-line dark:border-mauve">
+        <div className="overflow-x-auto rounded-xl border border-mauve">
           <table className="w-full min-w-[32rem] text-left text-sm">
-            <thead className="bg-[#f1ebe3] text-tertiary dark:bg-mauve-deep dark:text-mauve-soft">
+            <thead className="bg-[#f1ebe3] bg-mauve-deep text-mauve-soft">
               <tr>
                 <th className="px-4 py-2 font-medium">Nombre</th>
                 <th className="px-4 py-2 font-medium">Estado</th>
@@ -399,21 +399,21 @@ function TorneosTab({ onNotice }: { onNotice: (kind: Notice['kind'], message: st
                 <th className="px-4 py-2 text-right font-medium">Acciones</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-line dark:divide-mauve/60">
+            <tbody className="divide-y divide-mauve/60">
               {tournaments.map((tournament) => {
                 const meta = TOURNAMENT_STATUS_META[tournament.status]
                 return (
-                  <tr key={tournament.id} className="bg-cream dark:bg-coffee-elev">
+                  <tr key={tournament.id} className="bg-coffee-elev">
                     <td className="px-4 py-3 font-medium">{tournament.name}</td>
                     <td className="px-4 py-3">
                       <Chip color={meta.color} size="sm">
                         {meta.label}
                       </Chip>
                     </td>
-                    <td className="px-4 py-3 text-tertiary dark:text-mauve-soft">
+                    <td className="px-4 py-3 text-mauve-soft">
                       {tournament.teamsCount ?? '-'}
                     </td>
-                    <td className="px-4 py-3 text-tertiary dark:text-mauve-soft">
+                    <td className="px-4 py-3 text-mauve-soft">
                       {tournament.matchesCount ?? '-'}
                     </td>
                     <td className="px-4 py-3">
@@ -512,7 +512,7 @@ function ConfirmDialog({ title, message, isPending, onCancel, onConfirm }: Confi
             <Modal.CloseTrigger />
           </Modal.Header>
           <Modal.Body>
-            <p className="text-sm text-tertiary dark:text-mauve-soft">{message}</p>
+            <p className="text-sm text-mauve-soft">{message}</p>
           </Modal.Body>
           <Modal.Footer className="flex-col-reverse gap-2 sm:flex-row sm:justify-end">
             <Button variant="secondary" className="min-h-11 w-full sm:w-auto" onPress={onCancel}>

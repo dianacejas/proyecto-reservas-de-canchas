@@ -1,8 +1,10 @@
+import { Button } from '@heroui/react'
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { getDailyMetrics } from '../../api'
 import { getErrorMessage } from '../../api/client'
 import ErrorState from '../common/ErrorState'
+import { FileTextIcon } from '../common/Icons'
 import Loading from '../common/Loading'
 import DateNav from '../booking/DateNav'
 import type { DailyMetrics } from '../../types'
@@ -10,12 +12,14 @@ import { formatCurrency } from '../../utils/payments'
 import { todayKey } from '../../utils/date'
 
 const CARD =
-  'rounded-xl border border-line bg-cream p-4 dark:border-mauve dark:bg-coffee-elev'
-const LABEL = 'text-xs font-medium uppercase tracking-wide text-tertiary dark:text-mauve-soft'
-const VALUE = 'text-2xl font-bold tracking-tight text-coffee dark:text-[#f3efe8]'
-const ROW = 'flex items-center justify-between gap-3 text-sm'
-const ROW_LABEL = 'text-tertiary dark:text-mauve-soft'
-const ROW_VALUE = 'font-semibold text-coffee dark:text-[#f3efe8]'
+  'rounded-2xl border border-neutral-800 bg-neutral-900/90 p-5 shadow-[0_8px_30px_rgb(0,0,0,0.4)] transition-all hover:border-neutral-700'
+const LABEL = 'text-xs font-bold uppercase tracking-wider text-neutral-400'
+const VALUE = 'mt-1 text-3xl font-black tracking-tight text-white'
+const SUB_BOX =
+  'mt-4 space-y-2 rounded-xl border border-neutral-800/60 bg-neutral-950/60 p-3'
+const ROW = 'flex items-center justify-between gap-3 text-xs sm:text-sm'
+const ROW_LABEL = 'text-neutral-400'
+const ROW_VALUE = 'font-bold text-neutral-200 tabular-nums'
 
 export default function AdminMetrics(): React.JSX.Element {
   const [date, setDate] = useState(todayKey())
@@ -24,6 +28,10 @@ export default function AdminMetrics(): React.JSX.Element {
     queryKey: ['admin-metrics', date],
     queryFn: () => getDailyMetrics(date),
   })
+
+  function handleDownloadPDF(): void {
+    window.print()
+  }
 
   if (metricsQuery.isLoading) return <Loading label="Calculando métricas del día…" />
   if (metricsQuery.isError) {
@@ -41,10 +49,21 @@ export default function AdminMetrics(): React.JSX.Element {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-tertiary dark:text-mauve-soft">
+        <p className="text-sm text-neutral-400">
           Recaudación, saldo por cobrar y ocupación para la jornada seleccionada.
         </p>
-        <DateNav date={date} onChange={setDate} />
+        <div className="flex flex-wrap items-center gap-2 print:hidden">
+          <Button
+            variant="outline"
+            size="sm"
+            onPress={handleDownloadPDF}
+            className="flex items-center gap-1.5 border-neutral-700 bg-neutral-900 text-neutral-200 hover:border-neutral-500 hover:text-white"
+          >
+            <FileTextIcon className="size-4 text-[#c5d86d]" />
+            <span>Descargar PDF</span>
+          </Button>
+          <DateNav date={date} onChange={setDate} />
+        </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -55,27 +74,42 @@ export default function AdminMetrics(): React.JSX.Element {
       </div>
 
       <div className={CARD}>
-        <p className="text-sm font-semibold text-coffee dark:text-[#f3efe8]">Estados de turnos</p>
-        <div className="mt-3 grid grid-cols-2 gap-x-6 gap-y-2 text-sm sm:grid-cols-5">
-          <div className={ROW}>
-            <span className={ROW_LABEL}>Confirmados</span>
-            <span className={ROW_VALUE}>{metrics.turnos.confirmadas}</span>
+        <p className="text-sm font-bold uppercase tracking-wider text-neutral-300">
+          Estados de turnos
+        </p>
+        <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-5">
+          <div className="rounded-xl border border-neutral-800/80 bg-neutral-950/70 p-3 text-center">
+            <span className="inline-flex items-center justify-center gap-1.5 text-xs font-semibold text-neutral-400">
+              <span className="size-2 rounded-full bg-[#c5d86d]" />
+              Confirmados
+            </span>
+            <p className="mt-1 text-xl font-black text-white tabular-nums">
+              {metrics.turnos.confirmadas}
+            </p>
           </div>
-          <div className={ROW}>
-            <span className={ROW_LABEL}>Pendientes</span>
-            <span className={ROW_VALUE}>{metrics.turnos.pendientes}</span>
+          <div className="rounded-xl border border-neutral-800/80 bg-neutral-950/70 p-3 text-center">
+            <span className="text-xs font-semibold text-neutral-400">Pendientes</span>
+            <p className="mt-1 text-xl font-black text-white tabular-nums">
+              {metrics.turnos.pendientes}
+            </p>
           </div>
-          <div className={ROW}>
-            <span className={ROW_LABEL}>Pagados</span>
-            <span className={ROW_VALUE}>{metrics.turnos.pagadas}</span>
+          <div className="rounded-xl border border-neutral-800/80 bg-neutral-950/70 p-3 text-center">
+            <span className="text-xs font-semibold text-neutral-400">Pagados</span>
+            <p className="mt-1 text-xl font-black text-white tabular-nums">
+              {metrics.turnos.pagadas}
+            </p>
           </div>
-          <div className={ROW}>
-            <span className={ROW_LABEL}>Bloqueos</span>
-            <span className={ROW_VALUE}>{metrics.turnos.bloqueadas}</span>
+          <div className="rounded-xl border border-neutral-800/80 bg-neutral-950/70 p-3 text-center">
+            <span className="text-xs font-semibold text-neutral-400">Bloqueos</span>
+            <p className="mt-1 text-xl font-black text-white tabular-nums">
+              {metrics.turnos.bloqueadas}
+            </p>
           </div>
-          <div className={ROW}>
-            <span className={ROW_LABEL}>Cancelados</span>
-            <span className={ROW_VALUE}>{metrics.turnos.canceladas}</span>
+          <div className="rounded-xl border border-neutral-800/80 bg-neutral-950/70 p-3 text-center">
+            <span className="text-xs font-semibold text-neutral-400">Cancelados</span>
+            <p className="mt-1 text-xl font-black text-white tabular-nums">
+              {metrics.turnos.canceladas}
+            </p>
           </div>
         </div>
       </div>
@@ -88,7 +122,7 @@ function RecaudacionCard({ metrics }: { metrics: DailyMetrics }): React.JSX.Elem
     <div className={CARD}>
       <p className={LABEL}>Recaudación del día</p>
       <p className={VALUE}>{formatCurrency(metrics.recaudacion.total)}</p>
-      <div className="mt-3 space-y-2">
+      <div className={SUB_BOX}>
         <div className={ROW}>
           <span className={ROW_LABEL}>Efectivo / mostrador</span>
           <span className={ROW_VALUE}>{formatCurrency(metrics.recaudacion.mostrador)}</span>
@@ -107,7 +141,7 @@ function SaldoCard({ metrics }: { metrics: DailyMetrics }): React.JSX.Element {
     <div className={CARD}>
       <p className={LABEL}>Saldo por cobrar</p>
       <p className={VALUE}>{formatCurrency(metrics.saldoPorCobrar.saldoRestante)}</p>
-      <div className="mt-3 space-y-2">
+      <div className={SUB_BOX}>
         <div className={ROW}>
           <span className={ROW_LABEL}>Señas abonadas</span>
           <span className={ROW_VALUE}>{formatCurrency(metrics.saldoPorCobrar.senasAbonadas)}</span>
@@ -126,17 +160,17 @@ function OcupacionCard({ metrics }: { metrics: DailyMetrics }): React.JSX.Elemen
   return (
     <div className={CARD}>
       <p className={LABEL}>Tasa de ocupación</p>
-      <p className="text-2xl font-bold tracking-tight text-coffee dark:text-[#f3efe8]">
-        {porcentaje}%
-      </p>
-      <p className="mt-1 text-sm text-tertiary dark:text-mauve-soft">
-        {metrics.ocupacion.ocupados} de {metrics.ocupacion.totalTurnos} turnos ocupados
-      </p>
-      <div className="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-paper dark:bg-mauve-deep">
-        <div
-          className="h-full rounded-full bg-[#8ea63f] transition-all"
-          style={{ width: `${porcentaje}%` }}
-        />
+      <p className={VALUE}>{porcentaje}%</p>
+      <div className={SUB_BOX}>
+        <p className="text-xs font-semibold text-neutral-300">
+          {metrics.ocupacion.ocupados} de {metrics.ocupacion.totalTurnos} turnos ocupados
+        </p>
+        <div className="h-2.5 w-full overflow-hidden rounded-full bg-neutral-800">
+          <div
+            className="h-full rounded-full bg-[#c5d86d] transition-all"
+            style={{ width: `${porcentaje}%` }}
+          />
+        </div>
       </div>
     </div>
   )
@@ -147,7 +181,7 @@ function CancelacionesCard({ metrics }: { metrics: DailyMetrics }): React.JSX.El
     <div className={CARD}>
       <p className={LABEL}>Cancelaciones</p>
       <p className={VALUE}>{metrics.cancelaciones.cantidad}</p>
-      <div className="mt-3 space-y-2">
+      <div className={SUB_BOX}>
         <div className={ROW}>
           <span className={ROW_LABEL}>Turnos perdidos</span>
           <span className={ROW_VALUE}>{metrics.turnos.canceladas}</span>

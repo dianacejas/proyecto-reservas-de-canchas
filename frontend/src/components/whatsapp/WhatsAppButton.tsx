@@ -1,4 +1,4 @@
-const WA_NUMBER = '5493511234567'
+const WA_NUMBER = import.meta.env.VITE_WHATSAPP_NUMBER || '5493511234567'
 const WA_MESSAGE = '¡Hola! Quiero consultar por disponibilidad de canchas y torneos en Copa 5'
 export const WHATSAPP_HREF = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(WA_MESSAGE)}`
 

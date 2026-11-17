@@ -146,7 +146,7 @@ export default function LoginPage(): React.JSX.Element {
 
       {/* Columna Derecha: Formulario */}
       <section className="flex items-center justify-center">
-        <div className="w-full max-w-md space-y-6 rounded-3xl border border-neutral-800/80 bg-neutral-900/90 p-8 shadow-2xl">
+        <div className="w-full max-w-md space-y-6 rounded-3xl border border-neutral-800/80 bg-neutral-900/90 p-5 shadow-2xl sm:p-8">
           <div className="lg:hidden">
             <Logo />
           </div>
@@ -256,32 +256,54 @@ export default function LoginPage(): React.JSX.Element {
             </Button>
           </form>
 
-          {/* Acceso Rápido Demo (QA) */}
-          <div className="space-y-2.5 border-t border-neutral-800/80 pt-5">
-            <p className="text-center text-[11px] font-bold uppercase tracking-widest text-neutral-500">
-              Acceso Rápido Demo (QA)
-            </p>
-            <div className="grid grid-cols-2 gap-2.5">
-              <button
-                type="button"
-                disabled={isSubmitting}
-                onClick={() => handleQuickLogin('admin@canchas.com', 'admin123')}
-                className="flex flex-col items-start rounded-xl border border-neutral-800 bg-neutral-950/80 px-3 py-2 text-left transition-colors hover:border-[#c5d86d]/50 hover:bg-neutral-950 disabled:opacity-50"
-              >
-                <span className="text-xs font-bold text-[#c5d86d]">Acceso Admin</span>
-                <span className="text-[11px] text-neutral-400">admin@canchas.com</span>
-              </button>
-              <button
-                type="button"
-                disabled={isSubmitting}
-                onClick={() => handleQuickLogin('juan@canchas.com', 'juan123')}
-                className="flex flex-col items-start rounded-xl border border-neutral-800 bg-neutral-950/80 px-3 py-2 text-left transition-colors hover:border-[#c5d86d]/50 hover:bg-neutral-950 disabled:opacity-50"
-              >
-                <span className="text-xs font-bold text-white">Acceso Cliente</span>
-                <span className="text-[11px] text-neutral-400">juan@canchas.com</span>
-              </button>
-            </div>
-          </div>
+          {/* Acceso Rápido Demo (solo en desarrollo local con variables .env) */}
+          {import.meta.env.DEV &&
+            (Boolean(import.meta.env.VITE_DEMO_ADMIN_EMAIL && import.meta.env.VITE_DEMO_ADMIN_PASSWORD) ||
+              Boolean(import.meta.env.VITE_DEMO_CLIENT_EMAIL && import.meta.env.VITE_DEMO_CLIENT_PASSWORD)) && (
+              <div className="space-y-2.5 border-t border-neutral-800/80 pt-5">
+                <p className="text-center text-[11px] font-bold uppercase tracking-widest text-neutral-500">
+                  Acceso Rápido Demo (QA)
+                </p>
+                <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+                  {import.meta.env.VITE_DEMO_ADMIN_EMAIL && import.meta.env.VITE_DEMO_ADMIN_PASSWORD && (
+                    <button
+                      type="button"
+                      disabled={isSubmitting}
+                      onClick={() =>
+                        handleQuickLogin(
+                          import.meta.env.VITE_DEMO_ADMIN_EMAIL,
+                          import.meta.env.VITE_DEMO_ADMIN_PASSWORD,
+                        )
+                      }
+                      className="flex flex-col items-start rounded-xl border border-neutral-800 bg-neutral-950/80 px-3 py-2 text-left transition-colors hover:border-[#c5d86d]/50 hover:bg-neutral-950 disabled:opacity-50"
+                    >
+                      <span className="text-xs font-bold text-[#c5d86d]">Acceso Admin</span>
+                      <span className="truncate text-[11px] text-neutral-400">
+                        {import.meta.env.VITE_DEMO_ADMIN_EMAIL}
+                      </span>
+                    </button>
+                  )}
+                  {import.meta.env.VITE_DEMO_CLIENT_EMAIL && import.meta.env.VITE_DEMO_CLIENT_PASSWORD && (
+                    <button
+                      type="button"
+                      disabled={isSubmitting}
+                      onClick={() =>
+                        handleQuickLogin(
+                          import.meta.env.VITE_DEMO_CLIENT_EMAIL,
+                          import.meta.env.VITE_DEMO_CLIENT_PASSWORD,
+                        )
+                      }
+                      className="flex flex-col items-start rounded-xl border border-neutral-800 bg-neutral-950/80 px-3 py-2 text-left transition-colors hover:border-[#c5d86d]/50 hover:bg-neutral-950 disabled:opacity-50"
+                    >
+                      <span className="text-xs font-bold text-white">Acceso Cliente</span>
+                      <span className="truncate text-[11px] text-neutral-400">
+                        {import.meta.env.VITE_DEMO_CLIENT_EMAIL}
+                      </span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
         </div>
       </section>
     </div>

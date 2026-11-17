@@ -3,13 +3,6 @@ import type { SanctionRow } from '../../types'
 import { assignCrestColors } from '../../utils/crest'
 import TeamCrest from './TeamCrest'
 
-function playerInitials(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean)
-  if (parts.length === 0) return 'JG'
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
-  return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase()
-}
-
 function RefereeCardBadge({
   variant,
   label,
@@ -62,25 +55,20 @@ export default function SanctionsList({ rows }: { rows: SanctionRow[] }): React.
 
   return (
     <div className="space-y-3">
-      <ul className="grid gap-3 sm:grid-cols-2">
+      <ul className="grid list-none gap-3 p-0 sm:grid-cols-2">
         {rows.map((row) => (
           <li
             key={`${row.playerName}-${row.teamId}`}
-            className={`rounded-2xl border p-4 shadow-sm transition-colors ${
+            className={`rounded-2xl border p-4 transition-colors sm:p-5 ${
               row.suspended
-                ? 'border-neutral-800 border-l-4 border-l-red-500 bg-neutral-900/90 hover:bg-neutral-900'
+                ? 'border-neutral-800 border-l-4 border-l-red-500 bg-neutral-900/90 pl-5 hover:bg-neutral-900'
                 : 'border-neutral-800 bg-neutral-900/60 hover:bg-neutral-800/40'
             }`}
           >
             <div className="flex flex-wrap items-start justify-between gap-3">
-              <div className="flex min-w-0 items-center gap-3">
-                <div className="relative shrink-0">
-                  <div className="flex size-10 items-center justify-center rounded-full border border-neutral-700 bg-neutral-800 text-xs font-black text-neutral-200">
-                    {playerInitials(row.playerName)}
-                  </div>
-                  <div className="absolute -bottom-1 -right-1 rounded-full bg-neutral-950 p-0.5 ring-1 ring-neutral-800">
-                    <TeamCrest name={row.teamName} color={colorFor(row.teamName)} size="xs" />
-                  </div>
+              <div className="flex min-w-0 items-center gap-3.5">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-neutral-800 bg-neutral-900 shadow-inner">
+                  <TeamCrest name={row.teamName} color={colorFor(row.teamName)} size="sm" />
                 </div>
                 <div className="min-w-0">
                   <p className="truncate text-sm font-bold text-white sm:text-base">

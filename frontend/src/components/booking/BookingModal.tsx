@@ -105,7 +105,7 @@ export default function BookingModal({
                 </div>
 
                 {slot.kind === 'libre' && (
-                  <div className="grid grid-cols-3 gap-2 px-4 py-3 text-center">
+                  <div className="grid grid-cols-1 gap-2 px-4 py-3 text-center sm:grid-cols-3">
                     <div className="rounded-xl p-2 bg-neutral-900/80">
                       <span className="block text-[10px] font-semibold uppercase text-neutral-400">
                         Total Cancha

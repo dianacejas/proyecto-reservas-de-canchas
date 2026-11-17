@@ -322,14 +322,14 @@ export default function EditCourtModal({
               )}
             </div>
           </Modal.Body>
-          <Modal.Footer className="flex justify-end gap-2">
-            <Button variant="ghost" size="sm" onPress={onClose}>
+          <Modal.Footer className="flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+            <Button variant="ghost" size="sm" className="min-h-11 w-full sm:w-auto" onPress={onClose}>
               Cancelar
             </Button>
             <Button
               variant="primary"
               size="sm"
-              className="bg-[#c5d86d] font-bold text-neutral-950 hover:bg-[#b5c85d]"
+              className="min-h-11 w-full bg-[#c5d86d] font-bold text-neutral-950 hover:bg-[#b5c85d] sm:w-auto"
               isDisabled={mutation.isPending}
               onPress={handleSubmit}
             >

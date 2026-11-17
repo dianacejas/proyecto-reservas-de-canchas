@@ -14,7 +14,7 @@ export const createFieldSchema = z.object({
   standardPricePerHour: z.number().min(0).optional(),
   peakPricePerHour: z.number().min(0).optional(),
   peakHours: z.array(z.string()).default(['19:00', '20:00', '21:00', '22:00', '23:00']).optional(),
-  imageUrl: z.string().trim().max(500).default(''),
+  imageUrl: z.string().trim().max(2_500_000).default(''),
   active: z.boolean().default(true).optional(),
   isActive: z.boolean().default(true).optional(),
 })

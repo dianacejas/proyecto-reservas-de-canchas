@@ -4,27 +4,10 @@ import { listFields, queryKeys } from '../../api'
 import FadeUp from '../common/FadeUp'
 import {
   resolveCourtDimensions,
+  resolveCourtImage,
   resolveCourtSportLabel,
   resolveCourtSurface,
 } from '../../utils/slots'
-import type { Field } from '../../types'
-
-const FALLBACK_IMAGES = [
-  '/images/canchas/nocturna.jpg',
-  '/images/canchas/indoor.jpg',
-  '/images/canchas/techada.jpg',
-]
-
-function imageForCourt(field: Field, index: number): string {
-  if (field.imageUrl && field.imageUrl.trim().length > 0) return field.imageUrl
-  const name = field.name.toLowerCase()
-  if (name.includes('noctur') || name.includes('night')) return FALLBACK_IMAGES[0]
-  if (name.includes('indoor') || name.includes('cubiert') || name.includes('climat')) {
-    return FALLBACK_IMAGES[1]
-  }
-  if (name.includes('techad') || name.includes('lona')) return FALLBACK_IMAGES[2]
-  return FALLBACK_IMAGES[index % FALLBACK_IMAGES.length]
-}
 
 export default function CourtGallery(): React.JSX.Element {
   const { data: fields = [] } = useQuery({
@@ -63,7 +46,7 @@ export default function CourtGallery(): React.JSX.Element {
               <figure className="group h-full overflow-hidden rounded-2xl border shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] transition-all duration-300 hover:-translate-y-1 hover:border-stone-300 hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1)] border-white/10 bg-neutral-900/50">
                 <div className="relative aspect-[4/3] overflow-hidden">
                   <img
-                    src={imageForCourt(court, index)}
+                    src={resolveCourtImage(court, index)}
                     alt={`Cancha ${court.name} — ${sportLabel}`}
                     loading="lazy"
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"

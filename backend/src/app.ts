@@ -42,7 +42,7 @@ app.use(
   })
 )
 
-app.use(express.json({ limit: '100kb' }))
+app.use(express.json({ limit: '5mb' }))
 
 // Corta payloads con operadores de Mongo ($ne, $gt) o rutas con punto antes
 // de que lleguen a los controladores.

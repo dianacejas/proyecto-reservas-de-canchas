@@ -2,7 +2,11 @@ import { useState } from 'react'
 import FadeUp from '../common/FadeUp'
 import { GridIcon, MapIcon, StadiumIcon } from '../common/Icons'
 import CourtCard from '../courts/CourtCard'
-import { resolveCourtDimensions, resolveCourtSportLabel } from '../../utils/slots'
+import {
+  resolveCourtDimensions,
+  resolveCourtImage,
+  resolveCourtSportLabel,
+} from '../../utils/slots'
 import type { Field } from '../../types'
 
 interface FieldPickerProps {
@@ -10,23 +14,6 @@ interface FieldPickerProps {
   selectedFieldId: string | null
   onSelect: (fieldId: string) => void
   splitByTen?: boolean
-}
-
-const COURT_IMAGES = [
-  '/images/canchas/nocturna.jpg',
-  '/images/canchas/indoor.jpg',
-  '/images/canchas/techada.jpg',
-]
-
-function imageFor(field: Field, index: number): string {
-  if (field.imageUrl && field.imageUrl.trim().length > 0) return field.imageUrl
-  const name = field.name.toLowerCase()
-  if (name.includes('noctur') || name.includes('night')) return COURT_IMAGES[0]
-  if (name.includes('indoor') || name.includes('cubiert') || name.includes('climat')) {
-    return COURT_IMAGES[1]
-  }
-  if (name.includes('techad') || name.includes('lona')) return COURT_IMAGES[2]
-  return COURT_IMAGES[index % COURT_IMAGES.length]
 }
 
 export default function FieldPicker({
@@ -80,7 +67,7 @@ export default function FieldPicker({
                 <CourtCard
                   field={field}
                   selected={selected}
-                  image={imageFor(field, index)}
+                  image={resolveCourtImage(field, index)}
                   onSelect={onSelect}
                   splitByTen={splitByTen}
                 />

@@ -42,6 +42,44 @@ export function resolveCourtSurface(field: Partial<Field>): string {
   return field.features?.[0] || 'Sintético FIFA Pro'
 }
 
+const DEFAULT_WEBP_COURTS = [
+  '/images/canchas/cancha-alpha.webp',
+  '/images/canchas/cancha-beta.webp',
+  '/images/canchas/cancha-delta.webp',
+]
+
+export function resolveCourtImage(field: Partial<Field>, index = 0): string {
+  const rawUrl = (field.imageUrl ?? '').trim()
+  if (rawUrl.startsWith('data:image/') || rawUrl.startsWith('blob:')) {
+    return rawUrl
+  }
+  if (
+    rawUrl.length > 0 &&
+    !rawUrl.includes('/images/canchas/indoor.') &&
+    !rawUrl.includes('/images/canchas/techada.') &&
+    !rawUrl.includes('/images/canchas/nocturna.')
+  ) {
+    return rawUrl.replace(/\.(jpe?g|png)$/i, '.webp')
+  }
+
+  const name = (field.name ?? '').toLowerCase()
+  const type = (field.type ?? '').toLowerCase()
+  const sportLabel = resolveCourtSportLabel(field)
+  const isCovered =
+    field.isCovered ?? /techad|indoor|cubiert|climat|beta/.test(`${name} ${type}`)
+
+  if (sportLabel === 'Fútbol 11' || name.includes('delta')) {
+    return '/images/canchas/cancha-delta.webp'
+  }
+  if (isCovered || name.includes('beta')) {
+    return '/images/canchas/cancha-beta.webp'
+  }
+  if (name.includes('alpha')) {
+    return '/images/canchas/cancha-alpha.webp'
+  }
+  return DEFAULT_WEBP_COURTS[index % DEFAULT_WEBP_COURTS.length]
+}
+
 export type SlotKind = 'libre' | 'torneo' | 'confirmada' | 'pendiente' | 'mantenimiento'
 
 export interface GridSlot {

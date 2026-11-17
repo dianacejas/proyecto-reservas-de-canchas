@@ -8,6 +8,7 @@ import Loading from '../common/Loading'
 import { Pencil } from '../common/Icons'
 import {
   resolveCourtDimensions,
+  resolveCourtImage,
   resolveCourtSportLabel,
   resolveCourtSurface,
 } from '../../utils/slots'
@@ -22,6 +23,7 @@ export default function AdminCourts({ onNotice }: AdminCourtsProps): React.JSX.E
   const queryClient = useQueryClient()
   const courtsQuery = useQuery({ queryKey: queryKeys.fields(), queryFn: listFields })
   const [editingCourt, setEditingCourt] = useState<Field | null>(null)
+  const [isCreating, setIsCreating] = useState(false)
   const [pendingDelete, setPendingDelete] = useState<Field | null>(null)
 
   const deleteMutation = useMutation({
@@ -56,6 +58,14 @@ export default function AdminCourts({ onNotice }: AdminCourtsProps): React.JSX.E
         <p className="text-sm text-neutral-400">
           {courts.length} canchas registradas
         </p>
+        <Button
+          variant="primary"
+          size="sm"
+          className="bg-[#c5d86d] font-bold text-neutral-950 hover:bg-[#b5c85d]"
+          onPress={() => setIsCreating(true)}
+        >
+          + Nueva cancha
+        </Button>
       </div>
 
       {courts.length === 0 ? (
@@ -78,14 +88,21 @@ export default function AdminCourts({ onNotice }: AdminCourtsProps): React.JSX.E
               </tr>
             </thead>
             <tbody className="divide-y divide-white/10">
-              {courts.map((court) => {
+              {courts.map((court, idx) => {
                 const isCovered = court.isCovered ?? court.type?.toLowerCase().includes('techad')
                 const isActive = court.active ?? court.isActive ?? true
 
                 return (
                   <tr key={court.id} className="transition-colors hover:bg-white/[0.02]">
                     <td className="px-4 py-3 font-medium text-white">
-                      {court.name}
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={resolveCourtImage(court, idx)}
+                          alt={court.name}
+                          className="h-9 w-14 shrink-0 rounded-lg border border-neutral-800 object-cover"
+                        />
+                        <span>{court.name}</span>
+                      </div>
                     </td>
                     <td className="px-4 py-3 text-neutral-400">
                       <span className="font-semibold text-[#c5d86d]">{resolveCourtSportLabel(court)}</span>
@@ -144,13 +161,18 @@ export default function AdminCourts({ onNotice }: AdminCourtsProps): React.JSX.E
         </div>
       )}
 
-      {/* Modal de edición en vivo */}
+      {/* Modal de creación / edición en vivo */}
       <EditCourtModal
-        key={editingCourt?.id ?? 'closed'}
-        court={editingCourt}
-        isOpen={editingCourt !== null}
-        onClose={() => setEditingCourt(null)}
-        onSuccess={() => onNotice('success', 'Cancha actualizada con éxito.')}
+        key={isCreating ? 'new-court' : (editingCourt?.id ?? 'closed')}
+        court={isCreating ? null : editingCourt}
+        isOpen={isCreating || editingCourt !== null}
+        onClose={() => {
+          setIsCreating(false)
+          setEditingCourt(null)
+        }}
+        onSuccess={() =>
+          onNotice('success', isCreating ? 'Cancha creada con éxito.' : 'Cancha actualizada con éxito.')
+        }
       />
 
       {/* Modal de confirmación de eliminación */}

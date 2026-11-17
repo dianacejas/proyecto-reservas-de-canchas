@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { AlertTriangleIcon, CloudIcon, CloudRainIcon, SunIcon } from '../common/Icons'
+import { AlertTriangleIcon, CloudIcon, CloudRainIcon, ShieldCheckIcon, SunIcon } from '../common/Icons'
 
 interface WeatherBadgeProps {
   selectedDate: string // YYYY-MM-DD
@@ -41,7 +41,7 @@ function getWeatherCondition(code: number): { label: string; isRain: boolean; ty
 
 export default function WeatherBadge({
   selectedDate,
-  isCovered = true,
+  isCovered = false,
 }: WeatherBadgeProps): React.JSX.Element | null {
   const { data } = useQuery({
     queryKey: ['weather', selectedDate],
@@ -64,20 +64,27 @@ export default function WeatherBadge({
   return (
     <div className="flex flex-wrap items-center gap-2">
       {/* Cápsula compacta del clima */}
-      <div className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold shadow-sm border-mauve bg-coffee-elev text-[#f3efe8]">
-        {condition.type === 'sun' && <SunIcon className="size-4 text-amber-500" />}
+      <div className="inline-flex items-center gap-1.5 rounded-full border border-neutral-800 bg-neutral-900 px-3 py-1 text-xs font-semibold text-neutral-100 shadow-sm">
+        {condition.type === 'sun' && <SunIcon className="size-4 text-amber-400" />}
         {condition.type === 'cloud' && <CloudIcon className="size-4 text-neutral-400" />}
-        {condition.type === 'rain' && <CloudRainIcon className="size-4 text-sky-500" />}
+        {condition.type === 'rain' && <CloudRainIcon className="size-4 text-sky-400" />}
         <span>{maxTemp}°C</span>
-        <span className="text-mauve-soft">· {condition.label}</span>
+        <span className="text-neutral-400">· {condition.label}</span>
       </div>
 
-      {/* Alerta de lluvia para canchas descubiertas */}
-      {willRain && !isCovered && (
-        <div className="inline-flex items-center gap-1.5 rounded-full border bg-amber-500/10 px-2.5 py-1 text-xs font-semibold border-amber-400/40 text-amber-300">
-          <AlertTriangleIcon className="size-3.5 text-amber-400 shrink-0" />
-          <span>Posibilidad de lluvia · Cancha sin techo</span>
+      {/* Estado contextual según techo de la cancha seleccionada */}
+      {isCovered ? (
+        <div className="inline-flex items-center gap-1.5 rounded-full border border-[#c5d86d]/35 bg-[#c5d86d]/10 px-2.5 py-1 text-xs font-semibold text-[#c5d86d]">
+          <ShieldCheckIcon className="size-3.5 shrink-0 text-[#c5d86d]" />
+          <span>Zona techada · Clima controlado</span>
         </div>
+      ) : (
+        willRain && (
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/40 bg-amber-500/10 px-2.5 py-1 text-xs font-semibold text-amber-300">
+            <AlertTriangleIcon className="size-3.5 shrink-0 text-amber-400" />
+            <span>Posibilidad de lluvia · Cancha sin techo</span>
+          </div>
+        )
       )}
     </div>
   )

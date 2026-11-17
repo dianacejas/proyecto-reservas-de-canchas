@@ -422,7 +422,10 @@ export default function ReservasPage(): React.JSX.Element {
                 </h2>
                 <WeatherBadge
                   selectedDate={date}
-                  isCovered={field?.type.toLowerCase().includes('techada') ?? false}
+                  isCovered={
+                    field?.isCovered ??
+                    /techad|indoor|cubiert|climat/i.test(`${field?.name ?? ''} ${field?.type ?? ''}`)
+                  }
                 />
               </div>
               <DateNav date={date} onChange={setDate} />

@@ -1,5 +1,10 @@
 import { Button, Card } from '@heroui/react'
 import type { Field } from '../../types'
+import {
+  resolveCourtDimensions,
+  resolveCourtSportLabel,
+  resolveCourtSurface,
+} from '../../utils/slots'
 import { UsersIcon } from '../common/Icons'
 
 interface CourtCardProps {
@@ -106,12 +111,9 @@ export default function CourtCard({
   const isCovered = field.isCovered !== undefined ? field.isCovered : roofed
   const deposit = Math.round(field.pricePerHour * 0.5)
   const perPlayer = Math.round(field.pricePerHour / 10)
-  const sportLabel =
-    field.sport === 'padel'
-      ? 'Pádel'
-      : field.sport === 'futbol5'
-        ? 'Fútbol 5'
-        : field.sport || 'Fútbol 5'
+  const sportLabel = resolveCourtSportLabel(field)
+  const dimensionsLabel = resolveCourtDimensions(field)
+  const surfaceLabel = resolveCourtSurface(field)
 
   return (
     <Card.Root
@@ -154,7 +156,7 @@ export default function CourtCard({
           <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-neutral-300 font-medium">
             <span className="inline-flex items-center gap-1.5">
               <DimensionIcon className="size-3.5 text-neutral-400" />
-              {field.dimensions || '30 × 18 mts'}
+              {dimensionsLabel}
             </span>
             <span className="inline-flex items-center gap-1.5">
               <SparklesIcon className="size-3.5 text-neutral-400" />
@@ -162,7 +164,7 @@ export default function CourtCard({
             </span>
             <span className="inline-flex items-center gap-1.5">
               <ShowerIcon className="size-3.5 text-neutral-400" />
-              {field.features?.[0] || field.type || 'Vestuarios'}
+              {surfaceLabel}
             </span>
           </div>
         </div>

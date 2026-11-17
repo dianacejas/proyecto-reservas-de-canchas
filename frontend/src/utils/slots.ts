@@ -1,4 +1,46 @@
-import type { Booking } from '../types'
+import type { Booking, Field } from '../types'
+
+export const STANDARD_DIMENSIONS_BY_TYPE: Record<string, string> = {
+  'Fútbol 5': '30 × 18 mts',
+  'Fútbol 7': '50 × 30 mts',
+  'Fútbol 9': '70 × 45 mts',
+  'Fútbol 11': '100 × 65 mts',
+  Pádel: '20 × 10 mts',
+}
+
+export function resolveCourtSportLabel(field: Partial<Field>): string {
+  const combined = `${field.type ?? ''} ${field.sport ?? ''} ${field.name ?? ''}`.toLowerCase()
+  if (/\b11\b|futbol11|fútbol\s*11|futbol\s*11/.test(combined)) return 'Fútbol 11'
+  if (/\b9\b|futbol9|fútbol\s*9|futbol\s*9/.test(combined)) return 'Fútbol 9'
+  if (/\b7\b|futbol7|fútbol\s*7|futbol\s*7/.test(combined)) return 'Fútbol 7'
+  if (/padel|pádel/.test(combined)) return 'Pádel'
+  return 'Fútbol 5'
+}
+
+export function resolveCourtDimensions(field: Partial<Field>): string {
+  const sportLabel = resolveCourtSportLabel(field)
+  const standard = STANDARD_DIMENSIONS_BY_TYPE[sportLabel] ?? '30 × 18 mts'
+  const raw = (field.dimensions ?? '').trim()
+  if (!raw) return standard
+
+  const isDefaultF5 = /^30\s*[x×]\s*18/i.test(raw)
+  if (sportLabel !== 'Fútbol 5' && isDefaultF5) {
+    return standard
+  }
+  const isLargerDefault = /^(50|70|90|100)\s*[x×]\s*(30|45|60|65|70)/i.test(raw)
+  if (sportLabel === 'Fútbol 5' && isLargerDefault) {
+    return standard
+  }
+  return raw
+}
+
+export function resolveCourtSurface(field: Partial<Field>): string {
+  const rawType = (field.type ?? '').trim()
+  if (rawType && !/^f[uú]tbol\s*(5|7|9|11)$/i.test(rawType)) {
+    return rawType
+  }
+  return field.features?.[0] || 'Sintético FIFA Pro'
+}
 
 export type SlotKind = 'libre' | 'torneo' | 'confirmada' | 'pendiente' | 'mantenimiento'
 

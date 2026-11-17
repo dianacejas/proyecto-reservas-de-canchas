@@ -6,6 +6,11 @@ import { getErrorMessage } from '../../api/client'
 import ErrorState from '../common/ErrorState'
 import Loading from '../common/Loading'
 import { Pencil } from '../common/Icons'
+import {
+  resolveCourtDimensions,
+  resolveCourtSportLabel,
+  resolveCourtSurface,
+} from '../../utils/slots'
 import EditCourtModal from './EditCourtModal'
 import type { Field } from '../../types'
 
@@ -15,7 +20,7 @@ interface AdminCourtsProps {
 
 export default function AdminCourts({ onNotice }: AdminCourtsProps): React.JSX.Element {
   const queryClient = useQueryClient()
-  const courtsQuery = useQuery({ queryKey: ['courts'], queryFn: listFields })
+  const courtsQuery = useQuery({ queryKey: queryKeys.fields(), queryFn: listFields })
   const [editingCourt, setEditingCourt] = useState<Field | null>(null)
   const [pendingDelete, setPendingDelete] = useState<Field | null>(null)
 
@@ -83,10 +88,11 @@ export default function AdminCourts({ onNotice }: AdminCourtsProps): React.JSX.E
                       {court.name}
                     </td>
                     <td className="px-4 py-3 text-neutral-400">
-                      {court.type || 'Fútbol 5'}
+                      <span className="font-semibold text-[#c5d86d]">{resolveCourtSportLabel(court)}</span>
+                      <span className="ml-1.5 text-xs text-neutral-500">· {resolveCourtSurface(court)}</span>
                     </td>
                     <td className="px-4 py-3 text-neutral-400">
-                      {court.dimensions || '30 × 18 mts'}
+                      {resolveCourtDimensions(court)}
                     </td>
                     <td className="px-4 py-3 text-neutral-400">
                       {court.lighting || 'LED 500 Lux'}

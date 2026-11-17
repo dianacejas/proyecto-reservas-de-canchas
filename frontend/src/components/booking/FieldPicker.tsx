@@ -2,6 +2,7 @@ import { useState } from 'react'
 import FadeUp from '../common/FadeUp'
 import { GridIcon, MapIcon, StadiumIcon } from '../common/Icons'
 import CourtCard from '../courts/CourtCard'
+import { resolveCourtDimensions, resolveCourtSportLabel } from '../../utils/slots'
 import type { Field } from '../../types'
 
 interface FieldPickerProps {
@@ -132,7 +133,7 @@ export default function FieldPicker({
                   >
                     <div className="flex items-center justify-between gap-2">
                       <span className="rounded-md bg-neutral-900 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-[#c5d86d]">
-                        Sector {idx + 1}
+                        Sector {idx + 1} · {resolveCourtSportLabel(field)}
                       </span>
                       <span className="rounded-full border border-white/15 bg-neutral-800 px-2.5 py-0.5 text-[10px] font-bold text-neutral-200">
                         {isCovered ? 'Nave Techada' : 'Aire Libre'}
@@ -204,7 +205,7 @@ export default function FieldPicker({
                           {field.name}
                         </p>
                         <p className="text-[11px] text-neutral-400">
-                          {field.dimensions || '30 × 18 mts'} · {field.lighting || 'LED 500 Lux'}
+                          {resolveCourtDimensions(field)} · {field.lighting || 'LED 500 Lux'}
                         </p>
                       </div>
                       <div className="text-right">

@@ -113,7 +113,13 @@ export default function Footer(): React.JSX.Element {
         {/* Sub-footer de derechos y enlaces legales */}
         <div className="mt-8 border-t border-neutral-900 pt-6 text-stone-500 text-xs">
           <div className="flex flex-col items-center justify-between gap-2 text-center sm:flex-row sm:text-left">
-            <p>© 2026 Copa 5. Todos los derechos reservados.</p>
+            <div className="flex flex-col items-center gap-1 sm:flex-row sm:gap-3">
+              <p>© 2026 Copa 5. Todos los derechos reservados.</p>
+              <span aria-hidden="true" className="hidden text-neutral-700 sm:inline">
+                ·
+              </span>
+              <p className="text-neutral-400 text-xs">Desarrollado por CP dev</p>
+            </div>
             <p className="flex items-center gap-3 text-stone-400">
               <Link to="/reglamento" className="transition-colors hover:text-[#c5d86d]">
                 Reglamento

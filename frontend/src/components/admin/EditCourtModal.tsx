@@ -3,7 +3,13 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { queryKeys, updateCourt } from '../../api'
 import { getErrorMessage } from '../../api/client'
-import { TextInput } from '../common/fields'
+import { SelectInput, TextInput } from '../common/fields'
+import {
+  resolveCourtDimensions,
+  resolveCourtSportLabel,
+  resolveCourtSurface,
+  STANDARD_DIMENSIONS_BY_TYPE,
+} from '../../utils/slots'
 import type { Field } from '../../types'
 
 interface EditCourtModalProps {
@@ -13,6 +19,13 @@ interface EditCourtModalProps {
   onSuccess?: () => void
 }
 
+const SPORT_OPTIONS = [
+  { key: 'Fútbol 5', label: 'Fútbol 5 (30 × 18 mts)' },
+  { key: 'Fútbol 7', label: 'Fútbol 7 (50 × 30 mts)' },
+  { key: 'Fútbol 9', label: 'Fútbol 9 (70 × 45 mts)' },
+  { key: 'Fútbol 11', label: 'Fútbol 11 (100 × 65 mts)' },
+]
+
 export default function EditCourtModal({
   court,
   isOpen,
@@ -20,15 +33,25 @@ export default function EditCourtModal({
   onSuccess,
 }: EditCourtModalProps): React.JSX.Element {
   const queryClient = useQueryClient()
+  const initialSportLabel = court ? resolveCourtSportLabel(court) : 'Fútbol 5'
   const [name, setName] = useState(court?.name ?? '')
   const [price, setPrice] = useState(String(court?.pricePerHour ?? ''))
-  const [dimensions, setDimensions] = useState(court?.dimensions ?? '30 x 18 mts')
+  const [sportType, setSportType] = useState(initialSportLabel)
+  const [surface, setSurface] = useState(court ? resolveCourtSurface(court) : 'Sintético FIFA Pro 60mm')
+  const [dimensions, setDimensions] = useState(court ? resolveCourtDimensions(court) : '30 × 18 mts')
   const [lighting, setLighting] = useState(court?.lighting ?? 'LED 500 Lux')
-  const [type, setType] = useState(court?.type ?? 'Sintético Premium 60mm')
   const [isCovered, setIsCovered] = useState(court?.isCovered ?? false)
   const [active, setActive] = useState(court?.active ?? court?.isActive ?? true)
   const [imageUrl, setImageUrl] = useState(court?.imageUrl ?? '')
   const [error, setError] = useState<string | null>(null)
+
+  function handleSportTypeChange(nextSport: string): void {
+    setSportType(nextSport)
+    const nextDefaultDim = STANDARD_DIMENSIONS_BY_TYPE[nextSport]
+    if (nextDefaultDim) {
+      setDimensions(nextDefaultDim)
+    }
+  }
 
   const mutation = useMutation({
     mutationFn: async () => {
@@ -37,12 +60,16 @@ export default function EditCourtModal({
       if (Number.isNaN(numericPrice) || numericPrice < 0) {
         throw new Error('El precio debe ser un número válido')
       }
+      const resolvedDim = dimensions.trim() || STANDARD_DIMENSIONS_BY_TYPE[sportType] || '30 × 18 mts'
+      const resolvedSurface = surface.trim() || 'Sintético FIFA Pro 60mm'
       return updateCourt(court.id, {
         name: name.trim(),
         pricePerHour: numericPrice,
-        dimensions: dimensions.trim() || '30 x 18 mts',
+        sport: sportType,
+        type: sportType,
+        features: [resolvedSurface, ...(court.features?.slice(1) ?? ['Vestuarios'])],
+        dimensions: resolvedDim,
         lighting: lighting.trim() || 'LED 500 Lux',
-        type: type.trim() || 'Fútbol 5',
         isCovered,
         active,
         isActive: active,
@@ -50,7 +77,7 @@ export default function EditCourtModal({
       })
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['courts'] })
+      await queryClient.invalidateQueries({ queryKey: queryKeys.courts() })
       await queryClient.invalidateQueries({ queryKey: queryKeys.fields() })
       onSuccess?.()
       onClose()
@@ -80,44 +107,52 @@ export default function EditCourtModal({
                 label="Nombre de la Cancha"
                 value={name}
                 onValueChange={setName}
-                placeholder="Ej: Cancha 1 (Nocturna)"
+                placeholder="Ej: Cancha Alpha"
               />
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <SelectInput
+                  label="Tipo de fútbol"
+                  value={sportType}
+                  onValueChange={handleSportTypeChange}
+                  options={SPORT_OPTIONS}
+                />
                 <TextInput
                   label="Precio por hora ($)"
                   type="number"
                   min={0}
                   value={price}
                   onValueChange={setPrice}
-                  placeholder="Ej: 38000"
-                />
-                <TextInput
-                  label="Tipo de césped / Superficie"
-                  value={type}
-                  onValueChange={setType}
-                  placeholder="Ej: Sintético 60mm FIFA Pro"
+                  placeholder="Ej: 12000"
                 />
               </div>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <TextInput
-                  label="Dimensiones"
+                  label="Superficie / Césped"
+                  value={surface}
+                  onValueChange={setSurface}
+                  placeholder="Ej: Sintético FIFA Pro 60mm"
+                />
+                <TextInput
+                  label="Dimensiones reglamentarias"
                   value={dimensions}
                   onValueChange={setDimensions}
-                  placeholder="Ej: 30 x 18 mts"
+                  placeholder="Ej: 30 × 18 mts"
                 />
+              </div>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <TextInput
                   label="Iluminación"
                   value={lighting}
                   onValueChange={setLighting}
                   placeholder="Ej: LED 500 Lux"
                 />
+                <TextInput
+                  label="Imagen (URL)"
+                  value={imageUrl}
+                  onValueChange={setImageUrl}
+                  placeholder="/images/canchas/nocturna.jpg"
+                />
               </div>
-              <TextInput
-                label="Imagen (URL)"
-                value={imageUrl}
-                onValueChange={setImageUrl}
-                placeholder="https://.../cancha.jpg"
-              />
 
               <div className="flex flex-col gap-2 pt-1">
                 <Checkbox isSelected={isCovered} onChange={setIsCovered}>

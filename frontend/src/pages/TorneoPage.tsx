@@ -93,40 +93,63 @@ export default function TorneoPage(): React.JSX.Element {
 
   return (
     <div className="w-full space-y-6">
-      <div className="flex flex-col gap-4 rounded-3xl border p-5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] sm:flex-row sm:items-center sm:justify-between sm:p-6 border-white/10 bg-neutral-900/60">
-        <div>
-          <Link
-            to="/torneos"
-            className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider transition-colors text-neutral-400 hover:text-[#c5d86d]"
-          >
-            ← Volver a Torneos
-          </Link>
-          <div className="mt-2 flex flex-wrap items-center gap-3">
-            <span className="flex size-9 items-center justify-center rounded-xl bg-[#c5d86d]/20 text-[#c5d86d]">
-              <TrophyIcon className="size-5" />
-            </span>
-            <h1 className="text-2xl font-black tracking-tight sm:text-3xl text-white">
-              {tournament.name}
-            </h1>
-            <Chip
-              color={meta.color}
-              size="sm"
-              className={tournament.status === 'en_curso' ? 'animate-pulse font-bold' : 'font-bold'}
+      {/* Hero Banner del Torneo */}
+      <section className="relative overflow-hidden rounded-3xl border border-neutral-800/90 bg-neutral-950 px-6 py-8 shadow-2xl sm:px-8 sm:py-10">
+        <img
+          src="/images/canchas/nocturna.jpg"
+          alt={`Cancha nocturna — ${tournament.name}`}
+          className="absolute inset-0 h-full w-full object-cover object-center opacity-45"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-neutral-950 via-neutral-950/85 to-neutral-950/35" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-neutral-950/50" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(197,216,109,0.16),transparent_60%)]" />
+
+        <div className="relative z-10 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+          <div className="space-y-3">
+            <Link
+              to="/torneos"
+              className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-neutral-400 transition-colors hover:text-[#c5d86d]"
             >
-              {meta.label}
-            </Chip>
+              ← Volver a Torneos
+            </Link>
+
+            <div className="flex flex-wrap items-center gap-3.5">
+              <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl border border-[#c5d86d]/35 bg-[#c5d86d]/15 text-[#c5d86d] shadow-[0_0_20px_rgba(197,216,109,0.15)]">
+                <TrophyIcon className="size-6" />
+              </span>
+              <div>
+                <div className="flex flex-wrap items-center gap-3">
+                  <h1 className="text-2xl font-black tracking-tight text-white sm:text-3xl lg:text-4xl">
+                    {tournament.name}
+                  </h1>
+                  <Chip
+                    color={meta.color}
+                    size="sm"
+                    className={`border border-[#c5d86d]/30 px-2.5 font-extrabold ${
+                      tournament.status === 'en_curso' ? 'animate-pulse' : ''
+                    }`}
+                  >
+                    {meta.label}
+                  </Chip>
+                </div>
+                <p className="mt-1.5 text-xs font-medium text-neutral-300 sm:text-sm">
+                  Competencia oficial Copa 5 · Posiciones, goleadores, sanciones y fixture en vivo.
+                </p>
+              </div>
+            </div>
           </div>
+
+          {!isAdmin && tournament.status === 'inscripcion' && (
+            <Button
+              variant="primary"
+              className="min-h-11 shrink-0 rounded-xl bg-[#c5d86d] px-6 font-black text-neutral-950 shadow-[0_0_20px_rgba(197,216,109,0.2)] transition-all hover:bg-[#b5c85d]"
+              onPress={() => setShowRegistration(true)}
+            >
+              Inscribir mi Equipo
+            </Button>
+          )}
         </div>
-        {!isAdmin && tournament.status === 'inscripcion' && (
-          <Button
-            variant="primary"
-            className="min-h-11 bg-[#c5d86d] font-black text-neutral-950 hover:bg-[#b5c85d]"
-            onPress={() => setShowRegistration(true)}
-          >
-            Inscribir mi Equipo
-          </Button>
-        )}
-      </div>
+      </section>
 
       {/* Banner Broadcast: Partido Destacado de la Fecha */}
       {featuredMatch !== undefined && (

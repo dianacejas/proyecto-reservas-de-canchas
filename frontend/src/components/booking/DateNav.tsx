@@ -83,7 +83,7 @@ export default function DateNav({ date, onChange }: DateNavProps): React.JSX.Ele
           placement="bottom start"
           offset={8}
           triggerRef={triggerRef}
-          className="z-[100050] border border-neutral-800 bg-neutral-900 text-white shadow-xl shadow-black/60"
+          className="!z-[200000] border border-neutral-800 bg-neutral-900 text-white shadow-xl shadow-black/60"
         >
           <Calendar>
             <Calendar.Header>

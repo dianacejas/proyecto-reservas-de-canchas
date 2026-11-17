@@ -1,19 +1,48 @@
-import { Chip } from '@heroui/react'
 import { useMemo } from 'react'
 import type { SanctionRow } from '../../types'
 import { assignCrestColors } from '../../utils/crest'
 import TeamCrest from './TeamCrest'
 
-function CardMark({ variant, count }: { variant: 'yellow' | 'red'; count: number }): React.JSX.Element {
-  if (count === 0) {
-    return <span className="text-xs text-neutral-500">—</span>
-  }
-  const tone = variant === 'yellow' ? 'bg-yellow-400' : 'bg-red-500'
+function playerInitials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean)
+  if (parts.length === 0) return 'JG'
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
+  return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase()
+}
+
+function RefereeCardBadge({
+  variant,
+  label,
+  count,
+}: {
+  variant: 'yellow' | 'red'
+  label: string
+  count: number
+}): React.JSX.Element {
+  const isYellow = variant === 'yellow'
+  const cardClasses = isYellow
+    ? 'bg-amber-400 border-amber-300/70 shadow-[0_0_8px_rgba(251,191,36,0.35)]'
+    : 'bg-red-500 border-red-400/70 shadow-[0_0_8px_rgba(239,68,68,0.4)]'
+
   return (
-    <span className="inline-flex items-center gap-1.5">
-      <span className={`inline-block h-4 w-3 rounded-[3px] ${tone}`} />
-      <span className="text-sm font-semibold text-white">{count}</span>
-    </span>
+    <div
+      className={`inline-flex items-center gap-2 rounded-xl border px-3 py-1.5 ${
+        count > 0
+          ? 'border-neutral-800 bg-neutral-950/80 text-white'
+          : 'border-neutral-800/60 bg-neutral-950/40 text-neutral-500 opacity-60'
+      }`}
+    >
+      <span
+        aria-hidden="true"
+        className={`inline-block h-4 w-3 shrink-0 rounded-[3px] border ${cardClasses}`}
+      />
+      <span className="text-[11px] font-bold uppercase tracking-wider text-neutral-400">
+        {label}
+      </span>
+      <span className="font-mono text-sm font-black tabular-nums">
+        {count}
+      </span>
+    </div>
   )
 }
 
@@ -26,54 +55,66 @@ export default function SanctionsList({ rows }: { rows: SanctionRow[] }): React.
   if (rows.length === 0) {
     return (
       <p className="py-8 text-center text-sm text-neutral-400">
-        No hay tarjetas registradas.
+        No hay tarjetas registradas en el torneo.
       </p>
     )
   }
 
   return (
     <div className="space-y-3">
-      <ul className="space-y-2">
+      <ul className="grid gap-3 sm:grid-cols-2">
         {rows.map((row) => (
           <li
             key={`${row.playerName}-${row.teamId}`}
-            className="rounded-xl border p-3 shadow-sm border-white/10 bg-neutral-900/60"
+            className={`rounded-2xl border p-4 shadow-sm transition-colors ${
+              row.suspended
+                ? 'border-neutral-800 border-l-4 border-l-red-500 bg-neutral-900/90 hover:bg-neutral-900'
+                : 'border-neutral-800 bg-neutral-900/60 hover:bg-neutral-800/40'
+            }`}
           >
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="flex min-w-0 items-center gap-2 sm:gap-3">
-                <TeamCrest name={row.teamName} color={colorFor(row.teamName)} size="xs" />
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div className="flex min-w-0 items-center gap-3">
+                <div className="relative shrink-0">
+                  <div className="flex size-10 items-center justify-center rounded-full border border-neutral-700 bg-neutral-800 text-xs font-black text-neutral-200">
+                    {playerInitials(row.playerName)}
+                  </div>
+                  <div className="absolute -bottom-1 -right-1 rounded-full bg-neutral-950 p-0.5 ring-1 ring-neutral-800">
+                    <TeamCrest name={row.teamName} color={colorFor(row.teamName)} size="xs" />
+                  </div>
+                </div>
                 <div className="min-w-0">
-                  <p className="truncate font-semibold text-white">
+                  <p className="truncate text-sm font-bold text-white sm:text-base">
                     {row.playerName}
                   </p>
-                  <p className="truncate text-xs text-neutral-400">{row.teamName}</p>
+                  <p className="truncate text-xs font-medium text-neutral-400">
+                    {row.teamName}
+                  </p>
                 </div>
               </div>
+
               {row.suspended ? (
-                <Chip color="danger" size="sm">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-red-500/25 bg-red-500/10 px-2.5 py-1 text-xs font-bold text-red-400">
+                  <span className="size-1.5 rounded-full bg-red-400" />
                   Suspendido
-                </Chip>
+                </span>
               ) : (
-                <Chip color="default" size="sm">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-1 text-xs font-bold text-emerald-400">
+                  <span className="size-1.5 rounded-full bg-emerald-400" />
                   Habilitado
-                </Chip>
+                </span>
               )}
             </div>
-            <div className="mt-2 flex flex-wrap items-center gap-4 border-t pt-2 border-white/10">
-              <span className="flex items-center gap-1.5">
-                <span className="text-xs uppercase tracking-wide text-neutral-400">
-                  Amarillas
+
+            <div className="mt-3.5 flex flex-wrap items-center justify-between gap-2 border-t border-neutral-800/80 pt-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <RefereeCardBadge variant="yellow" label="Amarillas" count={row.yellowCards} />
+                <RefereeCardBadge variant="red" label="Rojas" count={row.redCards} />
+              </div>
+
+              {row.suspended && row.reason && (
+                <span className="rounded-lg bg-red-500/10 px-2.5 py-1 text-xs font-semibold text-red-400">
+                  {row.reason}
                 </span>
-                <CardMark variant="yellow" count={row.yellowCards} />
-              </span>
-              <span className="flex items-center gap-1.5">
-                <span className="text-xs uppercase tracking-wide text-neutral-400">
-                  Rojas
-                </span>
-                <CardMark variant="red" count={row.redCards} />
-              </span>
-              {row.suspended && (
-                <span className="text-xs text-red-400">{row.reason}</span>
               )}
             </div>
           </li>

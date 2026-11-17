@@ -41,7 +41,7 @@ const FIELD_BOX_CLASS = [
 /** Popovers de Select/ComboBox: borde definido y sombra fuerte para despegarlos del fondo. */
 const DROPDOWN_POPOVER_CLASS = [
   POPOVER_CLASS,
-  'border border-neutral-800 bg-neutral-900 text-neutral-100 shadow-xl shadow-black/60',
+  'z-[100050] border border-neutral-800 bg-neutral-900 text-white shadow-xl shadow-black/60',
 ].join(' ')
 const LISTBOX_CLASS = 'bg-neutral-900 text-neutral-100 p-1'
 const LISTBOX_ITEM_CLASS =

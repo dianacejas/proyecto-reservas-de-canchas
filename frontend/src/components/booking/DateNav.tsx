@@ -79,7 +79,12 @@ export default function DateNav({ date, onChange }: DateNavProps): React.JSX.Ele
           <DatePicker.TriggerIndicator />
           {formatDayShort(date)}
         </DatePicker.Trigger>
-        <DatePicker.Popover placement="bottom start" offset={8} triggerRef={triggerRef}>
+        <DatePicker.Popover
+          placement="bottom start"
+          offset={8}
+          triggerRef={triggerRef}
+          className="z-[100050] border border-neutral-800 bg-neutral-900 text-white shadow-xl shadow-black/60"
+        >
           <Calendar>
             <Calendar.Header>
               <Calendar.NavButton slot="previous" />

@@ -19,6 +19,16 @@ const communityNoticeSchema = new Schema(
       trim: true,
       default: 'Cualquiera',
     },
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      default: null,
+    },
+    authorName: {
+      type: String,
+      trim: true,
+      default: 'Jugador Copa 5',
+    },
     status: {
       type: String,
       enum: ['abierto', 'completado'],

@@ -258,6 +258,12 @@ export function closeCommunityNotice(id: string): Promise<CommunityNotice> {
   })
 }
 
+export function deleteCommunityNotice(id: string): Promise<CommunityNotice> {
+  return apiRequest<CommunityNotice>(`/community/notices/${id}`, {
+    method: 'DELETE',
+  })
+}
+
 export function createMatch(input: CreateMatchInput): Promise<Match> {
   return apiRequest<Match>('/matches', {
     method: 'POST',

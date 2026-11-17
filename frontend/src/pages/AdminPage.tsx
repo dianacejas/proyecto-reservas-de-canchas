@@ -4,7 +4,9 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   createTournament,
+  deleteCommunityNotice,
   deleteTournament,
+  listCommunityNotices,
   listTournaments,
   queryKeys,
 } from '../api'
@@ -16,7 +18,7 @@ import AdminMetrics from '../components/admin/AdminMetrics'
 import ErrorState from '../components/common/ErrorState'
 import Loading from '../components/common/Loading'
 import { TextInput } from '../components/common/fields'
-import type { Tournament, TournamentStatus } from '../types'
+import type { CommunityNotice, Tournament, TournamentStatus } from '../types'
 import { PILL_TAB_CLASS, PILL_TAB_LIST_CLASS } from '../utils/tabs'
 
 interface Notice {
@@ -62,6 +64,7 @@ export default function AdminPage(): React.JSX.Element {
           <Tabs.Tab id="clientes" className={PILL_TAB_CLASS}>Clientes</Tabs.Tab>
           <Tabs.Tab id="canchas" className={PILL_TAB_CLASS}>Canchas</Tabs.Tab>
           <Tabs.Tab id="torneos" className={PILL_TAB_CLASS}>Torneos</Tabs.Tab>
+          <Tabs.Tab id="comunidad" className={PILL_TAB_CLASS}>Comunidad</Tabs.Tab>
         </Tabs.List>
 
         <Tabs.Panel id="agenda">
@@ -82,6 +85,10 @@ export default function AdminPage(): React.JSX.Element {
 
         <Tabs.Panel id="torneos">
           <TorneosTab onNotice={showNotice} />
+        </Tabs.Panel>
+
+        <Tabs.Panel id="comunidad">
+          <ComunidadModerationTab onNotice={showNotice} />
         </Tabs.Panel>
       </Tabs.Root>
     </div>
@@ -250,6 +257,120 @@ function TorneosTab({ onNotice }: { onNotice: (kind: Notice['kind'], message: st
           onCancel={() => setPendingDelete(null)}
           onConfirm={() => deleteMutation.mutate(pendingDelete.id)}
         />
+      )}
+    </div>
+  )
+}
+
+function ComunidadModerationTab({
+  onNotice,
+}: {
+  onNotice: (kind: Notice['kind'], message: string) => void
+}): React.JSX.Element {
+  const queryClient = useQueryClient()
+  const noticesQuery = useQuery({
+    queryKey: ['community-notices'],
+    queryFn: listCommunityNotices,
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteCommunityNotice(id),
+    onSuccess: (_deleted, id) => {
+      queryClient.setQueryData<CommunityNotice[]>(['community-notices'], (old = []) =>
+        old.filter((n) => n.id !== id),
+      )
+      void queryClient.invalidateQueries({ queryKey: ['community-notices'] })
+      onNotice('success', 'Aviso eliminado del tablón comunitario.')
+    },
+    onError: (err) => {
+      onNotice('danger', getErrorMessage(err))
+    },
+  })
+
+  if (noticesQuery.isLoading) return <Loading label="Cargando avisos comunitarios…" />
+  if (noticesQuery.isError) {
+    return (
+      <ErrorState
+        message={getErrorMessage(noticesQuery.error)}
+        onRetry={() => void noticesQuery.refetch()}
+      />
+    )
+  }
+
+  const notices = noticesQuery.data ?? []
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <h2 className="text-base font-bold text-white">Moderación del Tablón Comunitario</h2>
+          <p className="text-xs text-neutral-400">
+            Supervisá los avisos activos (expiran automáticamente a las 48h) y eliminá publicaciones indebidas.
+          </p>
+        </div>
+        <span className="rounded-full border border-neutral-800 bg-neutral-900 px-3 py-1 text-xs font-bold text-neutral-300">
+          {notices.length} avisos activos
+        </span>
+      </div>
+
+      {notices.length === 0 ? (
+        <p className="rounded-2xl border border-neutral-800 bg-neutral-900/50 py-8 text-center text-sm text-neutral-400">
+          No hay avisos activos para moderar.
+        </p>
+      ) : (
+        <div className="rounded-2xl overflow-hidden border border-neutral-800 bg-neutral-900/90 shadow-lg">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[44rem] text-left text-sm">
+              <thead className="border-b border-neutral-800 bg-neutral-950/70 text-xs font-bold uppercase tracking-wider text-neutral-400">
+                <tr>
+                  <th className="px-4 py-3">Tipo</th>
+                  <th className="px-4 py-3">Aviso / Descripción</th>
+                  <th className="px-4 py-3">Autor</th>
+                  <th className="px-4 py-3">Turno / Contacto</th>
+                  <th className="px-4 py-3 text-right">Acción</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-neutral-800">
+                {notices.map((notice) => (
+                  <tr key={notice.id} className="transition-colors hover:bg-neutral-800/40">
+                    <td className="px-4 py-3">
+                      <span
+                        className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-bold ${
+                          notice.type === 'falta_uno'
+                            ? 'bg-[#c5d86d]/15 text-[#c5d86d]'
+                            : 'bg-amber-500/15 text-amber-300'
+                        }`}
+                      >
+                        {notice.type === 'falta_uno' ? 'Falta 1' : 'Desafío'}
+                      </span>
+                    </td>
+                    <td className="max-w-xs px-4 py-3">
+                      <p className="truncate font-bold text-white">{notice.title}</p>
+                      <p className="truncate text-xs text-neutral-400">{notice.description}</p>
+                    </td>
+                    <td className="px-4 py-3 text-xs font-semibold text-neutral-300">
+                      {notice.authorName || 'Jugador Copa 5'}
+                    </td>
+                    <td className="px-4 py-3 text-xs text-neutral-400">
+                      <div>{notice.date} · {notice.timeSlot}</div>
+                      <div className="font-mono text-[11px] text-neutral-500">{notice.contactPhone}</div>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <Button
+                        variant="danger-soft"
+                        size="sm"
+                        isDisabled={deleteMutation.isPending}
+                        onPress={() => deleteMutation.mutate(notice.id)}
+                      >
+                        Eliminar
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       )}
     </div>
   )

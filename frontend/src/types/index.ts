@@ -355,6 +355,8 @@ export interface CommunityNotice {
   courtName?: string
   contactPhone: string
   positionNeeded: string
+  userId?: string | null
+  authorName?: string
   status: CommunityNoticeStatus
   createdAt: string
 }

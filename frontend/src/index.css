@@ -190,6 +190,19 @@ body {
   color: var(--overlay-foreground);
 }
 
+/* Garantiza que cualquier Popover de HeroUI / React Aria (Select, ComboBox,
+   DatePicker) quede siempre por encima de .react-aria-ModalOverlay (100001)
+   y mantenga superficie Dark SaaS sin heredar fondos claros. */
+.react-aria-Popover,
+.select__popover,
+.combo-box__popover,
+.date-picker__popover {
+  z-index: calc(var(--z-index-overlay, 100000) + 50);
+  background-color: #171717;
+  color: #f5f5f5;
+  border-color: #262626;
+}
+
 .calendar__heading,
 .calendar__header-cell,
 .calendar__nav-button,

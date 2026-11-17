@@ -1,10 +1,10 @@
 import { Button, Modal } from '@heroui/react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createCommunityNotice } from '../../api'
 import { getErrorMessage } from '../../api/client'
 import type { CommunityNotice, CommunityNoticeType, CreateCommunityNoticeInput } from '../../types'
-import { SelectInput, TextInput } from '../common/fields'
+import { TextInput } from '../common/fields'
 
 interface CreateNoticeModalProps {
   isOpen: boolean
@@ -35,7 +35,100 @@ const POSITION_OPTIONS = [
 
 const BASE_INPUT_CLASS = 'bg-neutral-950 border-neutral-800 text-white focus-within:border-[#c5d86d]'
 const ERROR_INPUT_CLASS = 'bg-neutral-950 !border-red-500 ring-1 ring-red-500 text-white'
-const SELECT_DARK_CLASS = 'bg-neutral-900 text-white border-neutral-800'
+const OFFENSIVE_ERROR_MESSAGE = 'Tu aviso contiene términos no permitidos o lenguaje inadecuado'
+
+const BAD_WORDS_REGEX =
+  /\b(puto|puta|mierda|pelotud[oa]|bolud[oa]|conchud[oa]|concha|pija|verga|mogolic[oa]|forr[oa]|hdp|imbecil|idiota|tarad[oa]|cornud[oa]|sorete|culiad[oa]|orto|maricon|garca)\b/i
+
+function containsOffensiveLanguage(text: string): boolean {
+  const normalized = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  return BAD_WORDS_REGEX.test(normalized)
+}
+
+interface DarkDropdownProps {
+  label: string
+  value: string
+  options: { key: string; label: string }[]
+  onChange: (value: string) => void
+}
+
+function DarkDropdown({ label, value, options, onChange }: DarkDropdownProps): React.JSX.Element {
+  const [open, setOpen] = useState(false)
+  const containerRef = useRef<HTMLDivElement | null>(null)
+  const selected = options.find((opt) => opt.key === value) ?? options[0]
+
+  useEffect(() => {
+    if (!open) return
+    function handleOutside(e: MouseEvent): void {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleOutside)
+    return () => document.removeEventListener('mousedown', handleOutside)
+  }, [open])
+
+  return (
+    <div ref={containerRef} className="relative space-y-1.5">
+      <span className="block text-sm font-medium text-neutral-300">{label}</span>
+      <button
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        onClick={() => setOpen((prev) => !prev)}
+        className={`flex min-h-11 w-full items-center justify-between gap-2 rounded-lg border px-3 text-left text-sm font-medium text-white transition-colors ${
+          open
+            ? 'border-[#c5d86d] bg-neutral-900 ring-1 ring-[#c5d86d]'
+            : 'border-neutral-800 bg-neutral-900 hover:border-neutral-700'
+        }`}
+      >
+        <span className="truncate">{selected?.label ?? ''}</span>
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className={`size-4 shrink-0 text-neutral-400 transition-transform ${open ? 'rotate-180' : ''}`}
+          aria-hidden="true"
+        >
+          <path d="m6 9 6 6 6-6" />
+        </svg>
+      </button>
+
+      {open && (
+        <ul
+          role="listbox"
+          className="absolute left-0 right-0 top-full z-50 mt-1.5 max-h-56 overflow-auto rounded-xl border border-neutral-800 bg-neutral-900 p-1 shadow-2xl shadow-black/80"
+        >
+          {options.map((opt) => {
+            const isSelected = opt.key === value
+            return (
+              <li key={opt.key} role="option" aria-selected={isSelected}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onChange(opt.key)
+                    setOpen(false)
+                  }}
+                  className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition-colors ${
+                    isSelected
+                      ? 'bg-neutral-800 font-bold text-[#c5d86d]'
+                      : 'text-neutral-100 hover:bg-neutral-800/80'
+                  }`}
+                >
+                  <span className="truncate">{opt.label}</span>
+                  {isSelected && <span className="text-xs font-black text-[#c5d86d]">✓</span>}
+                </button>
+              </li>
+            )
+          })}
+        </ul>
+      )}
+    </div>
+  )
+}
 
 export default function CreateNoticeModal({
   isOpen,
@@ -96,6 +189,8 @@ export default function CreateNoticeModal({
     const nextErrors: NoticeFieldErrors = {}
     if (title.trim().length < 3) {
       nextErrors.title = 'Ingresá un título descriptivo (mínimo 3 caracteres).'
+    } else if (containsOffensiveLanguage(title)) {
+      nextErrors.title = OFFENSIVE_ERROR_MESSAGE
     }
     if (!date.trim()) {
       nextErrors.date = 'La fecha del turno es obligatoria.'
@@ -108,6 +203,8 @@ export default function CreateNoticeModal({
     }
     if (description.trim().length < 5) {
       nextErrors.description = 'Agregá una breve descripción (mínimo 5 caracteres).'
+    } else if (containsOffensiveLanguage(description)) {
+      nextErrors.description = OFFENSIVE_ERROR_MESSAGE
     }
     return nextErrors
   }
@@ -153,17 +250,15 @@ export default function CreateNoticeModal({
 
           <Modal.Body>
             <form id="notice-form" onSubmit={handleFormSubmit} noValidate className="space-y-4">
-              <SelectInput
+              <DarkDropdown
                 label="Tipo de aviso"
                 value={type}
-                onValueChange={(val) => {
+                options={TYPE_OPTIONS}
+                onChange={(val) => {
                   if (val === 'falta_uno' || val === 'desafio_rival') {
                     setType(val)
                   }
                 }}
-                options={TYPE_OPTIONS}
-                triggerClassName={SELECT_DARK_CLASS}
-                popoverClassName={SELECT_DARK_CLASS}
               />
 
               <div className="space-y-1">
@@ -229,13 +324,11 @@ export default function CreateNoticeModal({
                   inputClassName={BASE_INPUT_CLASS}
                 />
                 {type === 'falta_uno' && (
-                  <SelectInput
+                  <DarkDropdown
                     label="Puesto requerido"
                     value={positionNeeded}
-                    onValueChange={(val) => setPositionNeeded(val || 'Cualquiera')}
                     options={POSITION_OPTIONS}
-                    triggerClassName={SELECT_DARK_CLASS}
-                    popoverClassName={SELECT_DARK_CLASS}
+                    onChange={(val) => setPositionNeeded(val || 'Cualquiera')}
                   />
                 )}
               </div>

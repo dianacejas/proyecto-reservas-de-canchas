@@ -12,13 +12,14 @@ import { formatCurrency } from '../../utils/payments'
 import { todayKey } from '../../utils/date'
 
 const CARD =
-  'bg-neutral-900/90 border border-neutral-800 shadow-[0_8px_30px_rgb(0,0,0,0.4)] rounded-2xl p-5 hover:border-neutral-700 transition-all'
-const LABEL = 'text-xs font-bold uppercase tracking-wider text-neutral-400'
-const VALUE = 'mt-1.5 text-3xl font-black text-white tracking-tight'
-const SUB_BOX = 'mt-3.5 space-y-2 rounded-xl border border-neutral-800/60 bg-neutral-950/60 p-3'
+  'break-inside-avoid bg-neutral-900/90 border border-neutral-800 shadow-[0_8px_30px_rgb(0,0,0,0.4)] rounded-2xl p-5 hover:border-neutral-700 transition-all print:shadow-none print:bg-white print:border-neutral-300 print:text-neutral-950'
+const LABEL = 'text-xs font-bold uppercase tracking-wider text-neutral-400 print:text-neutral-600'
+const VALUE = 'mt-1.5 text-3xl font-black text-white tracking-tight print:text-neutral-950'
+const SUB_BOX =
+  'mt-3.5 space-y-2 rounded-xl border border-neutral-800/60 bg-neutral-950/60 p-3 print:bg-neutral-50 print:border-neutral-200'
 const ROW = 'flex items-center justify-between gap-3 text-xs'
-const ROW_LABEL = 'text-neutral-400'
-const ROW_VALUE = 'text-neutral-200 font-bold'
+const ROW_LABEL = 'text-neutral-400 print:text-neutral-600'
+const ROW_VALUE = 'text-neutral-200 font-bold print:text-neutral-900'
 
 function getWeekRange(dateStr: string): { startDate: string; endDate: string } {
   const d = new Date(`${dateStr}T12:00:00Z`)
@@ -63,41 +64,65 @@ export default function AdminMetrics(): React.JSX.Element {
     window.print()
   }
 
+  const periodLabel =
+    mode === 'semana'
+      ? `Semana del ${metrics.startDate ?? ''} al ${metrics.endDate ?? ''}`
+      : `Jornada del ${metrics.date}`
+
   return (
-    <div className="w-full space-y-6">
-      {/* Membrete exclusivo para impresión */}
-      <div className="hidden print:block mb-6 border-b border-black pb-4">
-        <h1 className="text-2xl font-black text-black">COPA 5 · COMPLEJO DEPORTIVO</h1>
-        <p className="text-sm text-neutral-600">Balance de Caja y Reporte Operativo · {metrics.date}</p>
+    <div className="w-full space-y-6 print:space-y-4">
+      {/* Membrete corporativo único para impresión */}
+      <div className="hidden print:block mb-5 border-b-2 border-neutral-900 pb-3">
+        <h1 className="text-xl font-black tracking-tight text-neutral-950">
+          COPA 5 · COMPLEJO DEPORTIVO
+        </h1>
+        <div className="mt-1 flex items-center justify-between text-xs font-medium text-neutral-600">
+          <span>Balance de Caja y Reporte Operativo</span>
+          <span className="font-bold text-neutral-900">{periodLabel}</span>
+        </div>
       </div>
 
       <style
         dangerouslySetInnerHTML={{
           __html: `
             @media print {
-              header, nav, footer, button, .no-print, [role="tablist"] {
-                display: none !important;
+              @page {
+                size: A4;
+                margin: 14mm;
               }
-              body {
-                background: white !important;
-                color: black !important;
+              html, body {
+                background: #ffffff !important;
+                color: #0a0a0a !important;
+                overflow: visible !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+              }
+              main {
+                padding-top: 0 !important;
+                margin: 0 !important;
+                max-width: 100% !important;
+              }
+              header, nav, footer, button, a[href*="wa.me"], .no-print, .print\\:hidden, [role="tablist"] {
+                display: none !important;
               }
               .print\\:block {
                 display: block !important;
+              }
+              .break-inside-avoid {
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
+                box-shadow: none !important;
+                filter: none !important;
               }
             }
           `,
         }}
       />
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 print:hidden">
         <div>
           <h2 className="text-base font-bold text-white">Reporte de Caja y Métricas</h2>
-          <p className="text-xs text-neutral-400">
-            {mode === 'semana'
-              ? `Semana del ${metrics.startDate ?? ''} al ${metrics.endDate ?? ''}`
-              : `Jornada del ${metrics.date}`}
-          </p>
+          <p className="text-xs text-neutral-400">{periodLabel}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {/* Botones de Exportación e Impresión */}
@@ -151,7 +176,7 @@ export default function AdminMetrics(): React.JSX.Element {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 print:grid-cols-2 print:gap-4">
         <CajaCard metrics={metrics} mode={mode} />
         <DesgloseMostradorCard metrics={metrics} />
         <OcupacionCard metrics={metrics} mode={mode} />
@@ -159,38 +184,38 @@ export default function AdminMetrics(): React.JSX.Element {
       </div>
 
       {/* Tarjetas de Business Intelligence */}
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-2 print:grid-cols-2 print:gap-4">
         <TopCourtCard topCourt={metrics.topCourt} />
         <PeakHourCard peakHour={metrics.peakHour} />
       </div>
 
-      <div className="bg-neutral-900/90 border border-neutral-800 shadow-[0_8px_30px_rgb(0,0,0,0.4)] rounded-2xl p-5">
-        <p className="text-xs font-bold uppercase tracking-wider text-neutral-400">
+      <div className="break-inside-avoid rounded-2xl border border-neutral-800 bg-neutral-900/90 p-5 shadow-[0_8px_30px_rgb(0,0,0,0.4)] print:border-neutral-300 print:bg-white print:shadow-none">
+        <p className="text-xs font-bold uppercase tracking-wider text-neutral-400 print:text-neutral-600">
           Distribución de turnos en el período
         </p>
-        <div className="mt-3.5 grid grid-cols-2 gap-3 sm:grid-cols-5">
-          <div className="bg-neutral-950/70 border border-neutral-800/80 rounded-xl p-3 text-center">
+        <div className="mt-3.5 grid grid-cols-2 gap-3 sm:grid-cols-5 print:grid-cols-5 print:gap-2.5">
+          <div className="rounded-xl border border-neutral-800/80 bg-neutral-950/70 p-3 text-center print:border-neutral-200 print:bg-neutral-50">
             <div className="flex items-center justify-center gap-1.5">
               <span className="size-2 rounded-full bg-[#c5d86d]" />
-              <span className="text-xs font-semibold text-neutral-400">Confirmados</span>
+              <span className="text-xs font-semibold text-neutral-400 print:text-neutral-600">Confirmados</span>
             </div>
-            <p className="mt-1.5 text-xl font-black text-white">{metrics.turnos.confirmadas}</p>
+            <p className="mt-1.5 text-xl font-black text-white print:text-neutral-950">{metrics.turnos.confirmadas}</p>
           </div>
-          <div className="bg-neutral-950/70 border border-neutral-800/80 rounded-xl p-3 text-center">
-            <span className="block text-xs font-semibold text-neutral-400">Pendientes</span>
-            <p className="mt-1.5 text-xl font-black text-white">{metrics.turnos.pendientes}</p>
+          <div className="rounded-xl border border-neutral-800/80 bg-neutral-950/70 p-3 text-center print:border-neutral-200 print:bg-neutral-50">
+            <span className="block text-xs font-semibold text-neutral-400 print:text-neutral-600">Pendientes</span>
+            <p className="mt-1.5 text-xl font-black text-white print:text-neutral-950">{metrics.turnos.pendientes}</p>
           </div>
-          <div className="bg-neutral-950/70 border border-neutral-800/80 rounded-xl p-3 text-center">
-            <span className="block text-xs font-semibold text-neutral-400">Liquidados</span>
-            <p className="mt-1.5 text-xl font-black text-white">{metrics.turnos.pagadas}</p>
+          <div className="rounded-xl border border-neutral-800/80 bg-neutral-950/70 p-3 text-center print:border-neutral-200 print:bg-neutral-50">
+            <span className="block text-xs font-semibold text-neutral-400 print:text-neutral-600">Liquidados</span>
+            <p className="mt-1.5 text-xl font-black text-white print:text-neutral-950">{metrics.turnos.pagadas}</p>
           </div>
-          <div className="bg-neutral-950/70 border border-neutral-800/80 rounded-xl p-3 text-center">
-            <span className="block text-xs font-semibold text-neutral-400">Bloqueos</span>
-            <p className="mt-1.5 text-xl font-black text-white">{metrics.turnos.bloqueadas}</p>
+          <div className="rounded-xl border border-neutral-800/80 bg-neutral-950/70 p-3 text-center print:border-neutral-200 print:bg-neutral-50">
+            <span className="block text-xs font-semibold text-neutral-400 print:text-neutral-600">Bloqueos</span>
+            <p className="mt-1.5 text-xl font-black text-white print:text-neutral-950">{metrics.turnos.bloqueadas}</p>
           </div>
-          <div className="bg-neutral-950/70 border border-neutral-800/80 rounded-xl p-3 text-center">
-            <span className="block text-xs font-semibold text-neutral-400">Cancelados</span>
-            <p className="mt-1.5 text-xl font-black text-white">{metrics.turnos.canceladas}</p>
+          <div className="rounded-xl border border-neutral-800/80 bg-neutral-950/70 p-3 text-center print:border-neutral-200 print:bg-neutral-50">
+            <span className="block text-xs font-semibold text-neutral-400 print:text-neutral-600">Cancelados</span>
+            <p className="mt-1.5 text-xl font-black text-white print:text-neutral-950">{metrics.turnos.canceladas}</p>
           </div>
         </div>
       </div>
@@ -316,7 +341,7 @@ function TopCourtCard({ topCourt }: { topCourt?: DailyMetrics['topCourt'] }): Re
 
       {topCourt ? (
         <>
-          <p className="mt-1.5 text-2xl font-black tracking-tight text-white">
+          <p className="mt-1.5 text-2xl font-black tracking-tight text-white print:text-neutral-950">
             {topCourt.name}
           </p>
           <div className={SUB_BOX}>
@@ -326,7 +351,7 @@ function TopCourtCard({ topCourt }: { topCourt?: DailyMetrics['topCourt'] }): Re
             </div>
             <div className={ROW}>
               <span className={ROW_LABEL}>Recaudación</span>
-              <span className="font-bold text-[#c5d86d]">{formatCurrency(topCourt.totalRevenue)}</span>
+              <span className="font-bold text-[#c5d86d] print:text-neutral-900">{formatCurrency(topCourt.totalRevenue)}</span>
             </div>
           </div>
         </>
@@ -355,7 +380,7 @@ function PeakHourCard({ peakHour }: { peakHour?: DailyMetrics['peakHour'] }): Re
 
       {peakHour ? (
         <>
-          <p className="mt-1.5 text-2xl font-black tracking-tight text-white">
+          <p className="mt-1.5 text-2xl font-black tracking-tight text-white print:text-neutral-950">
             {peakHour.timeSlot}
           </p>
           <div className={SUB_BOX}>

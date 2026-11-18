@@ -75,7 +75,7 @@ cd ../backend
 cp .env.example .env
 ```
 
-Ejemplo seguro de `.env.example` (nunca subas tu `.env` real al repositorio):
+Ejemplo seguro de `.env.example`
 
 ```env
 NODE_ENV=development

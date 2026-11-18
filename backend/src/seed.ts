@@ -171,10 +171,10 @@ async function cliSeed(): Promise<void> {
     User.deleteMany({}),
   ])
 
-  const seedAdminEmail = process.env.SEED_ADMIN_EMAIL ?? 'admin@ejemplo.com'
-  const seedAdminPassword = process.env.SEED_ADMIN_PASSWORD ?? randomBytes(12).toString('hex')
-  const seedClientEmail = process.env.SEED_CLIENT_EMAIL ?? 'cliente@ejemplo.com'
-  const seedClientPassword = process.env.SEED_CLIENT_PASSWORD ?? randomBytes(12).toString('hex')
+  const seedAdminEmail = process.env.SEED_ADMIN_EMAIL ?? 'admin@canchas.com'
+  const seedAdminPassword = process.env.SEED_ADMIN_PASSWORD ?? 'admin123'
+  const seedClientEmail = process.env.SEED_CLIENT_EMAIL ?? 'juan@canchas.com'
+  const seedClientPassword = process.env.SEED_CLIENT_PASSWORD ?? 'juan123'
 
   await User.create([
     {
@@ -187,6 +187,18 @@ async function cliSeed(): Promise<void> {
       name: 'Juan Pérez',
       email: seedClientEmail,
       passwordHash: hashPassword(seedClientPassword),
+      role: 'cliente',
+    },
+    {
+      name: 'Admin Ejemplo',
+      email: 'admin@ejemplo.com',
+      passwordHash: hashPassword('admin123'),
+      role: 'admin',
+    },
+    {
+      name: 'Cliente Ejemplo',
+      email: 'cliente@ejemplo.com',
+      passwordHash: hashPassword('cliente123'),
       role: 'cliente',
     },
   ])

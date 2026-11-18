@@ -11,7 +11,7 @@ import {
   queryKeys,
   updateBookingStatus,
 } from '../api'
-import { getErrorMessage } from '../api/client'
+import { API_BASE_URL, getErrorMessage } from '../api/client'
 import { useAuth } from '../auth/useAuth'
 import BookingModal, { type BookingFormPayload } from '../components/booking/BookingModal'
 import DateNav from '../components/booking/DateNav'
@@ -102,7 +102,7 @@ export default function ReservasPage(): React.JSX.Element {
 
   // Sincronización en tiempo real vía Server-Sent Events (SSE)
   useEffect(() => {
-    const eventSource = new EventSource('/api/bookings/stream')
+    const eventSource = new EventSource(`${API_BASE_URL}/bookings/stream`)
 
     eventSource.onmessage = (event) => {
       try {

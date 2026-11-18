@@ -1,6 +1,12 @@
 import { loadAuth, UNAUTHORIZED_EVENT } from '../auth/storage'
 
-export const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
+function normalizeApiBaseUrl(raw?: string): string {
+  const trimmed = (raw ?? '').trim().replace(/\/+$/, '')
+  if (!trimmed) return '/api'
+  return trimmed.endsWith('/api') ? trimmed : `${trimmed}/api`
+}
+
+export const API_BASE_URL = normalizeApiBaseUrl(import.meta.env.VITE_API_URL)
 const BASE_URL = API_BASE_URL
 
 interface ApiEnvelope<T> {

@@ -62,7 +62,12 @@ export default function ReservasPage(): React.JSX.Element {
   const [timeBand, setTimeBand] = useState<TimeBandFilter>('todos')
   const [splitByTen, setSplitByTen] = useState(false)
 
-  const fieldsQuery = useQuery({ queryKey: queryKeys.fields(), queryFn: listFields })
+  const fieldsQuery = useQuery({
+    queryKey: queryKeys.fields(),
+    queryFn: listFields,
+    staleTime: 10 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,
+  })
 
   const activeFieldId = fieldId ?? fieldsQuery.data?.[0]?.id ?? null
   const field: Field | undefined =
@@ -190,28 +195,6 @@ export default function ReservasPage(): React.JSX.Element {
     })
   }
 
-  if (fieldsQuery.isLoading) {
-    return (
-      <div className="space-y-8">
-        <header>
-          <h2 className="text-2xl font-bold tracking-tight">Elegí tu cancha y horario</h2>
-          <p className="mt-1 text-sm text-mauve-soft">
-            Canchas sintéticas de alta gama. Reservá con el 50% de seña online.
-          </p>
-        </header>
-
-        <section>
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-mauve-soft">
-            Elegí la cancha
-          </h2>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <FieldCardSkeleton />
-            <FieldCardSkeleton />
-          </div>
-        </section>
-      </div>
-    )
-  }
   if (fieldsQuery.isError) {
     return <ErrorState message={getErrorMessage(fieldsQuery.error)} onRetry={() => void fieldsQuery.refetch()} />
   }
@@ -398,7 +381,23 @@ export default function ReservasPage(): React.JSX.Element {
         </section>
       )}
 
-      {fields.length === 0 ? (
+      {fieldsQuery.isLoading ? (
+        <section className="space-y-4">
+          <div className="flex items-center gap-3">
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#c5d86d] opacity-75" />
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#c5d86d]" />
+            </span>
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-400">
+              Conectando con el complejo deportivo...
+            </h2>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <FieldCardSkeleton />
+            <FieldCardSkeleton />
+          </div>
+        </section>
+      ) : fields.length === 0 ? (
         <ErrorState message="No hay canchas disponibles todavía." />
       ) : (
         <>

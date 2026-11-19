@@ -96,21 +96,16 @@ export default function TopScorersTab({
                 </div>
               </div>
 
-              {/* Avatar circular con iniciales + escudo del equipo */}
+              {/* Avatar circular con iniciales + escudo y nombre del equipo */}
               <div className="relative z-10 mt-4 flex items-center gap-3.5">
-                <div className="relative shrink-0">
-                  <div
-                    className={`flex size-12 items-center justify-center rounded-full border text-sm font-black tracking-tight ${
-                      isFirst
-                        ? 'border-[#c5d86d] bg-[#c5d86d]/15 text-[#c5d86d]'
-                        : 'border-neutral-700 bg-neutral-800 text-neutral-200'
-                    }`}
-                  >
-                    {playerInitials(row.playerName)}
-                  </div>
-                  <div className="absolute -bottom-1 -right-1 rounded-full bg-neutral-950 p-0.5 ring-1 ring-neutral-800">
-                    <TeamCrest name={row.teamName} color={colorFor(row.teamName)} size="xs" />
-                  </div>
+                <div
+                  className={`flex size-12 shrink-0 items-center justify-center rounded-2xl border text-sm font-black tracking-tight ${
+                    isFirst
+                      ? 'border-[#c5d86d] bg-[#c5d86d]/15 text-[#c5d86d]'
+                      : 'border-neutral-700 bg-neutral-800 text-neutral-200'
+                  }`}
+                >
+                  {playerInitials(row.playerName)}
                 </div>
 
                 <div className="min-w-0 flex-1">
@@ -121,9 +116,12 @@ export default function TopScorersTab({
                   >
                     {row.playerName}
                   </button>
-                  <p className="mt-0.5 truncate text-xs font-semibold text-neutral-400">
-                    {row.teamName}
-                  </p>
+                  <div className="mt-1 flex items-center gap-1.5">
+                    <TeamCrest name={row.teamName} color={colorFor(row.teamName)} size="xs" />
+                    <p className="truncate text-xs font-semibold text-neutral-400">
+                      {row.teamName}
+                    </p>
+                  </div>
                 </div>
               </div>
 

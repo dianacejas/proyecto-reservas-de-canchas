@@ -1,4 +1,3 @@
-import { randomBytes } from 'node:crypto'
 import { fileURLToPath } from 'node:url'
 import mongoose from 'mongoose'
 import { connectDB } from './config/db.js'

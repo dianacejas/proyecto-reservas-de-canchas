@@ -10,7 +10,7 @@ export default function WhatsAppButton(): React.JSX.Element {
       rel="noopener noreferrer"
       aria-label="Consultar por WhatsApp"
       title="Consultar por WhatsApp"
-      className="animate-wa-glow fixed bottom-4 right-4 z-50 flex size-12 items-center justify-center rounded-full bg-[#25d366] text-white shadow-lg transition-transform duration-300 hover:scale-110 sm:bottom-6 sm:right-6 sm:size-14"
+      className="animate-wa-glow fixed bottom-20 right-4 z-50 flex size-12 items-center justify-center rounded-full bg-[#25d366] text-white shadow-lg transition-transform duration-300 hover:scale-110 md:bottom-6 sm:right-6 sm:size-14"
     >
       <WhatsAppIcon className="size-6 sm:size-7" />
     </a>

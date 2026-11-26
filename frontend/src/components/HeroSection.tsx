@@ -38,7 +38,7 @@ export default function HeroSection({
   return (
     <section
       aria-labelledby="hero-title"
-      className="relative flex min-h-[88vh] w-full flex-col justify-between overflow-hidden bg-neutral-950"
+      className="relative flex min-h-0 sm:min-h-[88vh] w-full flex-col justify-between overflow-hidden bg-neutral-950"
     >
       {/* Video de fondo cinemático con fallback a poster */}
       <video
@@ -61,11 +61,11 @@ export default function HeroSection({
       <div className="pointer-events-none absolute -top-32 left-1/4 z-10 size-96 rounded-full bg-[#c5d86d]/10 blur-3xl" />
 
       {/* Contenido principal en grid asimétrico */}
-      <div className="relative z-20 mx-auto my-auto w-full max-w-7xl px-6 pt-16 pb-10 lg:pt-20">
-        <div className="grid items-center gap-10 lg:grid-cols-12">
+      <div className="relative z-20 mx-auto my-auto w-full max-w-7xl px-4 pt-8 pb-5 sm:px-6 sm:pt-16 sm:pb-10 lg:pt-20">
+        <div className="grid items-center gap-8 sm:gap-10 lg:grid-cols-12">
           {/* Columna izquierda: Titular e identidad */}
-          <div className="flex flex-col items-start gap-6 lg:col-span-7">
-            <div className="inline-flex items-center gap-2 rounded-full border border-[#c5d86d]/30 bg-[#c5d86d]/15 px-3.5 py-1.5 text-xs font-bold text-neutral-100 backdrop-blur-md">
+          <div className="flex flex-col items-start gap-4 sm:gap-6 lg:col-span-7">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#c5d86d]/30 bg-[#c5d86d]/15 px-3 py-1 sm:px-3.5 sm:py-1.5 text-[11px] sm:text-xs font-bold text-neutral-100 backdrop-blur-md">
               <span className="relative flex h-2 w-2">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#c5d86d] opacity-75" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-[#c5d86d]" />
@@ -76,33 +76,33 @@ export default function HeroSection({
 
             <h1
               id="hero-title"
-              className="text-5xl font-black tracking-tight text-white sm:text-6xl md:text-7xl leading-[1.04]"
+              className="text-3xl font-black tracking-tight text-white sm:text-6xl md:text-7xl leading-[1.08] sm:leading-[1.04]"
             >
               Tu partido.{' '}
               <span className="block text-[#c5d86d]">Reservado en segundos.</span>
             </h1>
 
-            <p className="max-w-xl text-base leading-relaxed text-neutral-300 sm:text-lg md:text-xl">
+            <p className="max-w-xl text-sm leading-relaxed text-neutral-300 sm:text-lg md:text-xl">
               Césped sintético FIFA Pro 60mm, iluminación LED 500 Lux y confirmación instantánea con el 50% de seña online.
             </p>
 
-            <div className="flex w-full flex-col gap-3 pt-1 sm:w-auto sm:flex-row sm:items-center">
+            <div className="grid w-full grid-cols-2 gap-2.5 pt-1 sm:flex sm:w-auto sm:flex-row sm:items-center sm:gap-3">
               <Button
                 variant="primary"
                 size="lg"
-                className="min-h-12 w-full gap-2 bg-[#c5d86d] px-7 font-black text-neutral-950 shadow-[0_0_25px_rgba(197,216,109,0.3)] transition-all hover:bg-[#b5c85d] hover:shadow-[0_0_35px_rgba(197,216,109,0.5)] sm:w-auto"
+                className="min-h-11 sm:min-h-12 w-full gap-1.5 sm:gap-2 bg-[#c5d86d] px-3 sm:px-7 text-xs sm:text-base font-black text-neutral-950 shadow-[0_0_25px_rgba(197,216,109,0.3)] transition-all hover:bg-[#b5c85d] hover:shadow-[0_0_35px_rgba(197,216,109,0.5)] sm:w-auto"
                 onPress={scrollToReservas}
               >
                 <span>Reservar Cancha</span>
-                <ArrowRightIcon className="size-4" />
+                <ArrowRightIcon className="size-3.5 sm:size-4 shrink-0" />
               </Button>
               <Button
                 variant="outline"
                 size="lg"
-                className="min-h-12 w-full gap-2 border border-white/20 bg-white/5 px-6 font-semibold text-white backdrop-blur-sm transition-all hover:border-[#c5d86d]/50 hover:bg-white/10 sm:w-auto"
+                className="min-h-11 sm:min-h-12 w-full gap-1.5 sm:gap-2 border border-white/20 bg-white/5 px-3 sm:px-6 text-xs sm:text-base font-semibold text-white backdrop-blur-sm transition-all hover:border-[#c5d86d]/50 hover:bg-white/10 sm:w-auto"
                 onPress={() => navigate('/torneos')}
               >
-                <TrophyIcon className="size-4 text-[#c5d86d]" />
+                <TrophyIcon className="size-3.5 sm:size-4 shrink-0 text-[#c5d86d]" />
                 <span>Explorar Torneos</span>
               </Button>
             </div>
@@ -166,19 +166,19 @@ export default function HeroSection({
       </div>
 
       {/* Dock interactivo Quick-Book en la base del Hero */}
-      <div className="relative z-20 mx-auto w-full max-w-7xl px-6 pb-8">
-        <div className="flex flex-col gap-4 rounded-2xl border border-white/15 bg-neutral-900/80 p-4 shadow-2xl backdrop-blur-xl md:flex-row md:items-center md:justify-between md:px-6">
+      <div className="relative z-20 mx-auto w-full max-w-7xl px-4 pb-6 sm:px-6 sm:pb-8">
+        <div className="flex flex-col gap-3.5 sm:gap-4 rounded-2xl border border-white/15 bg-neutral-900/80 p-3.5 sm:p-4 shadow-2xl backdrop-blur-xl md:flex-row md:items-center md:justify-between md:px-6">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6">
             {/* Selector de Franja */}
             <div>
               <span className="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-neutral-400">
                 1. Franja Horaria
               </span>
-              <div className="inline-flex rounded-xl border border-white/10 bg-neutral-950/70 p-1">
+              <div className="grid w-full grid-cols-3 rounded-xl border border-white/10 bg-neutral-950/70 p-1 sm:inline-flex sm:w-auto">
                 <button
                   type="button"
                   onClick={() => setBand('todos')}
-                  className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-colors ${
+                  className={`inline-flex items-center justify-center gap-1.5 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs font-bold transition-colors ${
                     band === 'todos'
                       ? 'bg-[#c5d86d] text-neutral-950'
                       : 'text-neutral-300 hover:text-white'
@@ -189,26 +189,26 @@ export default function HeroSection({
                 <button
                   type="button"
                   onClick={() => setBand('tarde')}
-                  className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-colors ${
+                  className={`inline-flex items-center justify-center gap-1.5 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs font-bold transition-colors ${
                     band === 'tarde'
                       ? 'bg-[#c5d86d] text-neutral-950'
                       : 'text-neutral-300 hover:text-white'
                   }`}
                 >
-                  <SunIcon className="size-3.5" />
-                  Tarde Promo
+                  <SunIcon className="size-3.5 shrink-0" />
+                  <span className="truncate">Tarde</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setBand('noche')}
-                  className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-colors ${
+                  className={`inline-flex items-center justify-center gap-1.5 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs font-bold transition-colors ${
                     band === 'noche'
                       ? 'bg-[#c5d86d] text-neutral-950'
                       : 'text-neutral-300 hover:text-white'
                   }`}
                 >
-                  <MoonIcon className="size-3.5" />
-                  Noche Prime
+                  <MoonIcon className="size-3.5 shrink-0" />
+                  <span className="truncate">Noche</span>
                 </button>
               </div>
             </div>
@@ -218,7 +218,7 @@ export default function HeroSection({
               <span className="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-neutral-400">
                 2. Tipo de Cancha
               </span>
-              <div className="inline-flex rounded-xl border border-white/10 bg-neutral-950/70 p-1">
+              <div className="grid w-full grid-cols-3 rounded-xl border border-white/10 bg-neutral-950/70 p-1 sm:inline-flex sm:w-auto">
                 {(
                   [
                     { id: 'todas', label: 'Todas' },
@@ -230,7 +230,7 @@ export default function HeroSection({
                     key={item.id}
                     type="button"
                     onClick={() => setRoof(item.id)}
-                    className={`rounded-lg px-3 py-1.5 text-xs font-bold transition-colors ${
+                    className={`rounded-lg px-2.5 sm:px-3 py-1.5 text-xs font-bold transition-colors ${
                       roof === item.id
                         ? 'bg-[#c5d86d] text-neutral-950'
                         : 'text-neutral-300 hover:text-white'

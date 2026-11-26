@@ -124,8 +124,8 @@ export default function CourtCard({
       }`}
       onClick={() => onSelect(field.id)}
     >
-      {/* Imagen superior con aspect ratio 16:9 y badges superpuestos */}
-      <div className="relative aspect-video w-full overflow-hidden bg-neutral-900">
+      {/* Imagen superior con aspect ratio compacto en móvil y 16:9 en web */}
+      <div className="relative aspect-[16/8] sm:aspect-video w-full overflow-hidden bg-neutral-900">
         <img
           src={image}
           alt={`Fotografía de ${field.name}`}
@@ -146,7 +146,7 @@ export default function CourtCard({
       </div>
 
       {/* Cuerpo de la tarjeta */}
-      <Card.Content className="flex flex-col gap-4 p-5">
+      <Card.Content className="flex flex-col gap-3 p-4 sm:gap-4 sm:p-5">
         <div>
           <h3 className="text-lg font-black tracking-tight text-white sm:text-xl">
             {field.name}

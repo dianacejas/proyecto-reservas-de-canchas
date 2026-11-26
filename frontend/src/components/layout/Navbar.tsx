@@ -3,6 +3,7 @@ import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../../auth/useAuth'
 import Logo from '../brand/Logo'
+import { CalendarIcon, ShieldCheckIcon, StadiumIcon, TrophyIcon, UsersIcon } from '../common/Icons'
 
 const navLinkClass = ({ isActive }: { isActive: boolean }): string =>
   `inline-flex items-center text-sm font-semibold transition-all py-2 px-3 relative rounded-lg ${
@@ -195,6 +196,7 @@ export default function Navbar(): React.JSX.Element {
   const isHomeActive = isOnHome && activeSection === 'home'
 
   return (
+    <>
     <header
       ref={headerRef}
       className="fixed top-0 left-0 right-0 z-50 bg-neutral-950/80 backdrop-blur-md border-b border-white/10 transition-all duration-300"
@@ -386,5 +388,88 @@ export default function Navbar(): React.JSX.Element {
         </div>
       </nav>
     </header>
+
+    {/* Barra de navegación inferior tipo App exclusiva para móvil */}
+    <nav
+      aria-label="Navegación móvil rápida"
+      className="fixed inset-x-0 bottom-0 z-50 flex items-center justify-around border-t border-white/10 bg-neutral-950/90 px-2 py-1.5 backdrop-blur-xl md:hidden"
+    >
+      <Link
+        to="/#reservas"
+        onClick={goToReservas}
+        aria-current={isOnHome ? 'page' : undefined}
+        className={`flex flex-1 flex-col items-center justify-center gap-0.5 rounded-xl py-1.5 text-[11px] font-bold transition-colors ${
+          isOnHome ? 'text-[#c5d86d]' : 'text-neutral-400 hover:text-white'
+        }`}
+      >
+        <StadiumIcon className="size-4" />
+        <span>Canchas</span>
+      </Link>
+      <NavLink
+        to="/torneos"
+        onClick={closeMenu}
+        className={({ isActive }) =>
+          `flex flex-1 flex-col items-center justify-center gap-0.5 rounded-xl py-1.5 text-[11px] font-bold transition-colors ${
+            isActive ? 'text-[#c5d86d]' : 'text-neutral-400 hover:text-white'
+          }`
+        }
+      >
+        <TrophyIcon className="size-4" />
+        <span>Torneos</span>
+      </NavLink>
+      <NavLink
+        to="/comunidad"
+        onClick={closeMenu}
+        className={({ isActive }) =>
+          `flex flex-1 flex-col items-center justify-center gap-0.5 rounded-xl py-1.5 text-[11px] font-bold transition-colors ${
+            isActive ? 'text-[#c5d86d]' : 'text-neutral-400 hover:text-white'
+          }`
+        }
+      >
+        <UsersIcon className="size-4" />
+        <span>Comunidad</span>
+      </NavLink>
+      {isAdmin ? (
+        <NavLink
+          to="/admin"
+          onClick={closeMenu}
+          className={({ isActive }) =>
+            `flex flex-1 flex-col items-center justify-center gap-0.5 rounded-xl py-1.5 text-[11px] font-bold transition-colors ${
+              isActive ? 'text-[#c5d86d]' : 'text-neutral-400 hover:text-white'
+            }`
+          }
+        >
+          <ShieldCheckIcon className="size-4" />
+          <span>Admin</span>
+        </NavLink>
+      ) : isAuthenticated ? (
+        <NavLink
+          to="/mis-reservas"
+          onClick={closeMenu}
+          className={({ isActive }) =>
+            `flex flex-1 flex-col items-center justify-center gap-0.5 rounded-xl py-1.5 text-[11px] font-bold transition-colors ${
+              isActive ? 'text-[#c5d86d]' : 'text-neutral-400 hover:text-white'
+            }`
+          }
+        >
+          <CalendarIcon className="size-4" />
+          <span>Mis Turnos</span>
+        </NavLink>
+      ) : (
+        <NavLink
+          to="/login"
+          onClick={closeMenu}
+          className={({ isActive }) =>
+            `flex flex-1 flex-col items-center justify-center gap-0.5 rounded-xl py-1.5 text-[11px] font-bold transition-colors ${
+              isActive ? 'text-[#c5d86d]' : 'text-neutral-400 hover:text-white'
+            }`
+          }
+        >
+          <CalendarIcon className="size-4" />
+          <span>Ingresar</span>
+        </NavLink>
+      )}
+    </nav>
+    </>
   )
 }

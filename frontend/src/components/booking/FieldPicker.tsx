@@ -59,11 +59,15 @@ export default function FieldPicker({
       </div>
 
       {viewMode === 'cards' ? (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="-mx-4 flex snap-x snap-mandatory gap-3.5 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-4 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-3">
           {fields.map((field, index) => {
             const selected = field.id === selectedFieldId
             return (
-              <FadeUp key={field.id} delayMs={index * 80} className="h-full">
+              <FadeUp
+                key={field.id}
+                delayMs={index * 80}
+                className="h-full w-[82vw] max-w-[21rem] shrink-0 snap-center sm:w-auto sm:max-w-none sm:shrink"
+              >
                 <CourtCard
                   field={field}
                   selected={selected}

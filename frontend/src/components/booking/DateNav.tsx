@@ -25,11 +25,11 @@ export default function DateNav({ date, onChange }: DateNavProps): React.JSX.Ele
   const triggerRef = useRef<HTMLButtonElement>(null)
 
   return (
-    <div className="flex w-full flex-wrap items-center justify-between gap-2 sm:gap-3">
+    <div className="flex w-full items-center justify-between gap-1.5 sm:flex-wrap sm:gap-3">
       <Button
         variant="secondary"
         size="sm"
-        className="min-h-11 flex-1 sm:flex-none"
+        className="min-h-11 shrink-0 px-3 sm:flex-none"
         isDisabled={!canGoBack}
         onPress={() => {
           if (canGoBack) onChange(addDays(date, -1))
@@ -39,9 +39,9 @@ export default function DateNav({ date, onChange }: DateNavProps): React.JSX.Ele
         <span className="hidden sm:inline">Día anterior</span>
         <span className="sr-only sm:hidden">Día anterior</span>
       </Button>
-      <div className="order-last w-full min-w-0 rounded-xl border px-4 py-2 sm:order-none sm:w-auto sm:min-w-44 border-white/10 bg-neutral-900/50">
-        <p className="truncate text-base font-semibold capitalize text-white">{formatLong(date)}</p>
-        <p className="flex items-center gap-2 text-xs text-neutral-400">
+      <div className="min-w-0 flex-1 rounded-xl border border-white/10 bg-neutral-900/50 px-3 py-1.5 sm:w-auto sm:flex-none sm:min-w-44 sm:px-4 sm:py-2">
+        <p className="truncate text-sm sm:text-base font-semibold capitalize text-white">{formatLong(date)}</p>
+        <p className="flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs text-neutral-400">
           {formatDayShort(date)}
           {isToday && (
             <Chip color="accent" size="sm">
@@ -53,7 +53,7 @@ export default function DateNav({ date, onChange }: DateNavProps): React.JSX.Ele
       <Button
         variant="secondary"
         size="sm"
-        className="min-h-11 flex-1 sm:flex-none"
+        className="min-h-11 shrink-0 px-3 sm:flex-none"
         onPress={() => onChange(addDays(date, 1))}
       >
         <span className="hidden sm:inline">Día siguiente</span>
@@ -77,7 +77,7 @@ export default function DateNav({ date, onChange }: DateNavProps): React.JSX.Ele
           className="min-h-11 w-auto shrink-0 gap-1.5 rounded-lg border px-2.5 py-1.5 text-sm font-semibold transition-colors border-neutral-700 bg-neutral-900/60 text-white hover:bg-neutral-800/60"
         >
           <DatePicker.TriggerIndicator />
-          {formatDayShort(date)}
+          <span className="hidden sm:inline">{formatDayShort(date)}</span>
         </DatePicker.Trigger>
         <DatePicker.Popover
           placement="bottom start"

@@ -28,10 +28,10 @@ export default function App(): React.JSX.Element {
 
   return (
     <RouterProvider navigate={navigate}>
-      <div className="flex min-h-svh w-full max-w-full flex-col overflow-x-hidden bg-neutral-950 text-neutral-100">
+      <div className="flex min-h-svh w-full max-w-full flex-col overflow-x-hidden bg-neutral-950 pb-16 md:pb-0 text-neutral-100">
         <ScrollToTop />
         <Navbar />
-        <main className={`w-full flex-1 pt-20 ${isHome ? '' : 'mx-auto max-w-7xl px-6 pb-6 sm:pb-8'}`}>
+        <main className={`w-full flex-1 pt-16 sm:pt-20 ${isHome ? '' : 'mx-auto max-w-7xl px-4 sm:px-6 pb-6 sm:pb-8'}`}>
           <ErrorBoundary key={location.pathname}>
           <Suspense fallback={<Loading />}>
             <Routes>

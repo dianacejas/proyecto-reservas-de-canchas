@@ -220,8 +220,8 @@ export default function ReservasPage(): React.JSX.Element {
     <div className="w-full">
       <HeroSection onQuickSearch={handleQuickSearch} freeSlotsCount={freeSlotsCount} />
 
-      <div className="mx-auto w-full max-w-7xl px-6 md:px-8 py-20 md:py-28 space-y-24 md:space-y-32">
-        <div id="reservas" className="scroll-mt-28 space-y-10">
+      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 md:px-8 py-8 sm:py-16 md:py-28 space-y-12 sm:space-y-20 md:space-y-32">
+        <div id="reservas" className="scroll-mt-24 sm:scroll-mt-28 space-y-8 sm:space-y-10">
           <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div className="space-y-3">
               <div className="inline-flex items-center gap-2 rounded-full border border-[#c5d86d]/30 bg-[#c5d86d]/15 px-3 py-1 text-xs font-bold text-neutral-100">
@@ -536,7 +536,7 @@ export default function ReservasPage(): React.JSX.Element {
                             </span>
                           </div>
                           <div className="flex items-center gap-1.5 text-xs font-bold text-[#c5d86d]">
-                            <span>Reservar</span>
+                            <span className="hidden sm:inline">Reservar</span>
                             <ArrowRightIcon className="size-3.5 transition-transform group-hover:translate-x-1" />
                           </div>
                         </button>

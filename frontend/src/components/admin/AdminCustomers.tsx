@@ -91,8 +91,79 @@ export default function AdminCustomers(): React.JSX.Element {
           No se encontraron clientes.
         </p>
       ) : (
-        <div className="overflow-x-auto rounded-2xl overflow-hidden border shadow-sm border-white/10 bg-neutral-900/60">
-          <table className="w-full min-w-230 text-left text-sm">
+        <>
+          <div className="space-y-3 md:hidden">
+            {customers.map((customer) => {
+              const riesgo = isRiesgo(customer)
+              const frecuente = isFrecuente(customer)
+              const waText = `Hola ${customer.name}! Queremos avisarte sobre tu próxima reserva en el complejo.`
+              const waHref =
+                customer.whatsapp !== null
+                  ? `https://wa.me/${customer.whatsapp}?text=${encodeURIComponent(waText)}`
+                  : null
+
+              return (
+                <div
+                  key={customer.id}
+                  className="space-y-2.5 rounded-2xl border border-white/10 bg-neutral-900/60 p-4"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="truncate font-bold text-white">{customer.name}</p>
+                      <p className="text-xs text-neutral-400">
+                        {customer.ultimaReserva !== null
+                          ? `Última: ${formatDayShort(customer.ultimaReserva)}`
+                          : 'Sin reservas recientes'}
+                      </p>
+                    </div>
+                    <div className="flex shrink-0 gap-1">
+                      {frecuente && (
+                        <Chip color="success" size="sm">
+                          Frecuente
+                        </Chip>
+                      )}
+                      {riesgo && (
+                        <Chip color="warning" size="sm">
+                          Riesgo
+                        </Chip>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2 rounded-xl border border-white/5 bg-neutral-950/60 p-2.5 text-center text-xs">
+                    <div>
+                      <span className="block text-[10px] text-neutral-400">Reservas</span>
+                      <strong className="text-white">{customer.totalReservas}</strong>
+                    </div>
+                    <div>
+                      <span className="block text-[10px] text-neutral-400">Cancel.</span>
+                      <strong className={riesgo ? 'text-amber-400' : 'text-white'}>
+                        {customer.tasaCancelacion}%
+                      </strong>
+                    </div>
+                    <div>
+                      <span className="block text-[10px] text-neutral-400">Recaudado</span>
+                      <strong className="text-[#c5d86d]">{formatCurrency(customer.totalRecaudado)}</strong>
+                    </div>
+                  </div>
+
+                  {waHref !== null && (
+                    <a
+                      href={waHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex min-h-10 w-full items-center justify-center rounded-xl bg-[#25d366] text-xs font-bold text-[#04210e]"
+                    >
+                      Contactar por WhatsApp
+                    </a>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+
+          <div className="hidden overflow-x-auto rounded-2xl overflow-hidden border shadow-sm border-white/10 bg-neutral-900/60 md:block">
+            <table className="w-full min-w-230 text-left text-sm">
             <thead className="bg-neutral-800/80 text-neutral-300">
               <tr>
                 <th className="px-4 py-2 font-medium">Cliente</th>
@@ -112,6 +183,7 @@ export default function AdminCustomers(): React.JSX.Element {
             </tbody>
           </table>
         </div>
+        </>
       )}
 
       <p className="text-xs text-neutral-400">

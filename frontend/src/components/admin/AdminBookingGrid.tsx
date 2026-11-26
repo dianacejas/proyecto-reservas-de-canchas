@@ -80,6 +80,7 @@ export default function AdminBookingGrid({
 }): React.JSX.Element {
   const queryClient = useQueryClient()
   const [date, setDate] = useState(todayKey())
+  const [mobileFieldId, setMobileFieldId] = useState<string | null>(null)
   const [newSlot, setNewSlot] = useState<NewSlotForm | null>(null)
   const [detail, setDetail] = useState<Booking | null>(null)
   const [formError, setFormError] = useState<string | null>(null)
@@ -130,6 +131,8 @@ export default function AdminBookingGrid({
 
   const fields = fieldsQuery.data ?? []
   const bookings = bookingsQuery.data ?? []
+  const activeMobileField =
+    fields.find((f) => f.id === mobileFieldId) ?? fields[0] ?? null
 
   const grid = SLOTS.map((slot) => ({
     slot,
@@ -158,85 +161,179 @@ export default function AdminBookingGrid({
       ) : bookingsQuery.isError ? (
         <ErrorState message={getErrorMessage(bookingsQuery.error)} onRetry={() => void bookingsQuery.refetch()} />
       ) : (
-        <div className="overflow-hidden rounded-xl border border-white/10">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-155 text-left text-sm" aria-label="Agenda diaria">
-              <thead className="bg-neutral-800 text-neutral-300">
-                <tr>
-                  <th className="sticky left-0 z-10 px-3 py-2 font-medium bg-neutral-800">
-                    Horario
-                  </th>
-                  {fields.map((field) => (
-                    <th key={field.id} className="px-3 py-2 font-medium">
+        <>
+          {/* Vista móvil: selector de cancha + lista vertical sin scroll horizontal */}
+          <div className="space-y-3 md:hidden">
+            {fields.length > 0 && (
+              <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                {fields.map((field) => {
+                  const selected = activeMobileField?.id === field.id
+                  return (
+                    <button
+                      key={field.id}
+                      type="button"
+                      onClick={() => setMobileFieldId(field.id)}
+                      className={`shrink-0 rounded-xl border px-3.5 py-2 text-xs font-bold transition-colors ${
+                        selected
+                          ? 'border-[#c5d86d] bg-[#c5d86d] text-neutral-950'
+                          : 'border-white/10 bg-neutral-900 text-neutral-300'
+                      }`}
+                    >
                       {field.name}
+                    </button>
+                  )
+                })}
+              </div>
+            )}
+
+            {activeMobileField && (
+              <div className="space-y-2.5">
+                {grid.map((row) => {
+                  const cell = row.cells.find((c) => c.field.id === activeMobileField.id)
+                  const booking = cell?.booking
+                  return (
+                    <div
+                      key={row.slot.start}
+                      className="rounded-xl border border-white/10 bg-neutral-900/60 p-3"
+                    >
+                      <div className="mb-2 flex items-center justify-between">
+                        <span className="font-mono text-sm font-bold text-white">
+                          {row.slot.label}
+                        </span>
+                        {booking === undefined && (
+                          <span className="rounded-full bg-neutral-800 px-2.5 py-0.5 text-[11px] font-semibold text-neutral-300">
+                            Libre
+                          </span>
+                        )}
+                      </div>
+
+                      {booking === undefined ? (
+                        <div className="flex gap-2">
+                          <Button
+                            variant="primary"
+                            size="sm"
+                            className="min-h-10 flex-1 bg-[#c5d86d] font-bold text-neutral-950"
+                            onPress={() => {
+                              setFormError(null)
+                              setNewSlot({ kind: 'reserva', field: activeMobileField, slot: row.slot })
+                            }}
+                          >
+                            Reservar
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="min-h-10 border-white/20 px-4 text-neutral-200"
+                            onPress={() => {
+                              setFormError(null)
+                              setNewSlot({ kind: 'bloqueo', field: activeMobileField, slot: row.slot })
+                            }}
+                          >
+                            Bloquear
+                          </Button>
+                        </div>
+                      ) : (
+                        <CellCard
+                          booking={booking}
+                          fieldName={activeMobileField.name}
+                          onOpen={() => setDetail(booking)}
+                          onConfirm={() =>
+                            statusMutation.mutate({ id: booking.id, status: 'confirmada' })
+                          }
+                          onCancel={() =>
+                            statusMutation.mutate({ id: booking.id, status: 'cancelada' })
+                          }
+                          onComplete={() => completeMutation.mutate(booking.id)}
+                        />
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Vista web/escritorio: matriz completa multi-cancha */}
+          <div className="hidden overflow-hidden rounded-xl border border-white/10 md:block">
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-155 text-left text-sm" aria-label="Agenda diaria">
+                <thead className="bg-neutral-800 text-neutral-300">
+                  <tr>
+                    <th className="sticky left-0 z-10 px-3 py-2 font-medium bg-neutral-800">
+                      Horario
                     </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5">
-                {grid.map((row) => (
-                  <tr key={row.slot.start} className="bg-neutral-900/60">
-                    <td className="sticky left-0 z-10 whitespace-nowrap px-3 py-2 font-mono text-xs font-semibold bg-neutral-900 text-white">
-                      {row.slot.label}
-                    </td>
-                    {row.cells.map((cell) => {
-                      const booking = cell.booking
-                      if (booking === undefined) {
+                    {fields.map((field) => (
+                      <th key={field.id} className="px-3 py-2 font-medium">
+                        {field.name}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {grid.map((row) => (
+                    <tr key={row.slot.start} className="bg-neutral-900/60">
+                      <td className="sticky left-0 z-10 whitespace-nowrap px-3 py-2 font-mono text-xs font-semibold bg-neutral-900 text-white">
+                        {row.slot.label}
+                      </td>
+                      {row.cells.map((cell) => {
+                        const booking = cell.booking
+                        if (booking === undefined) {
+                          return (
+                            <td key={cell.field.id} className="px-2 py-2">
+                              <div className="flex min-h-16 flex-col items-stretch justify-center gap-1.5 rounded-lg border border-dashed px-2 py-1.5 border-neutral-700">
+                                <span className="text-xs text-neutral-400">Libre</span>
+                                <div className="flex gap-1">
+                                  <Button
+                                    variant="primary"
+                                    size="sm"
+                                    className="h-7 flex-1 px-1 text-xs"
+                                    onPress={() => {
+                                      setFormError(null)
+                                      setNewSlot({ kind: 'reserva', field: cell.field, slot: row.slot })
+                                    }}
+                                  >
+                                    Reservar
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="h-7 px-1 text-xs"
+                                    onPress={() => {
+                                      setFormError(null)
+                                      setNewSlot({ kind: 'bloqueo', field: cell.field, slot: row.slot })
+                                    }}
+                                  >
+                                    Bloquear
+                                  </Button>
+                                </div>
+                              </div>
+                            </td>
+                          )
+                        }
                         return (
                           <td key={cell.field.id} className="px-2 py-2">
-                            <div className="flex min-h-16 flex-col items-stretch justify-center gap-1.5 rounded-lg border border-dashed px-2 py-1.5 border-neutral-700">
-                              <span className="text-xs text-neutral-400">Libre</span>
-                              <div className="flex gap-1">
-                                <Button
-                                  variant="primary"
-                                  size="sm"
-                                  className="h-7 flex-1 px-1 text-xs"
-                                  onPress={() => {
-                                    setFormError(null)
-                                    setNewSlot({ kind: 'reserva', field: cell.field, slot: row.slot })
-                                  }}
-                                >
-                                  Reservar
-                                </Button>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="h-7 px-1 text-xs"
-                                  onPress={() => {
-                                    setFormError(null)
-                                    setNewSlot({ kind: 'bloqueo', field: cell.field, slot: row.slot })
-                                  }}
-                                >
-                                  Bloquear
-                                </Button>
-                              </div>
-                            </div>
+                            <CellCard
+                              booking={booking}
+                              fieldName={cell.field.name}
+                              onOpen={() => setDetail(booking)}
+                              onConfirm={() =>
+                                statusMutation.mutate({ id: booking.id, status: 'confirmada' })
+                              }
+                              onCancel={() =>
+                                statusMutation.mutate({ id: booking.id, status: 'cancelada' })
+                              }
+                              onComplete={() => completeMutation.mutate(booking.id)}
+                            />
                           </td>
                         )
-                      }
-                      return (
-                        <td key={cell.field.id} className="px-2 py-2">
-                          <CellCard
-                            booking={booking}
-                            fieldName={cell.field.name}
-                            onOpen={() => setDetail(booking)}
-                            onConfirm={() =>
-                              statusMutation.mutate({ id: booking.id, status: 'confirmada' })
-                            }
-                            onCancel={() =>
-                              statusMutation.mutate({ id: booking.id, status: 'cancelada' })
-                            }
-                            onComplete={() => completeMutation.mutate(booking.id)}
-                          />
-                        </td>
-                      )
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
+        </>
       )}
 
       {newSlot !== null && (

@@ -25,6 +25,8 @@ export default function App(): React.JSX.Element {
   const navigate = useNavigate()
   const location = useLocation()
   const isHome = location.pathname === '/'
+  const hideFloatingWhatsApp =
+    location.pathname.startsWith('/admin') || location.pathname.startsWith('/login')
 
   return (
     <RouterProvider navigate={navigate}>
@@ -66,7 +68,7 @@ export default function App(): React.JSX.Element {
           </ErrorBoundary>
         </main>
         <Footer />
-        <WhatsAppButton />
+        {!hideFloatingWhatsApp && <WhatsAppButton />}
       </div>
     </RouterProvider>
   )

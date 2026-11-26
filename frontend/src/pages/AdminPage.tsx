@@ -19,7 +19,7 @@ import ErrorState from '../components/common/ErrorState'
 import Loading from '../components/common/Loading'
 import { TextInput } from '../components/common/fields'
 import type { CommunityNotice, Tournament, TournamentStatus } from '../types'
-import { PILL_TAB_CLASS, PILL_TAB_LIST_CLASS } from '../utils/tabs'
+import { PILL_TAB_CLASS } from '../utils/tabs'
 
 interface Notice {
   kind: 'success' | 'danger'
@@ -58,13 +58,13 @@ export default function AdminPage(): React.JSX.Element {
       )}
 
       <Tabs.Root defaultSelectedKey="agenda">
-        <Tabs.List className={PILL_TAB_LIST_CLASS}>
-          <Tabs.Tab id="agenda" className={PILL_TAB_CLASS}>Agenda</Tabs.Tab>
-          <Tabs.Tab id="metricas" className={PILL_TAB_CLASS}>Métricas</Tabs.Tab>
-          <Tabs.Tab id="clientes" className={PILL_TAB_CLASS}>Clientes</Tabs.Tab>
-          <Tabs.Tab id="canchas" className={PILL_TAB_CLASS}>Canchas</Tabs.Tab>
-          <Tabs.Tab id="torneos" className={PILL_TAB_CLASS}>Torneos</Tabs.Tab>
-          <Tabs.Tab id="comunidad" className={PILL_TAB_CLASS}>Comunidad</Tabs.Tab>
+        <Tabs.List className="grid w-full grid-cols-3 gap-1.5 rounded-2xl border border-white/5 bg-neutral-900/60 p-1.5 sm:flex sm:w-auto sm:max-w-full sm:gap-2 sm:overflow-x-auto sm:p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <Tabs.Tab id="agenda" className={`${PILL_TAB_CLASS} text-center px-2 py-2 text-xs sm:px-4 sm:text-sm`}>Agenda</Tabs.Tab>
+          <Tabs.Tab id="metricas" className={`${PILL_TAB_CLASS} text-center px-2 py-2 text-xs sm:px-4 sm:text-sm`}>Métricas</Tabs.Tab>
+          <Tabs.Tab id="clientes" className={`${PILL_TAB_CLASS} text-center px-2 py-2 text-xs sm:px-4 sm:text-sm`}>Clientes</Tabs.Tab>
+          <Tabs.Tab id="canchas" className={`${PILL_TAB_CLASS} text-center px-2 py-2 text-xs sm:px-4 sm:text-sm`}>Canchas</Tabs.Tab>
+          <Tabs.Tab id="torneos" className={`${PILL_TAB_CLASS} text-center px-2 py-2 text-xs sm:px-4 sm:text-sm`}>Torneos</Tabs.Tab>
+          <Tabs.Tab id="comunidad" className={`${PILL_TAB_CLASS} text-center px-2 py-2 text-xs sm:px-4 sm:text-sm`}>Comunidad</Tabs.Tab>
         </Tabs.List>
 
         <Tabs.Panel id="agenda">

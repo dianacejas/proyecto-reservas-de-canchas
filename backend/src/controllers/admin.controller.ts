@@ -15,7 +15,7 @@ import {
   addConsumptionToBooking,
   blockCourt,
   completeBookingAtDoor,
-  generateBalanceCsv,
+  generateBalanceExcel,
   getMetricsReport,
   listCustomers,
   settleCounterBooking,
@@ -98,9 +98,9 @@ export const resetSeedController = asyncHandler(async (_req, res) => {
 export const exportReportController = asyncHandler(async (req, res) => {
   const queryResult = exportReportQuerySchema.safeParse(req.query)
   const { startDate, endDate } = queryResult.success ? queryResult.data : {}
-  const { filename, csv } = await generateBalanceCsv(startDate, endDate)
+  const { filename, content } = await generateBalanceExcel(startDate, endDate)
 
-  res.setHeader('Content-Type', 'text/csv; charset=utf-8')
+  res.setHeader('Content-Type', 'application/vnd.ms-excel; charset=utf-8')
   res.setHeader('Content-Disposition', `attachment; filename="${filename}"`)
-  res.status(200).send(csv)
+  res.status(200).send(content)
 })

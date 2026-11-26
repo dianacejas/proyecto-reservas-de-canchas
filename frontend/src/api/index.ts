@@ -1,4 +1,4 @@
-import { apiRequest } from './client'
+import { API_BASE_URL, apiRequest } from './client'
 import { loadAuth } from '../auth/storage'
 import type {
   AdminCustomer,
@@ -175,7 +175,7 @@ export function listAdminCustomers(): Promise<AdminCustomer[]> {
   return apiRequest<AdminCustomer[]>('/admin/customers')
 }
 
-export async function downloadBalanceCsv(startDate?: string, endDate?: string): Promise<void> {
+export async function downloadBalanceExcel(startDate?: string, endDate?: string): Promise<void> {
   const params = new URLSearchParams()
   if (startDate) params.set('startDate', startDate)
   if (endDate) params.set('endDate', endDate)
@@ -185,14 +185,17 @@ export async function downloadBalanceCsv(startDate?: string, endDate?: string): 
   const headers = new Headers()
   if (auth !== null) headers.set('Authorization', `Bearer ${auth.token}`)
 
-  const response = await fetch(`/api/admin/reports/export${qs}`, { headers, credentials: 'include' })
-  if (!response.ok) throw new Error('Error al descargar el balance CSV')
+  const response = await fetch(`${API_BASE_URL}/admin/reports/export${qs}`, {
+    headers,
+    credentials: 'include',
+  })
+  if (!response.ok) throw new Error('Error al descargar el balance en Excel')
 
   const blob = await response.blob()
   const url = window.URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = `copa5-balance-${startDate || new Date().toISOString().slice(0, 10)}.csv`
+  a.download = `copa5-balance-${startDate || new Date().toISOString().slice(0, 10)}.xls`
   document.body.appendChild(a)
   a.click()
   a.remove()

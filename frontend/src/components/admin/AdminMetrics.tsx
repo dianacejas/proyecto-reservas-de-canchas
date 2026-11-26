@@ -1,7 +1,7 @@
 import { Button, Chip } from '@heroui/react'
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
-import { downloadBalanceCsv, getAdminMetrics, queryKeys } from '../../api'
+import { downloadBalanceExcel, getAdminMetrics, queryKeys } from '../../api'
 import { getErrorMessage } from '../../api/client'
 import { DownloadIcon, FileTextIcon as FileText, PrinterIcon } from '../common/Icons'
 import ErrorState from '../common/ErrorState'
@@ -130,10 +130,10 @@ export default function AdminMetrics(): React.JSX.Element {
             variant="outline"
             size="sm"
             className="h-9 gap-1.5 rounded-xl border-neutral-700 bg-neutral-900/90 px-3.5 text-xs font-semibold text-neutral-200 hover:bg-neutral-800"
-            onPress={() => void downloadBalanceCsv(metrics.startDate || date, metrics.endDate || date)}
+            onPress={() => void downloadBalanceExcel(metrics.startDate || date, metrics.endDate || date)}
           >
             <DownloadIcon className="size-3.5 text-[#c5d86d]" />
-            Descargar Balance CSV
+            Descargar Excel
           </Button>
 
           <button

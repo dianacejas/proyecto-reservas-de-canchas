@@ -635,10 +635,27 @@ export async function unblockCourt(
   return { success: true, message: 'Horario desbloqueado correctamente' }
 }
 
-export async function generateBalanceCsv(
+function escapeXml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;')
+}
+
+function xmlCell(value: string | number, styleId?: string): string {
+  const styleAttr = styleId ? ` ss:StyleID="${styleId}"` : ''
+  if (typeof value === 'number') {
+    return `<Cell${styleAttr}><Data ss:Type="Number">${value}</Data></Cell>`
+  }
+  return `<Cell${styleAttr}><Data ss:Type="String">${escapeXml(value)}</Data></Cell>`
+}
+
+export async function generateBalanceExcel(
   startDate?: string,
   endDate?: string
-): Promise<{ filename: string; csv: string }> {
+): Promise<{ filename: string; content: string }> {
   const filter: Record<string, unknown> = {}
   if (startDate && endDate) {
     const s = dayStart(parseDay(startDate))
@@ -666,7 +683,10 @@ export async function generateBalanceCsv(
     'Total',
     'Estado',
   ]
-  const rows = [headers.join(',')]
+
+  const xmlRows: string[] = [
+    `<Row>${headers.map((h) => xmlCell(h, 'Header')).join('')}</Row>`,
+  ]
 
   for (const b of bookings) {
     const dStr = new Date(b.date).toISOString().slice(0, 10)
@@ -675,7 +695,7 @@ export async function generateBalanceCsv(
       typeof b.fieldId === 'object' && b.fieldId !== null && 'name' in b.fieldId
         ? String(b.fieldId.name)
         : 'Cancha'
-    const cliente = b.clientInfo?.name ? `"${b.clientInfo.name.replace(/"/g, '""')}"` : 'Sin cliente'
+    const cliente = b.clientInfo?.name || 'Sin cliente'
     const metodoPago = b.counterPaymentMethod || (b.paymentType === 'full' ? 'mercadopago' : 'seña')
     const senia = b.depositAmount ?? 0
     const saldoMostrador =
@@ -685,23 +705,38 @@ export async function generateBalanceCsv(
     const total = b.totalAmount ?? 0
     const estado = b.status
 
-    rows.push([
-      dStr,
-      turno,
-      `"${cancha}"`,
-      cliente,
-      metodoPago,
-      senia,
-      saldoMostrador,
-      total,
-      estado,
-    ].join(','))
+    xmlRows.push(
+      `<Row>${[
+        xmlCell(dStr),
+        xmlCell(turno),
+        xmlCell(cancha),
+        xmlCell(cliente),
+        xmlCell(metodoPago),
+        xmlCell(senia),
+        xmlCell(saldoMostrador),
+        xmlCell(total),
+        xmlCell(estado),
+      ].join('')}</Row>`
+    )
   }
 
+  const content = [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<?mso-application progid="Excel.Sheet"?>',
+    '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"',
+    ' xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">',
+    '<Styles>',
+    '<Style ss:ID="Header"><Font ss:Bold="1" ss:Color="#FFFFFF"/><Interior ss:Color="#171717" ss:Pattern="Solid"/></Style>',
+    '</Styles>',
+    '<Worksheet ss:Name="Balance Copa 5">',
+    '<Table>',
+    ...xmlRows,
+    '</Table>',
+    '</Worksheet>',
+    '</Workbook>',
+  ].join('\n')
+
   const todayStr = new Date().toISOString().slice(0, 10)
-  const filename = `copa5-balance-${startDate || todayStr}.csv`
-  return {
-    filename,
-    csv: '\uFEFF' + rows.join('\r\n'),
-  }
+  const filename = `copa5-balance-${startDate || todayStr}.xls`
+  return { filename, content }
 }

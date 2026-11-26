@@ -65,3 +65,19 @@ export const webhookLimiter = rateLimit({
   legacyHeaders: false,
   store: buildStore('copa5:rl:webhook:'),
 })
+
+/**
+ * Tablón comunitario: evita publicación masiva automatizada de avisos.
+ */
+export const communityCreateLimiter = rateLimit({
+  windowMs: 15 * MINUTE,
+  limit: 5,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  store: buildStore('copa5:rl:community:'),
+  message: {
+    error: {
+      message: 'Publicaste demasiados avisos recientemente. Esperá unos minutos antes de publicar otro.',
+    },
+  },
+})

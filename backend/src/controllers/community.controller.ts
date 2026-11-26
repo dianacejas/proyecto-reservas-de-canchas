@@ -61,20 +61,23 @@ export const closeCommunityNotice = asyncHandler(async (req, res) => {
     throw new AppError(400, 'ID de aviso inválido')
   }
 
-  const notice = assertFound(
-    await CommunityNotice.findByIdAndUpdate(
-      paramsParsed.data.id,
-      { status: 'completado' },
-      { new: true }
-    ),
+  const existing = assertFound(
+    await CommunityNotice.findById(paramsParsed.data.id),
     'Aviso no encontrado'
   )
+
+  if (req.user?.role !== 'admin' && existing.userId?.toString() !== req.user?.id) {
+    throw new AppError(403, 'Solo el autor o un administrador puede cerrar este aviso')
+  }
+
+  existing.status = 'completado'
+  await existing.save()
 
   res.json({
     success: true,
     data: {
-      ...notice.toJSON(),
-      id: notice._id.toString(),
+      ...existing.toJSON(),
+      id: existing._id.toString(),
     },
   })
 })

@@ -111,7 +111,7 @@ export default function CommunityBoard(): React.JSX.Element {
 
         <Button
           variant="primary"
-          className="min-h-11 shrink-0 rounded-xl bg-[#c5d86d] px-5 font-black text-neutral-950 shadow-[0_0_20px_rgba(197,216,109,0.18)] transition-all hover:bg-[#b5c85d]"
+          className="min-h-11 w-full sm:w-auto shrink-0 rounded-xl bg-[#c5d86d] px-5 font-black text-neutral-950 shadow-[0_0_20px_rgba(197,216,109,0.18)] transition-all hover:bg-[#b5c85d]"
           onPress={handlePublishClick}
         >
           + Publicar aviso

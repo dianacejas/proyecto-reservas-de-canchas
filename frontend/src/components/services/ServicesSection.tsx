@@ -57,7 +57,7 @@ export default function ServicesSection(): React.JSX.Element {
   return (
     <section className="space-y-6">
       <div className="flex flex-col gap-2">
-        <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white">
+        <h2 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight text-white">
           Instalaciones <span className="text-neutral-400 font-light">|</span>{' '}
           <span className="text-[#c5d86d]">y comodidades</span>
         </h2>

@@ -85,7 +85,7 @@ export default function VenueAdvantages(): React.JSX.Element {
           <span className="inline-flex items-center gap-2 rounded-full border border-[#c5d86d]/30 bg-[#c5d86d]/15 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#c5d86d]">
             Estándar Copa 5
           </span>
-          <h2 className="mt-2 text-3xl font-black tracking-tight text-white md:text-4xl">
+          <h2 className="mt-2 text-2xl sm:text-3xl font-black tracking-tight text-white md:text-4xl">
             Pensado para jugar <span className="text-neutral-400 font-light">|</span>{' '}
             <span className="text-[#c5d86d]">sin fricciones</span>
           </h2>

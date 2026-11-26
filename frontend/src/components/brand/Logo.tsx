@@ -66,10 +66,10 @@ export const Logo: React.FC<LogoProps> = ({
       {/* Tipografía de marca */}
       {showText && (
         <div className="flex flex-col justify-center">
-          <span className="text-xl font-black tracking-tight leading-none text-white">
+          <span className="whitespace-nowrap text-lg sm:text-xl font-black tracking-tight leading-none text-white">
             Copa 5
           </span>
-          <span className="text-[9px] font-bold tracking-[0.22em] uppercase mt-0.5 text-neutral-400">
+          <span className="whitespace-nowrap text-[8.5px] sm:text-[9px] font-bold tracking-[0.2em] sm:tracking-[0.22em] uppercase mt-0.5 text-neutral-400">
             {subtitle}
           </span>
         </div>

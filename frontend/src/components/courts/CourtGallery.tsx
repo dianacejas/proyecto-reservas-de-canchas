@@ -22,7 +22,7 @@ export default function CourtGallery(): React.JSX.Element {
     <section className="space-y-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white">
+          <h2 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight text-white">
             Nuestro complejo <span className="text-neutral-400 font-light">|</span>{' '}
             <span className="text-[#c5d86d]">
               {courtsToDisplay.length > 0 ? `${courtsToDisplay.length} canchas pro` : 'Canchas pro'}

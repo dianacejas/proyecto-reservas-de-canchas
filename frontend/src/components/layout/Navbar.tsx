@@ -201,10 +201,10 @@ export default function Navbar(): React.JSX.Element {
       ref={headerRef}
       className="fixed top-0 left-0 right-0 z-50 bg-neutral-950/80 backdrop-blur-md border-b border-white/10 transition-all duration-300"
     >
-      <nav className="mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-3.5">
+      <nav className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-3 sm:px-6 sm:py-3.5">
         <div className="flex min-w-0 items-center gap-2">
           <NavLink to="/" end aria-label="Copa 5 - Inicio" className="shrink-0">
-            <Logo className="h-9 w-9 sm:h-10 sm:w-10" />
+            <Logo className="h-9 sm:h-10" />
           </NavLink>
         </div>
 

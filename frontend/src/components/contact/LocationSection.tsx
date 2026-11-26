@@ -61,7 +61,7 @@ export default function LocationSection(): React.JSX.Element {
   return (
     <section className="space-y-6">
       <div className="flex flex-col gap-2">
-        <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white">
+        <h2 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight text-white">
           Ubicación <span className="text-neutral-400 font-light">|</span>{' '}
           <span className="text-[#c5d86d]">y sedes</span>
         </h2>
@@ -95,12 +95,12 @@ export default function LocationSection(): React.JSX.Element {
             </p>
           </div>
 
-          <div className="mt-auto flex flex-wrap items-center gap-3">
+          <div className="mt-auto grid grid-cols-2 gap-2.5 sm:flex sm:flex-wrap sm:items-center sm:gap-3">
             <a
               href={directionsUrl(location)}
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-stone-900 text-white hover:bg-stone-800 font-bold px-4 py-2.5 rounded-xl transition-colors flex items-center gap-2"
+              className="bg-stone-900 text-white hover:bg-stone-800 font-bold px-3.5 sm:px-4 py-2.5 rounded-xl transition-colors flex items-center justify-center gap-2 text-xs sm:text-sm"
             >
               <DirectionsIcon />
               Cómo llegar
@@ -109,7 +109,7 @@ export default function LocationSection(): React.JSX.Element {
               href={directionsUrl(location).replace('/dir/', '/maps/')}
               target="_blank"
               rel="noopener noreferrer"
-              className="border font-semibold px-4 py-2.5 rounded-xl transition-colors border-white/20 bg-white/5 text-white hover:bg-white/10"
+              className="border font-semibold px-3.5 sm:px-4 py-2.5 rounded-xl transition-colors border-white/20 bg-white/5 text-white hover:bg-white/10 flex items-center justify-center text-xs sm:text-sm"
             >
               Ver en Maps
             </a>
@@ -117,7 +117,7 @@ export default function LocationSection(): React.JSX.Element {
               href={WHATSAPP_HREF}
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-[#25D366] text-white hover:bg-[#20ba5a] font-bold px-4 py-2.5 rounded-xl transition-colors flex items-center gap-2"
+              className="col-span-2 sm:col-span-1 bg-[#25D366] text-white hover:bg-[#20ba5a] font-bold px-4 py-2.5 rounded-xl transition-colors flex items-center justify-center gap-2 text-xs sm:text-sm"
             >
               <WhatsAppIcon className="size-4" />
               Consultar por WhatsApp

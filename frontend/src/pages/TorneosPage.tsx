@@ -163,7 +163,7 @@ function TrophyWatermark(): React.JSX.Element {
         strokeLinecap="round"
         strokeLinejoin="round"
         focusable="false"
-        className="relative size-56 stroke-white/60 sm:size-72 md:size-80"
+        className="relative size-44 stroke-white/15 sm:size-72 sm:stroke-white/35 md:size-80"
       >
         <path d="M6 3h12v6a6 6 0 0 1-12 0V3Z" />
         <path d="M6 5H3v2a4 4 0 0 0 4 4" />
@@ -184,7 +184,9 @@ function buildFacts(tournament: Tournament): { icon: React.JSX.Element; label: s
       label:
         tournament.teamsCount !== undefined
           ? `${tournament.teamsCount} ${tournament.teamsCount === 1 ? 'Equipo' : 'Equipos'} participantes`
-          : 'Equipos por confirmar',
+          : tournament.status === 'inscripcion'
+            ? 'Inscripción de equipos abierta'
+            : 'Equipos oficiales confirmados',
     },
     { icon: <PinIcon />, label: 'Canchas techadas y descubiertas' },
     { icon: <TrophyIcon />, label: 'Premios y Trofeo Copa 5' },
@@ -302,8 +304,8 @@ export default function TorneosPage(): React.JSX.Element {
                     <h2 className="text-2xl font-black tracking-wide text-white md:text-3xl">
                       {tournament.name}
                     </h2>
-                    <p className="mt-1 text-sm text-white/60">
-                      Fase de grupos y eliminatorias por elimination directa.
+                    <p className="mt-1 text-sm text-white/65">
+                      Fase de grupos y eliminatorias por eliminación directa.
                     </p>
                   </div>
 
@@ -324,7 +326,7 @@ export default function TorneosPage(): React.JSX.Element {
                       Explorar Torneo
                       <ArrowIcon />
                     </span>
-                    <span className="text-xs uppercase tracking-[0.14em] text-white/90 hover:text-white">
+                    <span className="w-full text-center text-[11px] sm:w-auto sm:text-left sm:text-xs uppercase tracking-[0.14em] text-white/85 hover:text-white">
                       Fixture · Posiciones · Eliminatorias
                     </span>
                   </div>

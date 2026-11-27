@@ -34,7 +34,7 @@ export default function CourtGallery(): React.JSX.Element {
         </div>
       </div>
 
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-6 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-3">
         {courtsToDisplay.map((court, index) => {
           const sportLabel = resolveCourtSportLabel(court)
           const dimensions = resolveCourtDimensions(court)
@@ -42,7 +42,11 @@ export default function CourtGallery(): React.JSX.Element {
           const isCovered = court.isCovered ?? court.name.toLowerCase().includes('techad')
 
           return (
-            <FadeUp key={court.id} delayMs={index * 90} className="h-full">
+            <FadeUp
+              key={court.id}
+              delayMs={index * 90}
+              className="h-full w-[82vw] max-w-[21rem] shrink-0 snap-center sm:w-auto sm:max-w-none sm:shrink"
+            >
               <figure className="group h-full overflow-hidden rounded-2xl border shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] transition-all duration-300 hover:-translate-y-1 hover:border-stone-300 hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1)] border-white/10 bg-neutral-900/50">
                 <div className="relative aspect-[4/3] overflow-hidden">
                   <img

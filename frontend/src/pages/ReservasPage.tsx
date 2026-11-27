@@ -486,7 +486,7 @@ export default function ReservasPage(): React.JSX.Element {
                 onRetry={() => void bookingsQuery.refetch()}
               />
             ) : (
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+              <div className="grid grid-cols-3 gap-2 sm:gap-3 lg:grid-cols-4">
                 {filteredSlots.map((slot, index) => {
                   const isLibre = slot.kind === 'libre'
                   const slotBasePrice = slot.isPeak
@@ -513,40 +513,51 @@ export default function ReservasPage(): React.JSX.Element {
                         <button
                           type="button"
                           onClick={() => setSelectedSlot(slot)}
-                          className={`group flex w-full items-center justify-between rounded-xl border border-neutral-800 bg-neutral-900 p-3 text-left transition-all duration-150 active:scale-95 active:ring-2 active:ring-[#c5d86d] active:shadow-[0_0_20px_rgba(197,216,109,0.35)] ${
+                          className={`group flex w-full flex-col items-start justify-between gap-1.5 rounded-xl border border-neutral-800 bg-neutral-900 p-2.5 text-left transition-all duration-150 active:scale-95 active:ring-2 active:ring-[#c5d86d] active:shadow-[0_0_20px_rgba(197,216,109,0.35)] sm:flex-row sm:items-center sm:p-3 ${
                             selectedSlot?.start === slot.start
                               ? 'ring-2 ring-[#c5d86d] shadow-[0_0_20px_rgba(197,216,109,0.35)]'
                               : 'hover:border-[#c5d86d] hover:shadow-md'
                           }`}
                         >
-                          <div className="flex flex-col items-start gap-1">
-                            <div className="flex items-center gap-1.5">
-                              <span className="font-mono text-base font-bold text-white">
+                          <div className="flex w-full flex-col items-start gap-1 sm:w-auto">
+                            <div className="flex w-full items-center justify-between gap-1 sm:w-auto sm:justify-start sm:gap-1.5">
+                              <span className="font-mono text-sm font-bold text-white sm:text-base">
                                 {slot.start}
                               </span>
-                              {slot.start >= '20:00' && slot.start <= '22:00' && freeNightSlotsCount <= 2 && (
-                                <span className="rounded bg-[#c5d86d]/20 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-[#c5d86d]">
-                                  Último slot
-                                </span>
+                              {slot.start >= '20:00' && slot.start <= '22:00' && freeNightSlotsCount <= 2 ? (
+                                <>
+                                  <span
+                                    title="Último slot"
+                                    className="size-2 rounded-full bg-[#c5d86d] sm:hidden"
+                                  />
+                                  <span className="hidden rounded bg-[#c5d86d]/20 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-[#c5d86d] sm:inline">
+                                    Último slot
+                                  </span>
+                                </>
+                              ) : (
+                                <ArrowRightIcon className="size-3 text-[#c5d86d] sm:hidden" />
                               )}
                             </div>
-                            <span className="rounded-md bg-neutral-800 px-2 py-0.5 text-[10px] font-bold text-stone-300">
-                              ${displaySlotPrice.toLocaleString('es-AR')} {splitByTen ? 'c/u' : ''} ·{' '}
-                              {slot.isPeak ? 'Pico' : 'Promo'}
+                            <span className="w-full truncate rounded-md bg-neutral-800 px-1.5 py-0.5 text-[10px] font-bold text-stone-300 sm:w-auto sm:px-2">
+                              ${displaySlotPrice.toLocaleString('es-AR')}
+                              {splitByTen ? ' c/u' : ''}
+                              <span className="hidden sm:inline">
+                                {' '}· {slot.isPeak ? 'Pico' : 'Promo'}
+                              </span>
                             </span>
                           </div>
-                          <div className="flex items-center gap-1.5 text-xs font-bold text-[#c5d86d]">
-                            <span className="hidden sm:inline">Reservar</span>
+                          <div className="hidden items-center gap-1.5 text-xs font-bold text-[#c5d86d] sm:flex">
+                            <span>Reservar</span>
                             <ArrowRightIcon className="size-3.5 transition-transform group-hover:translate-x-1" />
                           </div>
                         </button>
                       ) : (
-                        <div className="flex w-full items-center justify-between rounded-xl border border-neutral-800/80 bg-neutral-900/40 p-3 opacity-75">
-                          <div className="flex min-w-0 flex-col items-start gap-1">
-                            <span className="font-mono text-base font-bold text-neutral-400">
+                        <div className="flex w-full flex-col items-start justify-between gap-1.5 rounded-xl border border-neutral-800/80 bg-neutral-900/40 p-2.5 opacity-75 sm:flex-row sm:items-center sm:p-3">
+                          <div className="flex w-full min-w-0 flex-col items-start gap-1 sm:w-auto">
+                            <span className="font-mono text-sm font-bold text-neutral-400 sm:text-base">
                               {slot.start}
                             </span>
-                            <div className="flex items-center gap-1">
+                            <div className="flex w-full items-center gap-1">
                               <LockIcon className="size-3 shrink-0 text-neutral-500" />
                               <span className="truncate text-[10px] font-semibold text-neutral-400">
                                 {chipMeta?.label ?? 'Ocupado'}
@@ -557,7 +568,7 @@ export default function ReservasPage(): React.JSX.Element {
                             <Button
                               variant="outline"
                               size="sm"
-                              className="h-8 shrink-0 text-xs"
+                              className="h-7 w-full shrink-0 text-[11px] sm:h-8 sm:w-auto sm:text-xs"
                               onPress={() =>
                                 statusMutation.mutate({ id: booking.id, status: 'confirmada' })
                               }
@@ -568,7 +579,7 @@ export default function ReservasPage(): React.JSX.Element {
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="h-8 shrink-0 text-xs"
+                              className="h-7 w-full shrink-0 text-[11px] sm:h-8 sm:w-auto sm:text-xs"
                               onPress={() =>
                                 statusMutation.mutate({ id: booking.id, status: 'cancelada' })
                               }
@@ -576,7 +587,7 @@ export default function ReservasPage(): React.JSX.Element {
                               Cancelar
                             </Button>
                           ) : (
-                            <span className="text-[11px] font-medium text-neutral-500">
+                            <span className="hidden text-[11px] font-medium text-neutral-500 sm:inline">
                               No disp.
                             </span>
                           )}

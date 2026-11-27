@@ -1,9 +1,19 @@
-import { Button, Chip } from '@heroui/react'
+import { Button, Chip, Meter, ProgressBar, ProgressCircle } from '@heroui/react'
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { downloadBalanceExcel, getAdminMetrics, queryKeys } from '../../api'
 import { getErrorMessage } from '../../api/client'
-import { DownloadIcon, FileTextIcon as FileText, PrinterIcon } from '../common/Icons'
+import {
+  AlertTriangleIcon,
+  BoltIcon,
+  ClockIcon,
+  DownloadIcon,
+  FileTextIcon as FileText,
+  FlameIcon,
+  PrinterIcon,
+  ShieldCheckIcon,
+  TrophyIcon,
+} from '../common/Icons'
 import ErrorState from '../common/ErrorState'
 import Loading from '../common/Loading'
 import DateNav from '../booking/DateNav'
@@ -190,35 +200,96 @@ export default function AdminMetrics(): React.JSX.Element {
       </div>
 
       <div className="break-inside-avoid rounded-2xl border border-neutral-800 bg-neutral-900/90 p-5 shadow-[0_8px_30px_rgb(0,0,0,0.4)] print:border-neutral-300 print:bg-white print:shadow-none">
-        <p className="text-xs font-bold uppercase tracking-wider text-neutral-400 print:text-neutral-600">
-          Distribución de turnos en el período
-        </p>
-        <div className="mt-3.5 grid grid-cols-2 gap-3 sm:grid-cols-5 print:grid-cols-5 print:gap-2.5">
-          <div className="rounded-xl border border-neutral-800/80 bg-neutral-950/70 p-3 text-center print:border-neutral-200 print:bg-neutral-50">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className="text-xs font-bold uppercase tracking-wider text-neutral-400 print:text-neutral-600">
+            Distribución de turnos en el período
+          </p>
+          <span className="text-xs font-semibold text-neutral-400">
+            Total:{' '}
+            <strong className="text-white print:text-neutral-950">
+              {metrics.turnos.confirmadas +
+                metrics.turnos.pendientes +
+                metrics.turnos.pagadas +
+                metrics.turnos.bloqueadas +
+                metrics.turnos.canceladas}
+            </strong>
+          </span>
+        </div>
+
+        {/* Barra apilada segmentada */}
+        <TurnosDistributionBar turnos={metrics.turnos} />
+
+        <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-5 sm:gap-3 print:grid-cols-5 print:gap-2.5">
+          <div className="rounded-xl border border-[#c5d86d]/25 bg-[#c5d86d]/[0.06] p-3 text-center print:border-neutral-200 print:bg-neutral-50">
             <div className="flex items-center justify-center gap-1.5">
               <span className="size-2 rounded-full bg-[#c5d86d]" />
-              <span className="text-xs font-semibold text-neutral-400 print:text-neutral-600">Confirmados</span>
+              <span className="text-xs font-semibold text-neutral-300 print:text-neutral-600">Confirmados</span>
             </div>
-            <p className="mt-1.5 text-xl font-black text-white print:text-neutral-950">{metrics.turnos.confirmadas}</p>
+            <p className="mt-1.5 text-xl font-black text-[#c5d86d] print:text-neutral-950">{metrics.turnos.confirmadas}</p>
           </div>
-          <div className="rounded-xl border border-neutral-800/80 bg-neutral-950/70 p-3 text-center print:border-neutral-200 print:bg-neutral-50">
-            <span className="block text-xs font-semibold text-neutral-400 print:text-neutral-600">Pendientes</span>
-            <p className="mt-1.5 text-xl font-black text-white print:text-neutral-950">{metrics.turnos.pendientes}</p>
+          <div className="rounded-xl border border-amber-500/20 bg-amber-500/[0.06] p-3 text-center print:border-neutral-200 print:bg-neutral-50">
+            <div className="flex items-center justify-center gap-1.5">
+              <span className="size-2 rounded-full bg-amber-400" />
+              <span className="text-xs font-semibold text-neutral-300 print:text-neutral-600">Pendientes</span>
+            </div>
+            <p className="mt-1.5 text-xl font-black text-amber-300 print:text-neutral-950">{metrics.turnos.pendientes}</p>
           </div>
-          <div className="rounded-xl border border-neutral-800/80 bg-neutral-950/70 p-3 text-center print:border-neutral-200 print:bg-neutral-50">
-            <span className="block text-xs font-semibold text-neutral-400 print:text-neutral-600">Liquidados</span>
-            <p className="mt-1.5 text-xl font-black text-white print:text-neutral-950">{metrics.turnos.pagadas}</p>
+          <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/[0.06] p-3 text-center print:border-neutral-200 print:bg-neutral-50">
+            <div className="flex items-center justify-center gap-1.5">
+              <span className="size-2 rounded-full bg-emerald-400" />
+              <span className="text-xs font-semibold text-neutral-300 print:text-neutral-600">Liquidados</span>
+            </div>
+            <p className="mt-1.5 text-xl font-black text-emerald-300 print:text-neutral-950">{metrics.turnos.pagadas}</p>
           </div>
-          <div className="rounded-xl border border-neutral-800/80 bg-neutral-950/70 p-3 text-center print:border-neutral-200 print:bg-neutral-50">
-            <span className="block text-xs font-semibold text-neutral-400 print:text-neutral-600">Bloqueos</span>
-            <p className="mt-1.5 text-xl font-black text-white print:text-neutral-950">{metrics.turnos.bloqueadas}</p>
+          <div className="rounded-xl border border-sky-500/20 bg-sky-500/[0.06] p-3 text-center print:border-neutral-200 print:bg-neutral-50">
+            <div className="flex items-center justify-center gap-1.5">
+              <span className="size-2 rounded-full bg-sky-400" />
+              <span className="text-xs font-semibold text-neutral-300 print:text-neutral-600">Bloqueos</span>
+            </div>
+            <p className="mt-1.5 text-xl font-black text-sky-300 print:text-neutral-950">{metrics.turnos.bloqueadas}</p>
           </div>
-          <div className="rounded-xl border border-neutral-800/80 bg-neutral-950/70 p-3 text-center print:border-neutral-200 print:bg-neutral-50">
-            <span className="block text-xs font-semibold text-neutral-400 print:text-neutral-600">Cancelados</span>
-            <p className="mt-1.5 text-xl font-black text-white print:text-neutral-950">{metrics.turnos.canceladas}</p>
+          <div className="col-span-2 rounded-xl border border-rose-500/20 bg-rose-500/[0.06] p-3 text-center sm:col-span-1 print:col-span-1 print:border-neutral-200 print:bg-neutral-50">
+            <div className="flex items-center justify-center gap-1.5">
+              <span className="size-2 rounded-full bg-rose-400" />
+              <span className="text-xs font-semibold text-neutral-300 print:text-neutral-600">Cancelados</span>
+            </div>
+            <p className="mt-1.5 text-xl font-black text-rose-300 print:text-neutral-950">{metrics.turnos.canceladas}</p>
           </div>
         </div>
       </div>
+    </div>
+  )
+}
+
+function TurnosDistributionBar({ turnos }: { turnos: DailyMetrics['turnos'] }): React.JSX.Element {
+  const total =
+    turnos.confirmadas + turnos.pendientes + turnos.pagadas + turnos.bloqueadas + turnos.canceladas
+
+  if (total === 0) {
+    return (
+      <div className="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-neutral-800/80 print:hidden" />
+    )
+  }
+
+  const segments = [
+    { key: 'confirmadas', count: turnos.confirmadas, color: 'bg-[#c5d86d]' },
+    { key: 'pagadas', count: turnos.pagadas, color: 'bg-emerald-400' },
+    { key: 'pendientes', count: turnos.pendientes, color: 'bg-amber-400' },
+    { key: 'bloqueadas', count: turnos.bloqueadas, color: 'bg-sky-400' },
+    { key: 'canceladas', count: turnos.canceladas, color: 'bg-rose-400' },
+  ]
+
+  return (
+    <div className="mt-3 flex h-2.5 w-full overflow-hidden rounded-full bg-neutral-800/80 print:hidden">
+      {segments.map((seg) =>
+        seg.count > 0 ? (
+          <div
+            key={seg.key}
+            className={`${seg.color} h-full transition-all duration-500`}
+            style={{ width: `${(seg.count / total) * 100}%` }}
+          />
+        ) : null
+      )}
     </div>
   )
 }
@@ -227,19 +298,34 @@ function CajaCard({ metrics, mode }: { metrics: DailyMetrics; mode: 'dia' | 'sem
   const onlineRev = metrics.onlineRevenue ?? metrics.recaudacion.pasarela
   const counterRev = metrics.counterRevenue?.total ?? metrics.recaudacion.mostrador
   const totalRev = metrics.totalRevenue ?? metrics.recaudacion.total
+  const onlineShare = totalRev > 0 ? Math.round((onlineRev / totalRev) * 100) : 0
 
   return (
-    <div className={CARD}>
-      <p className={LABEL}>{mode === 'semana' ? 'Caja Semanal' : 'Caja de Hoy'}</p>
-      <p className={VALUE}>{formatCurrency(totalRev)}</p>
+    <div className="break-inside-avoid relative overflow-hidden rounded-2xl border border-[#c5d86d]/35 bg-gradient-to-br from-neutral-900 via-neutral-900 to-[#c5d86d]/10 p-5 shadow-[0_8px_30px_rgba(197,216,109,0.08)] transition-all hover:border-[#c5d86d]/60 print:border-neutral-300 print:bg-white print:bg-none print:text-neutral-950 print:shadow-none">
+      <div className="flex items-center justify-between gap-2">
+        <p className={LABEL}>{mode === 'semana' ? 'Caja Semanal' : 'Caja de Hoy'}</p>
+        <span className="flex size-8 items-center justify-center rounded-xl bg-[#c5d86d]/15 text-[#c5d86d] print:hidden">
+          <BoltIcon className="size-4" />
+        </span>
+      </div>
+      <p className="mt-1.5 text-3xl font-black tracking-tight text-[#c5d86d] print:text-neutral-950">
+        {formatCurrency(totalRev)}
+      </p>
       <div className={SUB_BOX}>
         <div className={ROW}>
           <span className={ROW_LABEL}>Señas online (MP)</span>
-          <span className="font-bold text-[#c5d86d]">{formatCurrency(onlineRev)}</span>
+          <span className="font-bold text-[#c5d86d] print:text-neutral-900">{formatCurrency(onlineRev)}</span>
         </div>
         <div className={ROW}>
           <span className={ROW_LABEL}>Recaudación mostrador</span>
           <span className={ROW_VALUE}>{formatCurrency(counterRev)}</span>
+        </div>
+        <div className="pt-1 print:hidden">
+          <Meter aria-label="Proporción señas online sobre caja total" value={onlineShare} color="success" size="sm">
+            <Meter.Track className="h-1.5 bg-neutral-800">
+              <Meter.Fill className="bg-[#c5d86d]" />
+            </Meter.Track>
+          </Meter>
         </div>
       </div>
     </div>
@@ -253,24 +339,41 @@ function DesgloseMostradorCard({ metrics }: { metrics: DailyMetrics }): React.JS
     debito: 0,
     total: metrics.recaudacion.mostrador,
   }
+  const safeTotal = Math.max(breakdown.total, 1)
+  const items = [
+    { label: 'Efectivo', amount: breakdown.efectivo, color: 'success' as const, barClass: 'bg-[#c5d86d]' },
+    { label: 'Transferencias', amount: breakdown.transferencia, color: 'accent' as const, barClass: 'bg-sky-400' },
+    { label: 'Débito', amount: breakdown.debito, color: 'warning' as const, barClass: 'bg-amber-400' },
+  ]
 
   return (
     <div className={CARD}>
-      <p className={LABEL}>Desglose Mostrador</p>
+      <div className="flex items-center justify-between gap-2">
+        <p className={LABEL}>Desglose Mostrador</p>
+        <span className="flex size-8 items-center justify-center rounded-xl bg-sky-500/15 text-sky-400 print:hidden">
+          <ShieldCheckIcon className="size-4" />
+        </span>
+      </div>
       <p className={VALUE}>{formatCurrency(breakdown.total)}</p>
       <div className={SUB_BOX}>
-        <div className={ROW}>
-          <span className={ROW_LABEL}>Efectivo</span>
-          <span className={ROW_VALUE}>{formatCurrency(breakdown.efectivo)}</span>
-        </div>
-        <div className={ROW}>
-          <span className={ROW_LABEL}>Transferencias</span>
-          <span className={ROW_VALUE}>{formatCurrency(breakdown.transferencia)}</span>
-        </div>
-        <div className={ROW}>
-          <span className={ROW_LABEL}>Débito</span>
-          <span className={ROW_VALUE}>{formatCurrency(breakdown.debito)}</span>
-        </div>
+        {items.map((item) => {
+          const pct = breakdown.total > 0 ? Math.round((item.amount / safeTotal) * 100) : 0
+          return (
+            <div key={item.label} className="space-y-1">
+              <div className={ROW}>
+                <span className={ROW_LABEL}>{item.label}</span>
+                <span className={ROW_VALUE}>{formatCurrency(item.amount)}</span>
+              </div>
+              <div className="print:hidden">
+                <Meter aria-label={item.label} value={pct} color={item.color} size="sm">
+                  <Meter.Track className="h-1 bg-neutral-800">
+                    <Meter.Fill className={item.barClass} />
+                  </Meter.Track>
+                </Meter>
+              </div>
+            </div>
+          )
+        })}
       </div>
     </div>
   )
@@ -281,48 +384,75 @@ function OcupacionCard({ metrics, mode }: { metrics: DailyMetrics; mode: 'dia' |
 
   return (
     <div className={CARD}>
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2">
         <p className={LABEL}>{mode === 'semana' ? 'Ocupación Semanal' : 'Ocupación Diaria'}</p>
-        <Chip color="success" size="sm">
+        <Chip color={porcentaje >= 60 ? 'success' : 'accent'} size="sm">
           {porcentaje}%
         </Chip>
       </div>
-      <p className={VALUE}>
-        {porcentaje}%
-      </p>
-      <div className={SUB_BOX}>
-        <div className={ROW}>
-          <span className={ROW_LABEL}>Turnos ocupados</span>
-          <span className={ROW_VALUE}>
-            {metrics.ocupacion.ocupados} / {metrics.ocupacion.totalTurnos}
-          </span>
+
+      <div className="mt-2 flex items-center justify-between gap-3">
+        <div>
+          <p className={VALUE}>{porcentaje}%</p>
+          <p className="mt-0.5 text-xs text-neutral-400 print:text-neutral-600">
+            {metrics.ocupacion.ocupados} / {metrics.ocupacion.totalTurnos} turnos
+          </p>
         </div>
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-neutral-800">
-          <div
-            className="h-full rounded-full bg-[#c5d86d] transition-all duration-300"
-            style={{ width: `${Math.min(porcentaje, 100)}%` }}
-          />
+        <div className="print:hidden">
+          <ProgressCircle aria-label="Ocupación de turnos" value={porcentaje} size="lg" color="success">
+            <ProgressCircle.Track className="size-14">
+              <ProgressCircle.TrackCircle className="stroke-neutral-800" />
+              <ProgressCircle.FillCircle className="stroke-[#c5d86d]" />
+            </ProgressCircle.Track>
+          </ProgressCircle>
         </div>
+      </div>
+
+      <div className="mt-3 print:hidden">
+        <ProgressBar aria-label="Barra de ocupación" value={porcentaje} color="success" size="sm">
+          <ProgressBar.Track className="h-1.5 bg-neutral-800">
+            <ProgressBar.Fill className="bg-[#c5d86d]" />
+          </ProgressBar.Track>
+        </ProgressBar>
       </div>
     </div>
   )
 }
 
 function SaldoCard({ metrics }: { metrics: DailyMetrics }): React.JSX.Element {
+  const senas = metrics.saldoPorCobrar.senasAbonadas
+  const saldo = metrics.saldoPorCobrar.saldoRestante
+  const totalPendiente = senas + saldo
+  const cobradoPct = totalPendiente > 0 ? Math.round((senas / totalPendiente) * 100) : 0
+
   return (
     <div className={CARD}>
-      <p className={LABEL}>Saldo por Cobrar</p>
-      <p className={VALUE}>{formatCurrency(metrics.saldoPorCobrar.saldoRestante)}</p>
+      <div className="flex items-center justify-between gap-2">
+        <p className={LABEL}>Saldo por Cobrar</p>
+        <span className="flex size-8 items-center justify-center rounded-xl bg-amber-500/15 text-amber-400 print:hidden">
+          <AlertTriangleIcon className="size-4" />
+        </span>
+      </div>
+      <p className="mt-1.5 text-3xl font-black tracking-tight text-amber-300 print:text-neutral-950">
+        {formatCurrency(saldo)}
+      </p>
       <div className={SUB_BOX}>
         <div className={ROW}>
           <span className={ROW_LABEL}>Señas acreditadas</span>
-          <span className={ROW_VALUE}>{formatCurrency(metrics.saldoPorCobrar.senasAbonadas)}</span>
+          <span className={ROW_VALUE}>{formatCurrency(senas)}</span>
         </div>
         <div className={ROW}>
           <span className={ROW_LABEL}>Saldo a liquidar</span>
-          <span className="font-bold text-[#c5d86d]">
-            {formatCurrency(metrics.saldoPorCobrar.saldoRestante)}
+          <span className="font-bold text-amber-300 print:text-neutral-900">
+            {formatCurrency(saldo)}
           </span>
+        </div>
+        <div className="pt-1 print:hidden">
+          <Meter aria-label="Avance de cobro" value={cobradoPct} color="warning" size="sm">
+            <Meter.Track className="h-1.5 bg-neutral-800">
+              <Meter.Fill className="bg-amber-400" />
+            </Meter.Track>
+          </Meter>
         </div>
       </div>
     </div>
@@ -332,8 +462,13 @@ function SaldoCard({ metrics }: { metrics: DailyMetrics }): React.JSX.Element {
 function TopCourtCard({ topCourt }: { topCourt?: DailyMetrics['topCourt'] }): React.JSX.Element {
   return (
     <div className={CARD}>
-      <div className="flex items-center justify-between">
-        <p className={LABEL}>Cancha más solicitada</p>
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <span className="flex size-8 items-center justify-center rounded-xl bg-[#c5d86d]/15 text-[#c5d86d] print:hidden">
+            <TrophyIcon className="size-4" />
+          </span>
+          <p className={LABEL}>Cancha más solicitada</p>
+        </div>
         <Chip color="success" size="sm">
           Líder
         </Chip>
@@ -341,7 +476,7 @@ function TopCourtCard({ topCourt }: { topCourt?: DailyMetrics['topCourt'] }): Re
 
       {topCourt ? (
         <>
-          <p className="mt-1.5 text-2xl font-black tracking-tight text-white print:text-neutral-950">
+          <p className="mt-2 text-2xl font-black tracking-tight text-white print:text-neutral-950">
             {topCourt.name}
           </p>
           <div className={SUB_BOX}>
@@ -369,8 +504,13 @@ function TopCourtCard({ topCourt }: { topCourt?: DailyMetrics['topCourt'] }): Re
 function PeakHourCard({ peakHour }: { peakHour?: DailyMetrics['peakHour'] }): React.JSX.Element {
   return (
     <div className={CARD}>
-      <div className="flex items-center justify-between">
-        <p className={LABEL}>Horario de mayor concurrencia</p>
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <span className="flex size-8 items-center justify-center rounded-xl bg-amber-500/15 text-amber-400 print:hidden">
+            <FlameIcon className="size-4" />
+          </span>
+          <p className={LABEL}>Horario de mayor concurrencia</p>
+        </div>
         {peakHour && (
           <Chip color="warning" size="sm">
             {peakHour.occupancyPercentage}% ocupación
@@ -380,19 +520,26 @@ function PeakHourCard({ peakHour }: { peakHour?: DailyMetrics['peakHour'] }): Re
 
       {peakHour ? (
         <>
-          <p className="mt-1.5 text-2xl font-black tracking-tight text-white print:text-neutral-950">
-            {peakHour.timeSlot}
+          <p className="mt-2 flex items-center gap-2 text-2xl font-black tracking-tight text-white print:text-neutral-950">
+            <ClockIcon className="size-5 text-amber-400 print:hidden" />
+            <span>{peakHour.timeSlot}</span>
           </p>
           <div className={SUB_BOX}>
             <div className={ROW}>
               <span className={ROW_LABEL}>Turnos en franja</span>
               <span className={ROW_VALUE}>{peakHour.bookingsCount}</span>
             </div>
-            <div className="h-1.5 w-full overflow-hidden rounded-full bg-neutral-800">
-              <div
-                className="h-full rounded-full bg-[#c5d86d] transition-all duration-300"
-                style={{ width: `${Math.min(peakHour.occupancyPercentage, 100)}%` }}
-              />
+            <div className="print:hidden">
+              <ProgressBar
+                aria-label="Ocupación en horario pico"
+                value={Math.min(peakHour.occupancyPercentage, 100)}
+                color="warning"
+                size="sm"
+              >
+                <ProgressBar.Track className="h-1.5 bg-neutral-800">
+                  <ProgressBar.Fill className="bg-amber-400" />
+                </ProgressBar.Track>
+              </ProgressBar>
             </div>
           </div>
         </>
